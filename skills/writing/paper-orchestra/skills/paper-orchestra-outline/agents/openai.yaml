@@ -1,0 +1,4 @@
+interface:
+  display_name: "PaperOrchestra · 论文大纲"
+  short_description: "Plan paper structure, claims, figures, and evidence"
+  default_prompt: "用 $paper-orchestra-outline 根据实验日志规划论文大纲。"
