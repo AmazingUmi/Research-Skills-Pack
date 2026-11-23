@@ -28,7 +28,7 @@
 - 归位：deep-research → 文献 `research/` 与大纲 `socratic/`；academic-paper → 正文 `paper/`、大纲 `plan/`、文献 `citation-check/`、审稿 `revision-coach/`、图表 `make/ars-visualization/`；academic-paper-reviewer → 审稿 `panel/`；academic-pipeline → 编排；sr-screener → 文献 `screen/`；experiment-agent → 大纲 `experiment/`；shared → `references/` 与 `engine/`。各 workflow 原文清理后保存为对应目录的 `references/workflow_detail.md`。
 - 默认模式与严格模式：sprint contract、生成—评估合约、re-review 三道门合约、Material Passport 与断点重置等机制移入各角色的 `strict/` 目录，只在严格模式下使用；默认模式改用证据矩阵。
 - 删除：evals、tests、plugin-evals、audits、docs、tools、hooks、pi、commands、多语言 README、Codex 运行时适配层，以及审稿人校准模式、跨模型验证、模型分级、审稿目标标准绑定、跨运行裁决记录、调查分支账本、ARS 审稿团的 `quick`、academic-paper 的 `lit-review` 与 `revision`。路由核心的重复副本、版本与 issue 编号注记、设计文档链接也已去掉。
-- 脚本：只保留文档引用的脚本及其 import 依赖闭包，放在 `engine/scripts/`（79 个），路径改为新布局；评测、发布、文档同步检查与已删除功能的脚本没有保留；维护用的 `stage_capability_matrix.json` 与 1.0 版 re-review 合约也已删除。第三方依赖见 [engine/requirements.txt](research-writing/skills/research-writing/engine/requirements.txt)。JSON schema 的 `$id` 与 `$ref` 保持上游原样（脚本按 `$id` 解析引用）；描述文字中的 issue 编号已去掉。被脚本锁定哈希的 `contracts/reviewer/full.json` 与 `preregistration_template.md` 未改动。
+- 脚本：只保留文档引用的脚本及其 import 依赖闭包，放在 `engine/scripts/`（75 个），路径改为新布局；评测、发布、文档同步检查与已删除功能的脚本没有保留；维护用的 `stage_capability_matrix.json` 与 1.0 版 re-review 合约也已删除。第三方依赖见 [engine/requirements.txt](research-writing/skills/research-writing/engine/requirements.txt)。JSON schema 的 `$id` 与 `$ref` 保持上游原样（脚本按 `$id` 解析引用）；描述文字中的 issue 编号已去掉。被脚本锁定哈希的 `contracts/reviewer/full.json` 与 `preregistration_template.md` 未改动，`check_v3_9_4_temporal_verification.py` 对 `bibliography_agent.md` 的哈希锁已更新为合并后的基线。
 - 环境变量：严格模式脚本读取的变量统一改为 `RW_` 前缀（如 `RW_PASSPORT_RESET`、`RW_CACHE_DIR`）；已删除功能的变量（跨模型、旧版复审、探针等）一并去掉。
 
 #### Nature Skills（写作类）

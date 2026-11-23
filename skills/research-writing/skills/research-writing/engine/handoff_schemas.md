@@ -8,24 +8,12 @@ Consuming agents should validate input and request re-generation if schema viola
 
 > **Convention**: All schemas use Markdown-based structured output. Agents MUST validate required fields before accepting a handoff. Missing required fields trigger a `HANDOFF_INCOMPLETE` failure path.
 
-> **activity exclusion:** adjudication activity is not handoff cargo.
-> the activity projection of the terminal state root `run_id`,
-> `pending_adjudication_activity_bindings[]`, sealed
-> `adjudication_activity_sources`, selected-store information, store records,
-> renderer output, and activity diagnostics remain only in the state tracker's
-> local advisory side channel. They MUST NOT be added to any numbered schema,
-> Material Passport, stage transfer, gate/verdict/checkpoint input, Process
-> Record, or model/observer/compliance input. See
-> `@/roles/orchestrate/agents/state_tracker_agent.md` §
-> "Adjudication-activity metadata". This exclusion does not remove or alter any
-> existing schema-owned `run_id` field used by another contract.
-
 ---
 
-## Schema 1: RQ Brief (the literature role -> the draft role)
+## Schema 1: RQ Brief (`outline` / `literature` -> `draft`)
 
-**Producer**: `the literature role/research_question_agent` | `the literature role/socratic_mentor_agent`
-**Consumer**: `the literature role/research_architect_agent` | `the draft role/intake_agent`
+**Producer**: `literature/research` (`research_question_agent`) | `outline/socratic` (`socratic_mentor_agent`)
+**Consumer**: `literature/research` (`research_architect_agent`) | `draft/paper` (`intake_agent`)
 
 ### Required Fields
 
@@ -682,13 +670,6 @@ equal the carried post draft; matching reported hashes alone are insufficient.
 
 **Purpose**: Accompanies every artifact as it passes between stages, providing provenance and verification tracking.
 
-The activity fields named in the top-level exclusion are deliberately not
-Schema 9 fields. In particular, the projection of the terminal state
-file's root `run_id` plus sealed root `adjudication_activity_sources` are
-activity source/run authority; copying either activity projection into a
-passport would create an unauthorized second authority. Existing independently
-schema-owned `run_id` fields are unaffected.
-
 ### Required Fields
 
 | Field | Type | Description |
@@ -707,14 +688,12 @@ schema-owned `run_id` fields are unaffected.
 | `content_hash` | string | SHA-256 hash of the content (for change detection) |
 | `upstream_dependencies` | list[string] | Version labels of artifacts this one depends on |
 | `repro_lock` | object \| null | configuration lockfile for artifact reproducibility. See [`artifact_reproducibility_pattern.md`](../references/artifact_reproducibility_pattern.md). `null` = honest opt-out. Required — omitted key fails lint. |
-| `compliance_history` | list[object] | Append-only audit trail of `compliance_report` entries (Schema 12). Added . See [Schema 12](#schema-12--compliance-report-v340) and [`@/engine/compliance_report.schema.json`](compliance_report.schema.json). |
-| `reset_boundary` | list[object] | Append-only ledger. Two entry kinds: `boundary` (recorded at FULL checkpoints when `RW_PASSPORT_RESET=1`) and `resume` (recorded when `resume_from_passport` consumes a boundary). Added . Entry shape: [`@/engine/contracts/passport/reset_ledger_entry.schema.json`](contracts/passport/reset_ledger_entry.schema.json). See [`@/roles/orchestrate/strict/passport_as_reset_boundary.md`](../roles/orchestrate/strict/passport_as_reset_boundary.md). |
-| `inquiry_ledger_ref` | object | Optional pointer to the separate opt-in `inquiry-branch-ledger/1.0` user-project artifact. Closed shape: `{ledger_path, ledger_version, content_sha256}` per [`@/engine/contracts/passport/inquiry_ledger_ref.schema.json`](contracts/passport/inquiry_ledger_ref.schema.json). It carries no branch copy. A missing or digest-mismatched target is `LEDGER-BINDING-BROKEN`; a file without this pointer is ignored with a visible notice. Added. |
-| `literature_corpus` | list[object] | Optional append-friendly literature corpus. Each entry conforms to [`@/engine/contracts/passport/literature_corpus_entry.schema.json`](contracts/passport/literature_corpus_entry.schema.json). Produced by user-written adapters (see [`@/roles/orchestrate/references/adapters/overview.md`](../roles/orchestrate/references/adapters/overview.md)); this skill does not produce these entries itself. Added . |
-| `audit_artifact` | list[object] | Optional append-only ledger of cross-model audit runs for downstream-agent deliverables. Each entry conforms to [`@/engine/contracts/passport/audit_artifact_entry.schema.json`](contracts/passport/audit_artifact_entry.schema.json). Produced by the pipeline orchestrator after Layer 2 + Layer 3 verification of wrapper-emitted proposal entries; only `persisted` entries are stored here. Added . |
-| `slr_lineage` | boolean | Run-level provenance flag set by the orchestrate role at the Stage 1 → Stage 2 handoff. `true` iff any stage in this run history was produced by the literature role's research modes in systematic-review mode. Consumed by `disclosure` mode renderer (`--policy-anchor=prisma-trAIce` track gate per `policy_anchor_disclosure_protocol.md` §3.1). Absence = `false` = cold-start path (renderer requires explicit `mode=` per §4.3 G2 invariant fallback rule). Added . See [Run-level lineage signal](#run-level-lineage-signal-v374) below. |
-| `experiment_intake_declaration` | object | Passport-level intake decision. `status` ∈ `{experiments_declared, no_experiments_declared, legacy_unknown}` + `declared_at` + `declared_by: scholar` + optional `scholar_answer` (the scholar's words, unchanged; a non-empty string when present, ). Set at intake by the intake/orchestrator layer for that entry path, NOT by the three manifest writers; in pipeline runs the orchestrator asks the scholar after Stage 1 or at a later entry point (`@/roles/orchestrate/strict/pipeline_orchestrator_agent.md` § Experiment Intake Question). **Fail-closed**: a passport treated-as-post-(the default — only a passport-level `repro_lock.ars_version` proven `< 3.12.0`, the release that shipped, is `legacy_unknown`) with this field ABSENT, or with `status: legacy_unknown`, is a gate FAIL. Even a literature-only run must carry a declaration with `status: no_experiments_declared`, `declared_by: scholar`, and `declared_at`. EP-INV-4 enforces declaration↔provenance symmetry. See [Experiment Provenance Intake](#experiment-provenance-intake-260) below. |
-| `experiment_provenance` | list[object] | Optional scholar-entered ledger of experiments run EXTERNALLY. Each entry conforms to [`@/engine/contracts/passport/experiment_provenance_entry.schema.json`](contracts/passport/experiment_provenance_entry.schema.json) — `experiment_id` (passport-flat, frozen at intake) + nested `repro_lock` (or `null` with `repro_lock_reason`, ) + `planned_vs_executed[]` + `negative_results[]` + `known_limitations[]`. this skill does not run experiments, does not auto-fill provenance, does not judge experiment correctness. Joined from claims via `claim_intent_manifest.planned_experiment_ids[]`. Gated at the integrity verification stage (Stage 2.5/4.5, D6). Added. |
+| `compliance_history` | list[object] | Append-only audit trail of `compliance_report` entries (Schema 12). See [Schema 12](#schema-12--compliance-report) and [`@/engine/compliance_report.schema.json`](compliance_report.schema.json). |
+| `reset_boundary` | list[object] | Append-only ledger. Two entry kinds: `boundary` (recorded at FULL checkpoints when `RW_PASSPORT_RESET=1`) and `resume` (recorded when `resume_from_passport` consumes a boundary). Entry shape: [`@/engine/contracts/passport/reset_ledger_entry.schema.json`](contracts/passport/reset_ledger_entry.schema.json). See [`@/roles/orchestrate/strict/passport_as_reset_boundary.md`](../roles/orchestrate/strict/passport_as_reset_boundary.md). |
+| `literature_corpus` | list[object] | Optional append-friendly literature corpus. Each entry conforms to [`@/engine/contracts/passport/literature_corpus_entry.schema.json`](contracts/passport/literature_corpus_entry.schema.json). Produced by user-written adapters (see [`@/roles/orchestrate/references/adapters/overview.md`](../roles/orchestrate/references/adapters/overview.md)); `research-writing` does not produce these entries itself. |
+| `slr_lineage` | boolean | Run-level provenance flag set by the orchestrate role at the Stage 1 → Stage 2 handoff. `true` iff any stage in this run history was produced by the literature role's research modes in systematic-review mode. Consumed by `disclosure` mode renderer (`--policy-anchor=prisma-trAIce` track gate per `policy_anchor_disclosure_protocol.md` §3.1). Absence = `false` = cold-start path (renderer requires explicit `mode=` per §4.3 G2 invariant fallback rule). See [Run-level lineage signal](#run-level-lineage-signal) below. |
+| `experiment_intake_declaration` | object | Passport-level intake decision. `status` ∈ `{experiments_declared, no_experiments_declared, legacy_unknown}` + `declared_at` + `declared_by: scholar` + optional `scholar_answer` (the scholar's words, unchanged; a non-empty string when present). Set at intake by the intake/orchestrator layer for that entry path, NOT by the three manifest writers; in pipeline runs the orchestrator asks the scholar after Stage 1 or at a later entry point (`@/roles/orchestrate/strict/pipeline_orchestrator_agent.md` § Experiment Intake Question). **Fail-closed**: a passport with this field ABSENT, or with `status: legacy_unknown`, is a gate FAIL (only legacy passports with `repro_lock.ars_version < 3.12.0` qualify as `legacy_unknown`). Even a literature-only run must carry a declaration with `status: no_experiments_declared`, `declared_by: scholar`, and `declared_at`. EP-INV-4 enforces declaration↔provenance symmetry. See [Experiment Provenance Intake](#experiment-provenance-intake) below. |
+| `experiment_provenance` | list[object] | Optional scholar-entered ledger of experiments run EXTERNALLY. Each entry conforms to [`@/engine/contracts/passport/experiment_provenance_entry.schema.json`](contracts/passport/experiment_provenance_entry.schema.json) — `experiment_id` (passport-flat, frozen at intake) + nested `repro_lock` (or `null` with `repro_lock_reason`, ) + `planned_vs_executed[]` + `negative_results[]` + `known_limitations[]`. `research-writing` does not run experiments, does not auto-fill provenance, does not judge experiment correctness. Joined from claims via `claim_intent_manifest.planned_experiment_ids[]`. Gated at the integrity verification stage (Stage 2.5/4.5, D6). Added. |
 | `experiment_alignment_results` | list[object] | Optional aggregate of claim→experiment alignment verdicts — the FOURTH ref_slug-less claim-finding aggregate (alongside `uncited_assertions` / `claim_drifts` / `constraint_violations`). Each entry conforms to [`@/engine/contracts/passport/experiment_alignment_result.schema.json`](contracts/passport/experiment_alignment_result.schema.json); `alignment_verdict` ∈ `{ALIGNED, OVERSTATED, NOT_SUPPORTED_BY_PROVENANCE, PROVENANCE_INSUFFICIENT}`. **Produced by the integrity verification agent AT the gate** (mirrors C3), NOT by the claim-alignment audit agent. EA-INV-1/2 enforce id-uniqueness + reference resolution. Carried forward by the orchestrate role's aggregate hand-off. Added. |
 | `standing_constraints` | list[object] | Optional. Run-wide constraints the user stated in their own turn (a word ceiling, a prohibition, a scope narrowing, or other), in the user's words. Entry shape: [`@/engine/contracts/passport/standing_constraint_entry.schema.json`](contracts/passport/standing_constraint_entry.schema.json); how entries are confirmed and carried: `@/roles/orchestrate/strict/pipeline_orchestrator_agent.md` § Standing Constraints. |
 | `excluded_sources` | list[object] | Optional. References an integrity gate judged `NOT_FOUND`, kept off every later writer dispatch so a revision cannot cite them again; `literature_corpus[]` is not mutated. Entry shape: [`@/engine/contracts/passport/excluded_source_entry.schema.json`](contracts/passport/excluded_source_entry.schema.json); how entries are recorded, carried, and restored: `@/roles/orchestrate/strict/pipeline_orchestrator_agent.md` § Integrity-Excluded Sources. |
@@ -733,23 +712,6 @@ schema-owned `run_id` fields are unaffected.
 - Content Hash: a3f2b7c9...
 - Upstream Dependencies: [research_v1, bibliography_v1, synthesis_v1]
 ```
-
-### Inquiry Branch Ledger Pointer Extension
-
-When `RW_INQUIRY_LEDGER=1` and a second branch is recorded, Schema 9 may gain
-one `inquiry_ledger_ref`. The ledger itself stays beside the passport as a
-canonical JSON user-project artifact; the passport carries only its
-workspace-relative path, exact contract version, and SHA-256 over the complete
-canonical ledger bytes. Profile documents named by the ledger's bindings are
-separate exact inputs and must be supplied to replay—this pointer does not
-silently select a current profile.
-
-The runtime in `@/engine/scripts/inquiry_branch_ledger.py` holds a stable sidecar lock
-and uses a durable recovery journal when publishing ledger and passport bytes.
-Cooperating loads recover a valid pending transaction before checking the
-pointer. Without a valid journal, pointer/file mismatch fails visibly and an
-unpointed candidate is ignored. Neither the pointer nor the ledger changes an
-integrity verdict, authenticates an author, or licenses a quality claim.
 
 ### Reset Boundary Extension
 
@@ -805,7 +767,7 @@ See [`@/roles/orchestrate/strict/passport_as_reset_boundary.md`](../roles/orches
 
 The optional `literature_corpus[]` field is Schema 9's input port for user-owned literature. Each entry is a bibliographic record conforming to `literature_corpus_entry.schema.json` (CSL-JSON author format, β required set).
 
-this skill does not produce these entries. User-written adapters read their own corpus source (Zotero, Obsidian, folder, Notion, etc.) and emit a passport with `literature_corpus[]` populated. Three reference adapters ship with under [`scripts/adapters/`](scripts/adapters/).
+`research-writing` does not produce these entries. User-written adapters read their own corpus source (Zotero, Obsidian, folder, Notion, etc.) and emit a passport with `literature_corpus[]` populated. Three reference adapters ship with under [`scripts/adapters/`](scripts/adapters/).
 
 Consumer integration ships .5: `bibliography_agent` (the literature role, Phase 1) and `literature_strategist_agent` (the draft role, Phase 1) read `literature_corpus[]` via the corpus-first, search-fills-gap flow. See [`@/roles/orchestrate/references/literature_corpus_consumers.md`](../roles/orchestrate/references/literature_corpus_consumers.md) for the full consumer protocol, the four Iron Rules, and per-consumer reading instructions.
 
@@ -877,53 +839,9 @@ checkpoint against the identical accepted-draft artifact ID/SHA-256; a manuscrip
 revision stales both. See
 [`@/references/cross_document_consistency_advisory_protocol.md`](../references/cross_document_consistency_advisory_protocol.md).
 
-### Audit Artifact Ledger
-
-Each entry conforms to [`@/engine/contracts/passport/audit_artifact_entry.schema.json`](contracts/passport/audit_artifact_entry.schema.json).
-
-The ledger stores only `persisted` entries — those merged by the orchestrate role after Layer 2 (JSONL schema) + Layer 3 (sidecar metadata) anti-fake-audit checks pass per the eleven gating checks at §5.2. Wrapper-emitted `proposal` entries live under `audit_artifacts/<run_id>.audit_artifact_entry.json` until orchestrator consumes them; they never reach the passport.
-
-```yaml
-audit_artifact:
-  - stage: 2                                   # destination stage gated by this audit
-    agent: synthesis_agent                     # one of the three agents
-    deliverable_path: chapter_4/synthesis.md
-    deliverable_sha: a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2
-    run_id: 2026-04-30T15-22-04Z-d8f3
-    bundle_id: phase2-chapter4-2026-04-30
-    bundle_manifest_sha: 9a8b7c6d5e4f3b2a1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9876
-    artifact_paths:
-      jsonl: audit_artifacts/2026-04-30T15-22-04Z-d8f3.jsonl
-      sidecar: audit_artifacts/2026-04-30T15-22-04Z-d8f3.meta.json
-      verdict: audit_artifacts/2026-04-30T15-22-04Z-d8f3.verdict.yaml
-    verdict:
-      status: MINOR                            # persisted enum: PASS | MINOR | MATERIAL
-      round: 2
-      target_rounds: 3
-      finding_counts:
-        p1: 0
-        p2: 0
-        p3: 1
-      verified_at: "2026-04-30T15:23:11.847Z"  # RFC 3339 UTC string, ms precision (quoted: schema is `string` + regex, not YAML datetime); strict-monotonic per @/engine/scripts/_next_verified_at_ms.py
-      verified_by: pipeline_orchestrator_agent
-  # append-only; never overwrite, never reorder
-```
-
-**Semantics:**
-
-- `stage` is the **destination stage** the just-completed deliverable is about to enter (synthesis_agent → 2, research_architect_agent survey-designer → 2, report_compiler_agent abstract-only → 5).
-- `verdict.status` enum is `["PASS", "MINOR", "MATERIAL"]` for persisted entries. `AUDIT_FAILED` is reachable only in the proposal arm and never persists; see [`audit_artifact_entry.schema.json`](contracts/passport/audit_artifact_entry.schema.json) Lifecycle-conditional fields for the rationale.
-- `verdict.verified_at` and `verdict.verified_by` are required on persisted entries (orchestrator-written) and forbidden on proposal entries (wrapper-emitted).
-- Multiple entries for the same `(stage, agent, deliverable_sha)` represent multiple audit rounds; orchestrator selects the latest by `verified_at` for verdict reads.
-- If `deliverable_sha` changes (deliverable mutated), prior entries become stale but remain as audit history; orchestrator only honors entries whose `deliverable_sha` matches the current deliverable.
-
-**This mirrors the `reset_boundary[]` append-only pattern**: history preserved, freshness computed by ledger scan. Deletion or reordering is forbidden; lint at `@/engine/scripts/check_audit_artifact_consistency.py` enforces the invariant family at §3.7.
-
-For the orchestrator-side gate procedure (Path A latest-by-`verified_at` selection, Path B proposal merge after Layer 2 + Layer 3 verification), the canonical contract is §5.6 (Path A/B fall-through with the §5.6 A1.5 superseding-proposal preflight) plus §5.2 (eleven Layer 2 + Layer 3 gating checks). Implementation lands as a subsection of `@/roles/orchestrate/strict/pipeline_orchestrator_agent.md` (Phase 6.6 deliverable). For the resume-time re-verification semantics, see [`@/roles/orchestrate/strict/passport_as_reset_boundary.md`](../roles/orchestrate/strict/passport_as_reset_boundary.md).
-
 ### Experiment Provenance Intake
 
-Schema 9 gains the **intake + alignment** layer for experiments — NOT an execution layer. this skill keeps experiment execution outside the pipeline: the scholar runs experiments externally and brings results back. This extension records disclosure and lets manuscript claims be audited against declared provenance. It does **not** run experiments, judge experiment correctness, auto-fill provenance, or require provenance for literature-only pipelines.
+Schema 9 gains the **intake + alignment** layer for experiments — NOT an execution layer. `research-writing` keeps experiment execution outside the pipeline: the scholar runs experiments externally and brings results back. This extension records disclosure and lets manuscript claims be audited against declared provenance. It does **not** run experiments, judge experiment correctness, auto-fill provenance, or require provenance for literature-only pipelines.
 
 **Three additions** (all under the Optional-Fields table above):
 
@@ -978,7 +896,7 @@ slr_lineage: true   # any pipeline stage was literature in systematic-review mod
 
 **Semantics:**
 
-- `true` iff `bool(incoming_passport.slr_lineage) or any(stage.skill == "the literature role" and stage.mode in {"systematic-review", "slr"} for stage in state_tracker.stages.values())` at the time the passport is written. The OR is monotonic — a true value persists across resume / mid-entry passports whose `state_tracker.stages` was reconstructed from the ledger and may be empty. Run-level, not artifact-level — distinct from `origin_mode` which records the directly-producing skill's mode.
+- `true` iff `bool(incoming_passport.slr_lineage) or any(stage.skill in {"literature", "deep-research"} and stage.mode in {"systematic-review", "slr"} for stage in state_tracker.stages.values())` at the time the passport is written. The OR is monotonic — a true value persists across resume / mid-entry passports whose `state_tracker.stages` was reconstructed from the ledger and may be empty. Run-level, not artifact-level — distinct from `origin_mode` which records the directly-producing role's mode.
 - Producer: the orchestrate role writes the field at every handoff transition; in practice only the Stage 1 → Stage 2 transition can flip `false` → `true`, and the OR keeps the value monotonic thereafter. Reference helper: `@/engine/scripts/slr_lineage.py` `emit(stages, incoming_slr_lineage)` (or the underlying `resolve_from_stages(stages)` when callers need the pre-OR fragment alone).
 - Consumer: `disclosure` mode renderer reads it as `RendererInput.slr_lineage` to dispatch `--policy-anchor=prisma-trAIce` per the §4.3 G2 invariant track gate documented in [`@/roles/draft/paper/references/policy_anchor_disclosure_protocol.md`](../roles/draft/paper/references/policy_anchor_disclosure_protocol.md) §3.1.
 - Backward compat: passports written before lack the field; renderer treats absence as `false` (cold-start path requiring explicit `mode_param='systematic-review'`). Identical to pre-behavior.

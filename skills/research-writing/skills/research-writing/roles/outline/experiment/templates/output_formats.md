@@ -1,6 +1,6 @@
 # Output Format Templates
 
-All outputs use Markdown-based structured format with Material Passport for this skill compatibility. Planning templates in `code_experiment_plan.md` and `study_protocol.md` follow the same rule.
+All outputs use Markdown-based structured format with Material Passport for `research-writing` compatibility. Planning templates in `code_experiment_plan.md` and `study_protocol.md` follow the same rule.
 
 ## Experiment Result (from run mode)
 

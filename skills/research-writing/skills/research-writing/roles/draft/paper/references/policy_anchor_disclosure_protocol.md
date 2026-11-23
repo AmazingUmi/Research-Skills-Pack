@@ -12,7 +12,7 @@ This protocol document is the runtime instruction set the LLM follows when the u
 
 ## 0. Why this protocol exists
 
-this skill's `disclosure` mode renders a venue-targeted applicability/status bundle (`REQUIRED`, `ACTION_ONLY`, `NOT_REQUIRED`, or `UNKNOWN`, plus typed fail-closed halt status; 15 policy targets as of the v2 database: ICLR, NeurIPS, Nature, Science, ACL, EMNLP, plus the medical-publishing set — see `venue_disclosure_policies.md`). The 4-anchor `--policy-anchor=<a>` track instead uses the anchor-specific output contract below when the author targets a **policy anchor** (PRISMA-trAIce, ICMJE, Nature Portfolio, IEEE) rather than a specific journal venue. The two tracks coexist; venue path remains the default for journal submissions.
+`research-writing`'s `disclosure` mode renders a venue-targeted applicability/status bundle (`REQUIRED`, `ACTION_ONLY`, `NOT_REQUIRED`, or `UNKNOWN`, plus typed fail-closed halt status; 15 policy targets as of the v2 database: ICLR, NeurIPS, Nature, Science, ACL, EMNLP, plus the medical-publishing set — see `venue_disclosure_policies.md`). The 4-anchor `--policy-anchor=<a>` track instead uses the anchor-specific output contract below when the author targets a **policy anchor** (PRISMA-trAIce, ICMJE, Nature Portfolio, IEEE) rather than a specific journal venue. The two tracks coexist; venue path remains the default for journal submissions.
 
 ---
 
@@ -100,7 +100,7 @@ When gate 3 fails (SLR manuscript whose only LLM use is editorial), the renderer
 - Row 15 (explicit-recommend) carve-out semantics: **eliminate** strength. Copyediting-only use produces **no disclosure paragraph**, only an internal renderer log entry. The §4.3 G7 invariant forbids collapsing this into a boolean shared with IEEE's downgrade semantics.
 - Row 16 (explicit-mandate) image-rights handling: concern #5 resolution = **hybrid (annotation block + suggested inline patches)**. The renderer emits two outputs:
   1. A standalone `image_disclosure_instructions.md` block describing, per image, which Nature carve-out applies (or default-deny) and what Nature label text appears in the image field.
-  2. A suggested patch diff against manuscript source figure metadata (caption, alt-text, image-field caption) for the author to optionally apply. **this skill does not modify manuscript source autonomously**; the patch is suggested-only.
+  2. A suggested patch diff against manuscript source figure metadata (caption, alt-text, image-field caption) for the author to optionally apply. **`research-writing` does not modify manuscript source autonomously**; the patch is suggested-only.
 
 ### 3.4 `--policy-anchor=ieee`
 
@@ -178,7 +178,7 @@ For audit traceability, this protocol implements each Decision Doc §4.4 open co
 - **concern #2** — Tool identity collection: auto-detect from session metadata (Phase 4 pattern); explicit fallback per tool for cold-start or non-Claude pipelines.
 - **concern #3** — Prompt scope: per-(tool × task) tuple across M3.a 6-stage enum; missing tuples emit "not supplied" annotation per tuple.
 - **concern #4** — IEEE section locator: free-form list with recommended IMRaD exemplars; parallel to G8 `level_of_involvement` design.
-- **concern #5** — Nature image metadata + labelling: hybrid output channel — standalone annotation block + suggested inline manuscript patches; this skill does not modify manuscript source autonomously.
+- **concern #5** — Nature image metadata + labelling: hybrid output channel — standalone annotation block + suggested inline manuscript patches; `research-writing` does not modify manuscript source autonomously.
 - **concern #6** — UNCERTAIN per-facet finalization: USED facets render at full strength; UNCERTAIN facets surface per-facet annotation immediately after each render slot.
 - **concern #7** — Venue + anchor conflict: reject with explicit error citing the policy conflict; silent precedence forbidden.
 - **concern #8** — Three-state completeness flag: full spec encoded in §6 above.

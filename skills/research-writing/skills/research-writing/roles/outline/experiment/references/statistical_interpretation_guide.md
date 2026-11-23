@@ -152,7 +152,7 @@ Check ALL 11 types for every validation. Report coverage in output ("11/11 check
 
 ## Relationship to this skill Logical Fallacies Catalog
 
-this skill `@/roles/literature/research/references/logical_fallacies.md` contains a broader 32-type catalog covering formal, informal, and rhetorical fallacies. This guide's 11-type list focuses specifically on **statistical and methodological** fallacies relevant to experiment validation. 7 types overlap (Simpson's Paradox, Ecological Fallacy, Survivorship Bias, Base Rate Neglect, Regression to Mean, Correlation != Causation, Reverse Causality). When both skills are loaded, this guide takes precedence for experiment result validation; this skill's catalog applies to broader argument evaluation in paper review.
+`research-writing` `@/roles/literature/research/references/logical_fallacies.md` contains a broader 32-type catalog covering formal, informal, and rhetorical fallacies. This guide's 11-type list focuses specifically on **statistical and methodological** fallacies relevant to experiment validation. 7 types overlap (Simpson's Paradox, Ecological Fallacy, Survivorship Bias, Base Rate Neglect, Regression to Mean, Correlation != Causation, Reverse Causality). When both skills are loaded, this guide takes precedence for experiment result validation; `research-writing`'s catalog applies to broader argument evaluation in paper review.
 
 **Severity mapping to this skill terminology**: the outline role's experiment mode's `RED_FLAG` corresponds to issues this skill would classify as requiring mandatory revision. `CAUTION` corresponds to issues this skill would flag for author attention. `NOTE` corresponds to optional commentary.
 

@@ -40,12 +40,12 @@ parts only they can write.
 
 ## Handoff
 
-- **the draft role** (`full` or `lit-review` mode): give it `*_methods_selection.md`,
+- **`draft full`** (or `draft section`): give it `*_methods_selection.md`,
   `*_prisma_counts.md` and, after full text, the excluded-with-reasons sheet. For the included
   studies, give `FT_literature_corpus.yaml` (or `TA_...` before full text): its entries follow
   the `literature_corpus_entry.schema.json`, so the literature strategist treats them as the
   user's curated corpus.
-- **the literature role** (systematic-review mode): the same corpus file seeds its bibliography;
+- **`literature systematic-review`** (or `literature lit-review`): the same corpus file seeds its bibliography;
   risk-of-bias and synthesis continue there.
 - **Material Passport**: paste the YAML list under `literature_corpus:`.
 

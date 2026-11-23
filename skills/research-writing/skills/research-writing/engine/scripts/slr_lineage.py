@@ -37,7 +37,7 @@ def resolve_from_stages(stages: Mapping[str, Mapping]) -> bool:
     trigger SLR lineage — only the documented producer counts.
     """
     return any(
-        (stage.get("skill") == "deep-research")
+        (stage.get("skill") in {"literature", "deep-research"})
         and (stage.get("mode") in SLR_MODES)
         for stage in stages.values()
     )

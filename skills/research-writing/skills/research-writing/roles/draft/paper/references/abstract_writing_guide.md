@@ -5,7 +5,7 @@ Used by `abstract_bilingual_agent`.
 ## Abstract Length & Keyword Regime
 
 The table below is the **single source** for abstract length and keyword counts. The ten Phase-1
-consumer surfaces reference it rather than restating a figure: `the draft role's `paper/MODE.md``, the intake
+consumer surfaces reference it rather than restating a figure: `@/roles/draft/paper/MODE.md`, the intake
 agent, the abstract agent, the structure architect, the draft writer, this guide, the workflow
 reference, the mode-selection guide, the bilingual template, and `commands`$research-writing draft abstract`.md`. Three
 surfaces outside that set still carry a copy of the figures — `apa7_extended_guide.md`,

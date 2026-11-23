@@ -12,7 +12,7 @@ people sign off on the final screening.
 
 This mode sits between the `systematic-review` mode (question, protocol, search) and the draft role
 (writing the review). Dual review at scale uses the Workflow tool (or one Agent call per batch);
-small sets work in a single session. The deterministic steps are Python scripts in this skill's
+small sets work in a single session. The deterministic steps are Python scripts in `research-writing`'s
 `scripts/` folder (Python 3.9+, standard library only; `openpyxl` is optional and gives an Excel
 log instead of CSV files).
 
@@ -175,10 +175,10 @@ Every reviewer applies the same rules; the full version with edge cases is in
 
 ## Running the Scripts
 
-Scripts live in this skill's `scripts/` folder (next to this file). Typical sequence:
+Scripts live in `research-writing`'s `scripts/` folder (next to this file). Typical sequence:
 
 ```bash
-S=<this skill's folder>/scripts
+S=<`research-writing`'s folder>/scripts
 python $S/prepare_records.py --inputs exports/ --work sr_work --config screening_config.json
 python $S/build_workflow.py ta --work sr_work --protocol screening_protocol.md --config screening_config.json --jobs pilot
 #   -> Workflow({scriptPath: "<printed path>"}) after the user approves the cost

@@ -9,23 +9,11 @@
 
 ## 1. Setup and the reviewer subagent
 
-- **Plugin install** (skill + subagent): `/plugin marketplace add Imbad0202/academic-research-skills`,
-  then `/plugin install academic-research-skills`. The reviewer subagent ships in the plugin's
-  `agents/` folder and is listed with the plugin prefix:
-  `academic-research-skills:screening-reviewer-agent`.
-- **Skills-copy install** (the `literature screen` folder symlinked or copied into `~/.claude/skills/`):
-  also copy `@/roles/literature/screen/agents/screening_reviewer_agent.md` into `.claude/agents/` (this
-  project) or `~/.claude/agents/` (all projects); it is then listed as `screening-reviewer-agent`.
-- Put the exact agent name shown in the session's agent list into `agent_type` in
+- Register `@/roles/literature/screen/agents/screening_reviewer_agent.md` as the read-only, network-disabled reviewer subagent in your host agent runtime (or pass its prompt directly when using `--emit-prompts`).
+- Put the exact subagent name exposed by your runtime into `agent_type` in
   `screening_config.json`. A wrong name makes every call fail at once, which the pilot shows
   immediately. An empty `agent_type` uses the default workflow subagent: it works, but it
   carries more tools and more overhead per call.
-- Before the reviewer was named `screening_reviewer_agent`. A saved
-  `academic-research-skills:screening_reviewer_agent` dispatches to the new plugin name. A bare
-  `screening_reviewer_agent` is dispatched as written, because it names your own copy; after you
-  copy the new agent file, change `agent_type` to `screening-reviewer-agent`. Changing between the
-  two plugin names does not archive the decisions of a stage in progress; changing a bare name
-  does, because the two names can be two different local files.
 - Python 3.9+ runs the scripts; `pip install openpyxl` gives an Excel log instead of CSV files.
 
 ## 2. Paths
@@ -36,12 +24,10 @@
    `<work>/runs/` and prints its path, job count, planned agent calls and models.
 2. Show the user that estimate. The Workflow tool runs only when the user has opted into
    multi-agent orchestration; a request such as "run the screening workflow" is enough.
-3. `Workflow({scriptPath: "<path>"})`. Each batch runs Reviewer A and Reviewer B in parallel,
-   retries missing IDs with a Grep subset call, and sends advance-vs-exclude conflicts to the
+3. Run the generated workflow script in your host's multi-agent workflow runner. Each batch runs Reviewer A and Reviewer B in parallel,
+   retries missing IDs with a subset call, and sends advance-vs-exclude conflicts to the
    adjudicator in the same run.
-4. When it finishes, merge: the journal sits at
-   `~/.claude/projects/<project>/<session>/subagents/workflows/<runId>/journal.jsonl`. Pass that
-   folder, or the whole `workflows` folder, to `merge_decisions.py --from`.
+4. When it finishes, pass the run's journal folder (containing `journal.jsonl`) to `merge_decisions.py --from`.
 5. Never edit the generated script by hand; change `templates/prompts.md`, the protocol or the
    config and generate it again. Generated scripts are the audit trail of what each run used.
 
@@ -57,7 +43,7 @@
 4. `merge_decisions.py --from <work>/decisions` reads the folder. Conflicts and missing IDs
    come back through `--jobs pending --emit-prompts ...` the same way.
 
-### Single session (no subagents, for example claude.ai)
+### Single session (no subagents)
 
 Only `quick` mode is honest here: one model reading a record twice is not two independent
 reviewers. Screen small sets with the decision procedure in `references/reviewer_roles.md`, label the

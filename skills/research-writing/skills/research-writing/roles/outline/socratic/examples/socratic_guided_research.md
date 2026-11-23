@@ -324,8 +324,8 @@ Dialogue concluded. Below is the Research Plan Summary extracted from 12 rounds 
 
 ### Recommended Next Steps
 
-- **Option A**: Use the literature role's research modes (full mode) for systematic literature search to understand existing research on private university transformation strategy classification and evaluation
-- **Option B**: Use the draft role (plan mode) to start planning the paper structure directly, using this Research Plan Summary as a foundation
+- **Option A**: Use `$research-writing literature deep` (or `lit-review`) for systematic literature search to understand existing research on private university transformation strategy classification and evaluation
+- **Option B**: Use `$research-writing outline plan` to start planning the paper structure directly, using this Research Plan Summary as a foundation
 - **Recommended path**: Option A → Option B (confirm the literature foundation first, then plan the paper)
 
 The user can directly input: "Now help me do a comprehensive literature review based on this research plan" or "Help me write a paper based on this research plan"

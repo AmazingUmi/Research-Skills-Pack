@@ -4,7 +4,7 @@
 
 **Audience:** Agents drafting Likert / rating-scale items in survey instruments. Human authors reviewing instrument drafts before pilot testing.
 
-**Why this exists:** Live this skill pipeline runs surfaced two recurring failures in instrument design: (a) items labelled "reverse-coded" that were actually contrast items measuring a different construct, and (b) acquiescence- and recall-bias mitigations that look in place but do not operate. Both failures pass casual peer review and surface only at scale validation, by which point the instrument has already been deployed. This reference defines the operational distinctions the survey designer must respect.
+**Why this exists:** Live `research-writing` pipeline runs surfaced two recurring failures in instrument design: (a) items labelled "reverse-coded" that were actually contrast items measuring a different construct, and (b) acquiescence- and recall-bias mitigations that look in place but do not operate. Both failures pass casual peer review and surface only at scale validation, by which point the instrument has already been deployed. This reference defines the operational distinctions the survey designer must respect.
 
 ---
 

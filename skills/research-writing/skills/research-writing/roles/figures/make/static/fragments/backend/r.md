@@ -7,7 +7,7 @@
 ```r
 library(ggplot2)
 library(patchwork)
-source("skills/nature-figure/scripts/panel_alignment.R")
+source("scripts/panel_alignment.R")
 
 theme_set(
   theme_classic(base_size = 6.5, base_family = "Arial") +

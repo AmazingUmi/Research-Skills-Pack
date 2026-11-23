@@ -19,7 +19,7 @@ The ship-ready enum is exactly four values. `unknown_user_defined` is the defaul
 
 ## Field-guidance carry-forward (seeded from the literature role evidence hierarchy)
 
-The substance of the field-centric `## Field-Specific Adjustments` table in `@/roles/literature/research/references/source_quality_hierarchy.md` is carried forward here so no per-field guidance is silently dropped. The the literature role file is **read, not edited** — this is a one-time authoring copy, not a runtime dual-read.
+The substance of the field-centric `## Field-Specific Adjustments` table in `@/roles/literature/research/references/source_quality_hierarchy.md` is carried forward here so no per-field guidance is silently dropped. The literature role file is **read, not edited** — this is a one-time authoring copy, not a runtime dual-read.
 
 Normative (folded into a ship-ready profile row above):
 - **Social Science** → folded into `general_social_science` (Level III-V; mixed methods common).

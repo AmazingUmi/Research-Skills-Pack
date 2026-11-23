@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Imbad0202/academic-research-skills/contracts/evidence/evidence_row_v1_2.schema.json",
-  "title": "this skill Shared Evidence Row v1.2 — cross-document consistency",
+  "title": "research-writing Shared Evidence Row v1.2 — cross-document consistency",
   "description": "Closed observation-level evidence-row/1.2 carrier for the cross-document consistency advisory. One row integrity-binds the complete ordered bilateral or preregistration three-witness evidence set. Evidence and checked-scope states are caller-supplied semantic observations whose bytes are replayed; they are not agreement, completeness, readiness, acceptance, or authorization findings.",
   "type": "object",
   "additionalProperties": false,

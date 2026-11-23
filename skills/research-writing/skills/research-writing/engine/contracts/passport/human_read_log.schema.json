@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Imbad0202/academic-research-skills/contracts/passport/human_read_log.schema.json",
-  "title": "this skill user-attested reading ledger (peer file of the Material Passport)",
+  "title": "research-writing user-attested reading ledger (peer file of the Material Passport)",
   "description": "Schema for <passport-stem>_human_read_log.yaml, the user-owned USER_ATTESTED_READ ledger written by scripts/ars_mark_read.py (§3.6; /read_scope attestation). It records a declaration, not verified reading or comprehension. Deliberately a sidecar: literature_corpus_entry.schema.json stays adapter-owned and unmodified. The ledger is append-only; unmark appends rescinded_at, never deletes. New marks require read_scope; legacy absence means coverage_unknown and never licenses promotion to ok. Nothing is inferred or backfilled.",
   "type": "object",
   "additionalProperties": false,

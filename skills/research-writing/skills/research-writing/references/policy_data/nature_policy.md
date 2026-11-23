@@ -2,14 +2,12 @@
 
 **Status**: Source of truth for Nature substantive policy content cited by both:
 
-1. `the draft role/references/policy_anchor_table.md` — Nature anchor (policy-anchor track, verbatim quotes per 16 fields)
-2. `the draft role/references/venue_disclosure_policies.md` — Nature venue entry (venue track, summary form)
+1. `@/roles/draft/paper/references/policy_anchor_table.md` — Nature anchor (policy-anchor track, verbatim quotes per 16 fields)
+2. `@/roles/draft/paper/references/venue_disclosure_policies.md` — Nature venue entry (venue track, summary form)
 
-**Provenance**: extracted from the Nature Portfolio AI editorial policy page (`https://www.nature.com/nature-portfolio/editorial-policies/ai`), wayback snapshot `nature:wayback=20260513075542` (sha256 `cf691cba…`). Section structure: `§AI authorship`, `§Generative AI images`, `§AI use by peer reviewers`, `§Editorial use`. this skill author-side matrix covers `§AI authorship` + `§Generative AI images` only.
+**Provenance**: extracted from the Nature Portfolio AI editorial policy page (`https://www.nature.com/nature-portfolio/editorial-policies/ai`), wayback snapshot `nature:wayback=20260513075542` (sha256 `cf691cba…`). Section structure: `§AI authorship`, `§Generative AI images`, `§AI use by peer reviewers`, `§Editorial use`. The author-side matrix covers `§AI authorship` + `§Generative AI images` only.
 
-**G4 invariant** (Decision Doc §4.3): edits to Nature substantive policy content must go through **this file** first; both downstream consumers (policy_anchor_table.md Nature section and venue_disclosure_policies.md Nature entry) re-cite from here. Direct edits to either consumer that change Nature substantive content are non-conformant.
-
-**Dedup lint**: `verify_nature_dedup_with_venue()` in `scripts/check_policy_anchor_table.py` confirms (a) this file exists, (b) both consumers reference the path `shared/policy_data/nature_policy.md` as their canonical pointer.
+**G4 invariant**: edits to Nature substantive policy content must go through **this file** first; both downstream consumers (`policy_anchor_table.md` Nature section and `venue_disclosure_policies.md` Nature entry) re-cite from `@/references/policy_data/nature_policy.md`. Direct edits to either consumer that change Nature substantive content are non-conformant.
 
 ---
 

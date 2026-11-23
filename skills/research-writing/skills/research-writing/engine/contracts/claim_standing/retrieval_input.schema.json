@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Imbad0202/academic-research-skills/contracts/claim_standing/retrieval_input.schema.json",
-  "title": "this skill Claim-standing Retrieval Input v1",
+  "title": "research-writing Claim-standing Retrieval Input v1",
   "description": "Closed adapter-neutral input for the offline Track A finalizer. It contains already-returned attempt metadata, bounded raw hits, explicit version relations, and caller-supplied relevance assessments. It is not a network adapter, dispatch plan, stance judgment, or efficacy artifact.",
   "type": "object",
   "additionalProperties": false,

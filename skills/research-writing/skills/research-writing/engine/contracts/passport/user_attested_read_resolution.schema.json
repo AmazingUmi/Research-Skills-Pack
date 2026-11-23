@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Imbad0202/academic-research-skills/contracts/passport/user_attested_read_resolution.schema.json",
-  "title": "this skill deterministic transient USER_ATTESTED_READ resolution",
+  "title": "research-writing deterministic transient USER_ATTESTED_READ resolution",
   "description": "A transient routing decision recomputed from the current ledger and exact current citation anchor on every finalizer pass. It is not a persisted audit receipt and deliberately contains no ledger or anchor digest.",
   "type": "object",
   "additionalProperties": false,

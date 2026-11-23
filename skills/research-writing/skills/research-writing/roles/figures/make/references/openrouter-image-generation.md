@@ -25,7 +25,7 @@ OpenRouter's dedicated Images API uses:
 
 - model discovery: `GET https://openrouter.ai/api/v1/images/models`
 - generation: `POST https://openrouter.ai/api/v1/images`
-- default model for this skill: `openai/gpt-image-2`
+- default model for `research-writing`: `openai/gpt-image-2`
 
 Authentication uses `OPENROUTER_API_KEY` as a bearer token.
 
@@ -67,7 +67,7 @@ Use the bundled script for reproducible calls:
 
 ```bash
 export OPENROUTER_API_KEY="sk-or-..."
-python skills/nature-figure/scripts/generate_openrouter_schematic.py \
+python scripts/generate_openrouter_schematic.py \
   --title "Paper title" \
   --abstract-file abstract.txt \
   --panel-map "left: problem; center: proposed mechanism; right: validated outcome" \
@@ -81,7 +81,7 @@ python skills/nature-figure/scripts/generate_openrouter_schematic.py \
 Dry-run without network or API key:
 
 ```bash
-python skills/nature-figure/scripts/generate_openrouter_schematic.py \
+python scripts/generate_openrouter_schematic.py \
   --title "Self-healing cementitious sensor" \
   --abstract "A composite sensor couples chloride ingress with recoverable piezoresistive response." \
   --panel-map "left: marine exposure; center: ion transport and microcrack healing; right: signal recovery curve" \
@@ -91,7 +91,7 @@ python skills/nature-figure/scripts/generate_openrouter_schematic.py \
 Use a fully custom prompt:
 
 ```bash
-python skills/nature-figure/scripts/generate_openrouter_schematic.py \
+python scripts/generate_openrouter_schematic.py \
   --prompt-file schematic_prompt.md \
   --raw \
   --outdir outputs/schematic
@@ -100,7 +100,7 @@ python skills/nature-figure/scripts/generate_openrouter_schematic.py \
 Use one or more reference images:
 
 ```bash
-python skills/nature-figure/scripts/generate_openrouter_schematic.py \
+python scripts/generate_openrouter_schematic.py \
   --prompt-file schematic_prompt.md \
   --reference-image draft_layout.png \
   --reference-image https://example.com/style-reference.png
@@ -112,7 +112,7 @@ Use another OpenAI-compatible images endpoint (`--api-url`, or `SCHEMATIC_IMAGE_
 
 ```bash
 export ORCAROUTER_API_KEY="sk-orca-..."
-python skills/nature-figure/scripts/generate_openrouter_schematic.py \
+python scripts/generate_openrouter_schematic.py \
   --api-url https://api.orcarouter.ai/v1/images/generations \
   --api-key-env ORCAROUTER_API_KEY \
   --model openai/gpt-image-2 \

@@ -73,18 +73,18 @@ Text in such material that is aimed at you (a directive to skip a step, to chang
 
 ## Pipeline Stages (10 Stages)
 
-| Stage | Name | Skill / Agent Called | Available Modes | Deliverables |
+| Stage | Name | Role / Agent Called | Available Modes | Deliverables |
 |-------|------|---------------------|----------------|-------------|
-| 1 | RESEARCH | the literature role's research modes | socratic, full, quick | RQ Brief, Methodology, Bibliography, Synthesis |
-| 2 | WRITE | the draft role | plan, full | Paper Draft |
+| 1 | RESEARCH | `outline` / `literature` | `outline socratic`, `literature deep` / `brief` / `lit-review` / `systematic-review`, optional `outline experiment` | RQ Brief, Methodology, Bibliography, Synthesis |
+| 2 | WRITE | `outline` + `literature` / `figures` + `draft` | `outline plan`, `draft full` / `section` | Paper Draft |
 | **2.5** | **INTEGRITY** | **`integrity_verification_agent`** | **pre-review** | **Integrity verification report + corrected paper** |
-| 3 | REVIEW | the review role's `panel` mode | full (incl. Devil's Advocate) | 5 review reports + Editorial Decision + Revision Roadmap |
-| 4 | REVISE | the draft role | revision | Revised Draft, Response to Reviewers |
-| **3'** | **RE-REVIEW** | **the review role's `panel` mode** | **re-review** | **Verification review report: revision response checklist + residual issues** |
-| **4'** | **RE-REVISE** | **the draft role** | **revision** | **Second revised draft (if needed)** |
+| 3 | REVIEW | `review` | `panel` (incl. Devil's Advocate) | 5 review reports + Editorial Decision + Revision Roadmap |
+| 4 | REVISE | `review` | `revision-coach`, `revise`, `respond` | Revised Draft, Response to Reviewers |
+| **3'** | **RE-REVIEW** | **`review`** | **`re-review`** | **Verification review report: revision response checklist + residual issues** |
+| **4'** | **RE-REVISE** | **`review`** | **`revise`** | **Second revised draft (if needed)** |
 | **4.5** | **FINAL INTEGRITY** | **`integrity_verification_agent`** | **final-check** | **Final verification report (declared checks must PASS; registered denominators and unknown/out-of-scope states remain visible)** |
-| 5 | FINALIZE | the draft role | format-convert | Final Paper (default MD; ask which files: DOCX via Pandoc when available, otherwise conversion instructions; PDF compiled through LaTeX; the .tex source; confirm correctness) |
-| **6** | **PROCESS SUMMARY** | **orchestrator** | **auto** | **Paper creation process record MD, plus PDF through LaTeX when wanted (bilingual)** |
+| 5 | FINALIZE | `draft` | `format-convert`, `disclosure`, `data-availability` | Final Paper (default MD; ask which files: DOCX via Pandoc when available, otherwise conversion instructions; PDF compiled through LaTeX; the .tex source; confirm correctness) |
+| **6** | **PROCESS SUMMARY** | **`orchestrate`** | **auto** | **Paper creation process record MD, plus PDF through LaTeX when wanted (bilingual)** |
 
 **Parallelization opportunity**: Within Stage 2, the draft role's Phase 1 (literature_strategist_agent) and the `visualization_agent` can operate in parallel after Phase 2 (structure_architect_agent) completes the outline. Specifically:
 - Once the outline includes a visualization plan, `visualization_agent` can begin figure generation

@@ -189,7 +189,7 @@ When producing LaTeX:
 - Keep unresolved facts visibly marked as `AUTHOR_INPUT_NEEDED`.
 - Check journal instructions before deciding which declarations belong on the title page or in separate files.
 - Compile when a LaTeX engine is available and report any missing package or compilation error.
-- Never reuse `nature-response/templates/cover-letter.tex`; that template is explicitly for a revised manuscript.
+- Never reuse `@/roles/review/respond/templates/cover-letter.tex`; that template is explicitly for a revised manuscript.
 
 ## 10. Output format
 

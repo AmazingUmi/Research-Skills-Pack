@@ -1,6 +1,6 @@
 ---
 name: nature-proposal-writer
-description: "Compose, revise, or audit research proposals, opening reports, and research plans from supporting evidence. Use for 研究计划、开题报告、科研项目申请书. Use nature-writing for general manuscript sections."
+description: "Compose, revise, or audit research proposals, opening reports, and research plans from supporting evidence. Use for 研究计划、开题报告、科研项目申请书. Use research-writing ($research-writing draft section) for general manuscript sections."
 license: MIT
 metadata:
   hermes:

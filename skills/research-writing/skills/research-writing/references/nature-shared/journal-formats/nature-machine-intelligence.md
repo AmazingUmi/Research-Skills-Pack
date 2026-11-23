@@ -269,8 +269,8 @@ For code central to the conclusions:
   central to the paper
 
 Never invent a repository, DOI, licence, access condition or software version.
-Route repository and statement drafting to `nature-data` and statistical
-completeness to `nature-statistics`.
+Route repository and statement drafting to `$research-writing draft data-availability` and statistical
+completeness to `$research-writing draft stats-report`.
 
 ### Reporting and protocols
 

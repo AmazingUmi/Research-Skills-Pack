@@ -1,6 +1,6 @@
 # Default operating stance
 
-The older Python/matplotlib rules in this skill remain valid. The skill also supports R, especially `ggplot2 + patchwork + ComplexHeatmap + ggrepel + svglite/cairo_pdf + ragg`.
+The older Python/matplotlib rules in `research-writing` remain valid. The skill also supports R, especially `ggplot2 + patchwork + ComplexHeatmap + ggrepel + svglite/cairo_pdf + ragg`.
 
 ## Color policy
 

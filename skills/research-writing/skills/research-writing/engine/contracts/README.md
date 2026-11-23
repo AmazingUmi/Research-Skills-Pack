@@ -33,30 +33,6 @@ receipt to stdout only. No command reads manuscript content, infers a family,
 changes the default workflow, or writes scholar-owned artifacts. The human
 usability protocol and every outcome claim remain `NOT_RUN`.
 
-## Opt-in inquiry branch ledger
-
-- `research_workflow/inquiry_branch_ledger.schema.json`
-  (`inquiry-branch-ledger/1.0`) is the closed event-source contract for
-  author-originated branches, parked AI-surfaced facets, explicit adoption,
-  disposition, reopen signals, profile rebound, and first-degree artifact
-  staleness. Dense event ids plus a canonical previous-event hash chain detect
-  interior rewrite/reorder; the separate passport digest is the required
-  trusted head for truncation detection.
-- `passport/inquiry_ledger_ref.schema.json` closes the optional Material
-  Passport pointer to `{ledger_path, ledger_version, content_sha256}`. It never
-  embeds a branch or profile and never widens a filesystem path outside the
-  caller-supplied workspace root.
-
-The deterministic offline runtime is `@/engine/scripts/inquiry_branch_ledger.py`. Replay
-requires every exact profile bound by the ledger so the live-branch budget is
-never inferred from a current default. Reopen appends contiguous deterministic
-stale-cause events; clearing one cause cannot clear another. Ledger/passport
-publication uses a stable sidecar lock and durable recovery journal. The
-feature is OFF unless `RW_INQUIRY_LEDGER=1`, does not materialize before a
-second branch, and shows compact summaries only at the frozen Stage 1, 2.5,
-4.5, or still-actionable recorded-signal moments. Behavioral and usability evidence is
-`NOT_RUN`.
-
 ## PDF read-integrity and optional content advisory (follow-up)
 
 - `pdf/pdf_read_preflight.schema.json` accepts the unchanged legacy structural sidecar
@@ -85,7 +61,7 @@ second branch, and shows compact summaries only at the frozen Stage 1, 2.5,
   keeping its exclusive path retryable.
 
 Runtime: `@/engine/scripts/pdf_read_preflight.py` and
-`@/engine/scripts/pdf_content_classifier_worker.py`. Frozen opt-in scope and residual risk:
+`@/engine/scripts/pdf_content_classifier_worker.py`.
 
 ## Claim-standing candidate ledger (Track A)
 
@@ -172,22 +148,16 @@ Protocol: `@/roles/review/panel/strict/sprint_contract_protocol.md`.
 - `reviewer/full.json` — panel 5, 5 dimensions, 4 failure conditions
 - `reviewer/methodology_focus.json` — panel 2, 2 dimensions, 3 failure conditions
 
-**/ suite (generator-evaluator family)**:
+**Draft / paper suite (generator-evaluator family)**:
 
 - `writer/full.json` — single-agent writer, 7 dimensions (D1 section_completeness / D2 citation_density / D3 argument_blueprint_fidelity / D4 total_word_count / D5 per_section_word_count / D6 acknowledged_limitations / D7 register_consistency), 5 failure conditions (F1 / F4 / F2 / F3 / F0). No `scoring_plan` field.
 - `evaluator/full.json` — single-agent evaluator, 5 dimensions (D1 originality / D2 methodological_rigor / D3 evidence_sufficiency / D4 argument_coherence / D5 writing_quality), 7 failure conditions (F1 / F2 / F3 / F6 / F4 / F5 / F0). Carries full `scoring_plan` + `disagreement_handling`.
 
-Both writer + evaluator templates ship under Schema 13.1 (allOf branches 11/12 require `pre_commitment_artifacts` for `writer_full` and `disagreement_handling` for `evaluator_full`; branches 5/6 pin `failure_conditions[].action` to mode-specific enums; branches 8/9 pin F0 contains to the mode's accept variant). Orchestration block lives in `the draft role's `paper/MODE.md`` § "Generator-Evaluator Contract Protocol" + the writer/evaluator agent files.
+Both writer + evaluator templates ship under Schema 13.1 (allOf branches 11/12 require `pre_commitment_artifacts` for `writer_full` and `disagreement_handling` for `evaluator_full`; branches 5/6 pin `failure_conditions[].action` to mode-specific enums; branches 8/9 pin F0 contains to the mode's accept variant). Orchestration lives in `@/roles/draft/paper/strict/generator_evaluator_protocol.md` + the writer/evaluator agent files.
 
 ### Reserved reviewer modes without shipped templates
 
-`reviewer_calibration` and `reviewer_guided` are in the schema enum but ship without
-templates. Those modes continue to operate in their existing form (no contract, no
-hard-gate) until a follow-up patch release adds their templates. `reviewer_re_review`
-left the Schema 13 enum with Spec B: re-review is governed by the dedicated
-contract family under `re_review/` (four schemas + `@/engine/scripts/check_re_review_synthesis.py`),
-not by a Schema 13 template — a contract claiming `mode: reviewer_re_review` no longer
-validates.
+`reviewer_guided` is in the schema enum but ships without a template (guided mode operates without a sprint contract). `reviewer_re_review` left the Schema 13 enum: re-review is governed by the dedicated contract family under `re_review/` (four schemas + `@/engine/scripts/check_re_review_synthesis.py`), not by a Schema 13 template — a contract claiming `mode: reviewer_re_review` no longer validates.
 
 ### How to add a new template
 
@@ -214,19 +184,12 @@ Schemas for Material Passport input ports.
   entries that could not be included in the corpus.
 - `passport/reset_ledger_entry.schema.json` — `reset_boundary[]` ledger entries
   for the opt-in passport reset boundary protocol.
-- `passport/inquiry_ledger_ref.schema.json` — optional digest-bound
-  pointer to the separate canonical inquiry branch ledger; missing or
-  mismatched targets fail visibly and unpointed candidates are ignored.
 - `passport/standing_constraint_entry.schema.json` — `standing_constraints[]`
-  entries: a run-wide constraint the user stated, in their words. Schema tests:
+  entries: a run-wide constraint the user stated, in their words.
 - `passport/excluded_source_entry.schema.json` — `excluded_sources[]`
   entries: a reference an integrity gate judged `NOT_FOUND`, kept off later writer
   dispatches.
-- `passport/audit_artifact_entry.schema.json` (Step 6) — `audit_artifact[]` entries
-Two lifecycle
-  states (proposal / persisted) share the schema via `oneOf`. Cross-artifact invariants
-  are enforced by `@/engine/scripts/check_audit_artifact_consistency.py`. Spec:
-- `passport/version_records.schema.json` (Kong) — optional
+- `passport/version_records.schema.json` — optional
   `phase2_investigation/version_records.yaml` sidecar for academic citation version
   families (preprint -> proceedings -> journal extension). This is deliberately a
   sidecar: `literature_corpus_entry.schema.json` stays adapter-owned and unmodified.
@@ -497,7 +460,7 @@ author fields exactly into Schema 11. Earlier versions are not included; mixed c
 ## Human-subjects correspondence contract
 
 `human_subjects/committee_correspondence.schema.json` defines the standalone
-`the draft role revision-coach` committee-correspondence variant. It binds every
+`review revision-coach` committee-correspondence variant. It binds every
 confirmed source comment to one concern record while preserving the entire UTF-8
 letter byte-for-byte, including non-comment material. The contract carries
 multi-label actions, explicit authority/provenance, optional profile enrichment,
@@ -513,7 +476,7 @@ python @/engine/scripts/check_committee_correspondence.py \
 
 The checker recomputes file/segment hashes, contiguous byte coverage, exact
 comment-to-concern accounting, source order, full-permutation working views, and
-response-skeleton coverage. Spec:
+response-skeleton coverage.
 
 ## Human-subjects authority context
 
@@ -556,7 +519,7 @@ python @/engine/scripts/resolve_human_subjects_authority.py \
 The resolver is standard-library-only, opens only named files, evaluates a closed
 Strong-Kleene predicate AST, never infers a jurisdiction, and rejects duplicate
 JSON keys and non-finite numbers. Protocol:
-`@/references/human_subjects_authority_protocol.md`. Spec:
+`@/references/human_subjects_authority_protocol.md`.
 
 ## Human-subjects submission-packet manifest
 
@@ -625,7 +588,7 @@ unresolved manifest without a default profile; a partial or mismatched triplet i
 a contract error. `render` requires the same inputs and exact replay, so a
 self-consistent but forged manifest digest is insufficient.
 
-Protocol: `@/references/submission_packet_manifest_protocol.md`. Spec:
+Protocol: `@/references/submission_packet_manifest_protocol.md`.
 
 ## Review-pathway rule trace
 
@@ -681,7 +644,7 @@ The banned-output lint is surface-scoped to those named generated files and
 permits a pathway term only in the exact candidate grammar. Successful replay or
 lint never changes a readiness, authorization, acceptance, verdict, checkpoint,
 or workflow gate. Protocol:
-`@/references/review_pathway_rule_trace_protocol.md`. Spec:
+`@/references/review_pathway_rule_trace_protocol.md`.
 
 ## Authority-profile content-coverage advisory
 
@@ -791,86 +754,3 @@ routing. Any manuscript revision stales both and requires both to rerun.
 The final carrier has no score, pass/fail, gate, readiness, authorization,
 rewrite, ClaimIntent, consent/protocol duplicate, or clean-document meaning.
 Protocol: `@/references/cross_document_consistency_advisory_protocol.md`.
-
-## Audit artifact contracts (Step 6)
-
-The `audit/` directory carries the three wrapper-emitted artifact schemas that pair
-with the passport-side `audit_artifact_entry.schema.json` above. Together they form
-the four-schema contract that `scripts/run_codex_audit.sh` (Phase 6.1) writes and the
-orchestrator agent reads at every per-agent audit gate.
-
-- `audit/audit_jsonl.schema.json` — Layer 2 evidence: per-row schema for the codex CLI
-  0.125+ `--json` event stream (`thread.started` / `turn.started` / `item.completed` /
-  `turn.completed` / `error`). One JSONL line per event row.
-- `audit/audit_sidecar.schema.json` — Layer 3 evidence: runner / timing / process /
-  stream / prompt metadata. Cross-file rules linking sidecar fields to JSONL events,
-  on-disk files, and passport entries (B1-B7 in spec §3.7 family B) are enforced by
-  `@/engine/scripts/check_audit_artifact_consistency.py` (Phase 6.3), not by this schema alone.
-- `audit/audit_verdict.schema.json` — verdict file shape (PASS / MINOR / MATERIAL /
-  AUDIT_FAILED). The artifact orchestrator parses for ship/block decisions; cross-field
-  consistency with `finding_counts` and `failure_reason` is lint-enforced per
-  spec §3.7 A1 / A2 / A5 / A6.
-
-
-## Review target contracts
-
-The `review_target/` family keeps target selection author-owned and separates it
-from deterministic criterion resolution:
-
-- `review_target_declaration.schema.json` — the closed author-confirmed discipline,
-  exact venue/track/contribution-type (or explicit no-venue fallback), overlay,
-  selection, precedence, and as-of input;
-- `criteria_registry.schema.json` — the versioned four-part authority registry with
-  criterion provenance, applicability/exclusions, freshness, and blocking policy;
-- `review_criteria_source_receipt.schema.json` — the closed discriminated
-  receipts for mutable-web semantic snapshots and immutable Git repository-head
-  verification;
-- `review_target_context.schema.json` — the pointer-only resolved profile, three
-  independent outcome dimensions, parallel conflicts, fallback state, and stable
-  digests.
-
-for MSR 2027 Technical Papers Full Papers and ACM SIGSOFT's General and
-Repository Mining standards, alongside the field-general fallbacks. This is not
-a coverage claim: targets without an exact official profile remain unresolved,
-and the SIGSOFT rows remain advisory unless venue adoption is separately
-sourced. The executable exact-target declaration and hermetic source/digest
-checks live under `scripts/fixtures/review_target_context/` and
-the dated source audit is
-`audits/575-source-backed-proving-set-2026-08-24.md`. Mutable-page and
-immutable-repository verification receipts live under
-`shared/review_criteria_sources/`. The fixture models a hypothetical
-author-confirmed declaration; it is not a real-manuscript attestation. The
-registry release preserves its id, increments its version, and visibly rotates
-V1 resolved digests so consumers must explicitly rebind.
-
-Resolve a declaration and optionally emit the Phase 0/1 Target Criteria Brief:
-
-```bash
-
-  --context declaration.json \
-  --output review-target-context.json \
-  --brief target-criteria-brief.md
-```
-
-The resolver is standard-library-only and opens only the named context and registry
-inputs. It never reads manuscript content, infers a venue, averages interdisciplinary
-criteria, or applies adaptive numeric weights. Spec:
-
-## Review criteria consumer binding
-
-The layer binds the context across the three actual consumer classes
-without copying criterion prose or inventing a second resolver:
-
-  pointer-only manifest with exact formative, internal-evaluator, and
-  five-seat external-panel receipt roles;
-- `review_target/constructive_review_findings.schema.json` — the closed
-  Critical/Major finding sidecar with exact criterion pointers, typed
-  manuscript anchors, separate scholarly/target relevance, honest remedies,
-  costs/trade-offs, and author-choice boundaries.
-
-Build, record, render markers, and validate with
-The tool reads only explicit paths,
-hashes artifacts itself, and has no model/API/network/clock/ambient-scan path.
-The manifest is workflow-conformance authority only: it never supplies a
-severity, verdict, checkpoint, or author triage. Operational protocol:
-Frozen spec:

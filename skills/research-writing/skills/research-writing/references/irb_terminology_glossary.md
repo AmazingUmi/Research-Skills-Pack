@@ -6,7 +6,7 @@
 **Audience:** Agents drafting participant-facing consent/privacy language and
 human authors reviewing instrument drafts.
 
-**Status:** This is an this skill operational drafting convention. It is not a legal
+**Status:** This is a `research-writing` operational drafting convention. It is not a legal
 definition set, an authority-selection rule, or a review determination. A term
 is usable only with its named governing authority/convention, actor boundary,
 data state, and lifecycle. Different regimes can classify the same retained
@@ -48,7 +48,7 @@ not silently upgrade that scoped boundary to absolute anonymity.
 
 ### Anonymity
 
-**this skill drafting convention (not a universal legal definition):** Within the
+**`research-writing` drafting convention (not a universal legal definition):** Within the
 explicitly named actor and lifecycle boundary, no identity-response link is
 created, retained, or reasonably recoverable. Use an absolute claim such as
 "anonymous to everyone" only when the platform/provider and every downstream
@@ -77,7 +77,7 @@ platform metadata behavior unstated.
 
 ### Confidentiality
 
-**this skill drafting convention (not a universal legal definition):** An identity or
+**`research-writing` drafting convention (not a universal legal definition):** An identity or
 identity-response link may exist, while one or more named actors commit to
 bounded access, use, and disclosure. Confidentiality is a handling promise; it
 does not mean identifiers were never collected.
@@ -180,8 +180,8 @@ GDPR term to another authority without naming that authority's own convention.
 
 | Term | Identity/re-link state under the stated boundary | What the wording communicates | Authority/convention status |
 |---|---|---|---|
-| **Anonymity** | No identity-response link within a precisely named and verified actor/lifecycle boundary | inability to link within that boundary | this skill drafting convention unless a selected authority defines it |
-| **Confidentiality** | Link may exist | limits on access, use, and disclosure | this skill drafting convention plus any selected authority/institutional terms |
+| **Anonymity** | No identity-response link within a precisely named and verified actor/lifecycle boundary | inability to link within that boundary | `research-writing` drafting convention unless a selected authority defines it |
+| **Confidentiality** | Link may exist | limits on access, use, and disclosure | `research-writing` drafting convention plus any selected authority/institutional terms |
 | **De-identification** | Depends on the named test; retained-key effect is convention-specific | transformation and bounded residual-risk result | name the governing authority or technical release convention |
 | **Pseudonymization** | Under GDPR, attribution requires separately kept additional information | a controlled but still personal-data state in the GDPR context | GDPR Article 4(5); other regimes must be named separately |
 

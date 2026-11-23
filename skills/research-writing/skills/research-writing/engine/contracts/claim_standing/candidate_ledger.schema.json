@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Imbad0202/academic-research-skills/contracts/claim_standing/candidate_ledger.schema.json",
-  "title": "this skill Claim-standing Candidate Ledger v1",
+  "title": "research-writing Claim-standing Candidate Ledger v1",
   "description": "Closed replayable Track A ledger. It retains every already-returned raw hit, explicit failed attempt, duplicate relation, relevance input, deterministic family, cull state, and cap overflow. It performs no retrieval or stance classification and carries no credibility, consensus, support, contradiction, gate, or efficacy result.",
   "type": "object",
   "additionalProperties": false,

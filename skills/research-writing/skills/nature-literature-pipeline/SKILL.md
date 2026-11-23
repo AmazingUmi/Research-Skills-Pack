@@ -8,7 +8,7 @@ metadata:
   author: Jiahao8595
   hermes:
     tags: [research, literature, pipeline, cron, automation, discovery]
-    related_skills: [nature-academic-search, nature-citation, arxiv, zotero]
+    related_skills: [research-writing, arxiv, zotero]
 ---
 
 # Nature Literature Pipeline
@@ -87,8 +87,8 @@ A config template is provided in `templates/literature-push-template.md`.
 
 ## Related Skills
 
-- `nature-academic-search` — ad-hoc literature search (complementary; this skill adds structured daily automation)
-- `nature-citation` — CNS citation export (for importing pipeline discoveries into manuscripts)
+- `$research-writing literature search` — ad-hoc literature search (complementary; this skill adds structured daily automation)
+- `$research-writing literature cns-cite` — CNS citation export (for importing pipeline discoveries into manuscripts)
 - `zotero` — library management (for long-term organization of pipeline outputs)
 - `arxiv` — arXiv API (used as a search source)
 

@@ -224,7 +224,7 @@ These are structural — they can't be fixed in analysis, only in design.
 7. **Document** the design, software versions, seed, and schedule. Pre-specify the
    analysis; restrict access to the seed and future assignments during enrollment.
 8. **Match the analysis to the design** — blocks, strata, clusters, and nesting must
-   appear in the model (hand off to **statistical-analysis** / **statsmodels**).
+   appear in the model (hand off to `$research-writing draft analysis` / **statsmodels**).
 
 ---
 
@@ -251,7 +251,7 @@ These are structural — they can't be fixed in analysis, only in design.
 
 ### Related skills
 - **statistical-power** — required sample size / power for the design you've chosen.
-- **statistical-analysis** — running and reporting the analysis after collection.
+- `$research-writing draft analysis` — running and reporting the analysis after collection.
 - **statsmodels** / **pymc** — fitting the models the design implies.
 
 ### Key references

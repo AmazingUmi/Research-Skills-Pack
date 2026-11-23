@@ -1,19 +1,19 @@
 # Claim-Strength Ladder
 
-**Issue:** . **External motivation:** DELEGATE-52 (arXiv:2604.15597) — round-trip
+**External motivation:** DELEGATE-52 (arXiv:2604.15597) — round-trip
 document editing corrupts scientific content by *subtle modification, not deletion*.
-'s block-anchored patch confines that exposure to touched blocks; this reference
+Block-anchored patching confines that exposure to touched blocks; this reference
 governs the epistemic dimension *inside* a touched block, which the patch mechanism
 does not check. Mechanism shape borrowed from
 [Yila-AI/sci-ssci-skills](https://github.com/Yila-AI/sci-ssci-skills) by
 @MissOrangePeel (`sci-ssci-polishing`, `references/invariants.md`).
 
 **Epistemic status:** the field-relative ladder remains advisory / interpretive
-guidance. Since, exact claim surfaces that were explicitly registered and
+guidance. Exact claim surfaces that were explicitly registered and
 hash-bound are mechanically preserved or replaced only by exact author-approved
 bytes in current patch 1.1; the runtime does not infer a rung from prose and does
 not detect unregistered semantic movement. E6 therefore remains mandatory for
-unregistered prose. The deterministic sibling `` separately conserves
+unregistered prose. The deterministic sibling check separately conserves
 numbers and citation tokens; see `@/engine/scripts/check_revision_token_conservation.py`.
 
 ## The ladder

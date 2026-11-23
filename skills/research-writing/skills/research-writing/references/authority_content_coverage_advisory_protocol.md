@@ -268,7 +268,7 @@ pages must reproduce every row exactly once and in order.
 
 The final carrier contains the exact marker `evaluation_status=UNMEASURED`.
 That marker is not a measurement row. No held-out scored row exists for this
-surface, so this skill makes no accuracy, precision, recall, coverage-improvement, or
+surface, so `research-writing` makes no accuracy, precision, recall, coverage-improvement, or
 efficacy claim. A future efficacy claim requires a real held-out scored row under
 the shared held-out measurement contract; never synthesize an "unmeasured"
 measurement JSON file.

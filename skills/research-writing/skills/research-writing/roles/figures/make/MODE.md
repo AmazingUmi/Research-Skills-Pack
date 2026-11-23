@@ -95,7 +95,7 @@ data geometry, text, fonts, legends, annotations, axes, error bars, panel size
 or layout, not only at final submission. Use:
 
 ```bash
-python skills/nature-figure/scripts/audit_figure_collisions.py figure.pdf \
+python scripts/audit_figure_collisions.py figure.pdf \
   --json-out figure.collision-audit.json \
   --overlay-pdf figure.collision-audit.pdf
 ```

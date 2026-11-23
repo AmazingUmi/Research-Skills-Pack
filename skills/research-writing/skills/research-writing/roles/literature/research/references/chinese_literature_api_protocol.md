@@ -315,4 +315,4 @@ Also excluded, and why:
 - Client spec mirror: `@/roles/literature/research/references/arxiv_api_protocol.md`
 - Sibling protocols: `crossref_api_protocol.md`, `openalex_api_protocol.md`, `semantic_scholar_api_protocol.md`
 - Reducer semantics: `@/engine/scripts/citation_verification_summary.py` (`reduce_lookup_verified`), spec INVARIANT C-V6(a)
-- Transport-fixture discipline: `scripts/fixtures/transport_bodies/README.md`
+- Transport-fixture discipline: follow the same offline fixture conventions as the other API clients in `@/engine/scripts/`.

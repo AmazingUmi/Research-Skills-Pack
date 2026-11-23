@@ -100,7 +100,7 @@ journal floor to fit more.
 ## 5. Check, look, fix
 
 1. Run the audit on the SVG:
-   `python skills/nature-figure/scripts/audit_svg_schematic.py figure.svg`.
+   `python scripts/audit_svg_schematic.py figure.svg`.
    It checks final-size text, canvas width, off-canvas content, and forbidden
    constructs. A non-zero exit blocks delivery.
 2. Render the SVG to PNG at final size and look at it. The audit cannot see

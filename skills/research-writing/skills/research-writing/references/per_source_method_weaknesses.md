@@ -1,6 +1,6 @@
 # Per-Source Method Weaknesses
 
-This file holds the canonical per-source method-weakness rules for this skill reading outputs. The block between the markers is copied verbatim into each surface below;
+This file holds the canonical per-source method-weakness rules for `research-writing` reading outputs. The block between the markers is copied verbatim into each surface below;
 
 | Surface | Where the block sits |
 |---|---|
@@ -9,7 +9,7 @@ This file holds the canonical per-source method-weakness rules for this skill re
 | `@/roles/literature/research/agents/bibliography_agent.md` | Step 5 Annotated Bibliography |
 | `@/roles/draft/paper/agents/literature_strategist_agent.md` | Annotated Bibliography |
 
-Why the rules exist: a free-text "strengths and limitations" line gives no way to tell a weakness the authors stated from one the reader guessed, or a checked absence from an unchecked one. ScientistTwo (Nam et al., 2026, arXiv:2609.19644, Appendix C) shows the named-design-plus-failure-condition format; its items are unlabelled inferences with no locator, and it adds a research-direction field, so this skill takes the format and not those two parts.
+Why the rules exist: a free-text "strengths and limitations" line gives no way to tell a weakness the authors stated from one the reader guessed, or a checked absence from an unchecked one. ScientistTwo (Nam et al., 2026, arXiv:2609.19644, Appendix C) shows the named-design-plus-failure-condition format; its items are unlabelled inferences with no locator, and it adds a research-direction field, so `research-writing` takes the format and not those two parts.
 
 Out of scope: Socratic mode, any improvement or research-direction field, skip or decline counters, and any gate, verdict, or score. The rules change what a reading output says about one source. They are not measured; no claim of improved review quality is made.
 

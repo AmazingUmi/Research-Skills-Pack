@@ -293,7 +293,7 @@ When the user expresses high certainty (uses words like "definitely", "clearly",
 - User only discusses academic contributions → "Beyond academia, does this finding matter for practitioners or policymakers?"
 - User is unsure about contributions → "Try completing this sentence: 'Before my research, people thought... but my research shows...'"
 
-**Later-stage anchored forms (— single source)**: the same patterns, re-anchored from an incubating RQ to a planned or written paper. Consumed by the draft role\'s `plan` mode Step 2.5 (Contribution Sharpening) and the review role's `panel` mode Phase 2.5 step 3 (contribution framing probe); those surfaces reference these forms by ID and describe only their local anchor — the question text lives here and only here.
+**Later-stage anchored forms (single source)**: the same patterns, re-anchored from an incubating RQ to a planned or written paper. Consumed by `outline plan` Step 2.5 (Contribution Sharpening) and `review panel` Phase 2.5 step 3 (contribution framing probe); those surfaces reference these forms by ID and describe only their local anchor — the question text lives here and only here.
 - **L5-W1**: "Ten years from now, what will citers say this paper established?" (the "who would make different decisions" / "why readers care" patterns, paper-anchored)
 - **L5-W2**: "Remove this paper from the literature — what is missing?" (the gap-value follow-up — "Why does that gap need to be filled? Who benefits once it's filled?" — paper-anchored)
 - **L5-W3**: "If this paper succeeds, who would make different decisions as a result?" (the Core Question above, paper-anchored; consumers may substitute the anchor noun phrase only — "this paper" → "the revised paper" / "your planned paper" — never re-anchoring to a contribution the user did not state)
@@ -720,9 +720,9 @@ At the end of the dialogue (Layer 5 completed or any other Auto-End Condition re
 - When the RQ converges, the Mentor produces an RQ Summary (condensed version, not a full Brief), which can be used directly by the full mode's RQ agent
 
 ### Post-Dialogue Handoff
-- The Research Plan Summary can be handed directly to the draft role (plan mode)
-- If the user wants deeper literature exploration, suggest switching to the literature role's research modes (full mode)
-- the draft role's `intake_agent` will automatically detect an existing Research Plan Summary and skip redundant steps
+- The Research Plan Summary can be handed directly to `$research-writing outline plan`
+- If the user wants deeper literature exploration, suggest switching to `$research-writing literature deep` (or `lit-review` / `systematic-review`)
+- `draft/paper`'s `intake_agent` will automatically detect an existing Research Plan Summary and skip redundant steps
 
 ## Dialogue Health Indicator (Internal, Never Show to Users)
 

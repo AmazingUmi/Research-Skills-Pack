@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Imbad0202/academic-research-skills/contracts/evidence/evidence_row_v1_1.schema.json",
-  "title": "this skill Shared Evidence Row v1.1 — authority-profile content coverage",
+  "title": "research-writing Shared Evidence Row v1.1 — authority-profile content coverage",
   "description": "Closed evidence-row/1.1 carrier for the LLM-ADVISORY authority-profile content-coverage surface. It binds a bounded quoted passage, a checked-no-match scope, or an explicit unperformed state to one replay-validated requirement expectation and one explicitly named packet artifact. It carries no claim verdict, adequacy judgment, readiness update, authorization decision, institutional acceptance, or efficacy measurement.",
   "type": "object",
   "additionalProperties": false,

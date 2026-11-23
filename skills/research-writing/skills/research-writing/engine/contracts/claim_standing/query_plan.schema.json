@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Imbad0202/academic-research-skills/contracts/claim_standing/query_plan.schema.json",
-  "title": "this skill Claim-standing Retrieval Query Plan v1",
+  "title": "research-writing Claim-standing Retrieval Query Plan v1",
   "description": "Closed, researcher-approved, retrieval-only query plan for Track A. The plan authorizes no network, model, stance, gate, or manuscript action by itself. Cross-field hashes, Stage 2.5/4.5 eligibility, unique identifiers, roster membership, date order, and consent binding are replayed by scripts/build_claim_standing_candidate_ledger.py.",
   "type": "object",
   "additionalProperties": false,

@@ -23,7 +23,7 @@ estimates. In every case, the shared presence of ground-truth material and
 candidate-output generation in the same context produces results that look
 strong on paper and fail on genuinely held-out evaluation.
 
-Two published cases make this concrete and directly inform this skill design.
+Two published cases make this concrete and directly inform `research-writing` design.
 
 Anthropic's automated-w2s-researcher (2026) uses a three-tier sandbox: local
 mode for development, docker-with-redacted-data for integration testing, and
@@ -47,7 +47,7 @@ information about the evaluation criterion, the model finds that leak. The
 paper looks like a solved problem. The underlying scientific question remains
 open.
 
-this skill's human-in-the-loop pipeline already enforces the spirit of this
+`research-writing`'s human-in-the-loop pipeline already enforces the spirit of this
 isolation: researchers set their own research questions, review outputs at each
 integrity gate, and supply calibration gold sets at runtime rather than
 embedding them in the repository. This document makes the pattern explicit and
@@ -58,7 +58,7 @@ top-level `MODE.md`.
 
 ## § 2 — The three-layer mental model
 
-Every artifact in this skill belongs to one of three layers, and the direction of
+Every artifact in `research-writing` belongs to one of three layers, and the direction of
 flow is strictly one-way. An artifact can be promoted from a lower layer to a
 higher one by passing an integrity gate. It cannot move in the other direction.
 Layer 3 material cannot appear as input to a process whose output is layer 1
@@ -70,7 +70,7 @@ verification. Material at this layer is untrusted by default. It may be
 hallucinated, adversarially crafted, outdated, or contain PII. A skill
 operating at layer 1 must treat every factual claim as potentially wrong, flag
 gaps rather than silently filling them from parametric memory, and pass nothing
-downstream as verified fact without explicit gate passage. The the literature role's research modes
+downstream as verified fact without explicit gate passage. The literature role's research modes
 skill operates here.
 
 **Layer 2 — verified artifacts** are outputs that have cleared an integrity
@@ -211,7 +211,7 @@ not just separate instructions, are required.
 
 ## § 4 — Today's implementation
 
-The isolation pattern is already instantiated across this skill codebase through
+The isolation pattern is already instantiated across `research-writing` codebase through
 a set of narrowly scoped protocol files. This section is a navigational map —
 not a duplication of their contents.
 
@@ -232,7 +232,7 @@ updated.
 
 ## § 5 — What this pattern is NOT
 
-**Not a runtime permission system.** Nothing in this skill enforces isolation at
+**Not a runtime permission system.** Nothing in `research-writing` enforces isolation at
 execution time by blocking API calls, sandboxing the filesystem, or
 intercepting prompt construction. The mechanism is convention, declarative
 That script

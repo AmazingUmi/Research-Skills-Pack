@@ -1,6 +1,6 @@
 # Reader workflow
 
-Used by both `nature-polishing` and `nature-writing`. Always-loaded shared core.
+Used by both `$research-writing draft polish` and `$research-writing draft section`. Always-loaded shared core.
 
 ## The reader's question sequence
 

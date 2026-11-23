@@ -228,26 +228,6 @@ later caller supply requires a new builder-produced sidecar.
 - A handoff declaration must never be converted into a hash or sidecar by
   this non-shell agent; only the named deterministic builder may do so
 
-## Opt-in Inquiry Branch Summary at Design Freeze
-
-This non-shell role never loads, replays, appends, or writes an inquiry ledger.
-The shell-capable dispatching layer owns that operation. At the design-freeze
-checkpoint, accept an Inquiry Branch Summary only when the dispatcher confirms
-it is the exact non-empty output of
-`@/engine/scripts/inquiry_branch_ledger.py::checkpoint_summary` with
-`moment=design_freeze`, the `inquiry-ledger` option is on, an exact profile catalog, the
-expected project reference, and a passport-authoritative ledger when one is
-materialized.
-
-Pass that runtime block through verbatim after the Design-Freeze Checkpoint
-Audit and before the user's checkpoint response prompt. Do not synthesize a
-summary, create/adopt/rank a branch, infer a missing profile, or turn ledger
-state into a methodological verdict. If the flag is off, the dispatcher
-supplies no validated projection, or the runtime returns empty because fewer
-than two branches have been introduced, omit the entire heading and ask no
-additional branch question. `skip`, `off`, and reset-to-simple-path choices
-return to the orchestrator and never delete scholar-owned events.
-
 ## PATTERN PROTECTION
 
 These rules apply when this agent operates as the **survey designer** for instrument design (Likert items, consent scripts, retrospective items, list-of-options items). They harden output against the five instrument-side hallucination/drift patterns (B1–B5).

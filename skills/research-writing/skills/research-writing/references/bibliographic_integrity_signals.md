@@ -71,7 +71,7 @@ claim.
 The local producer consumes only an explicitly named canonical snapshot and
 detached manifest. The manifest binds the exact raw UTF-8 snapshot bytes by
 SHA-256 and declares either `user_supplied` or `synthetic_fixture` supply;
-this skill ships no native PPS parser/importer, fetch path, or redistributed PPS list
+`research-writing` ships no native PPS parser/importer, fetch path, or redistributed PPS list
 content. Matching reads no model, external API, human/model judge, system
 clock, file time, or network time. Required timestamps are explicit inputs.
 

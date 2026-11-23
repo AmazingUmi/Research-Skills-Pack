@@ -3,7 +3,7 @@
 Load only in strict mode, together with `../agents/draft_writer_agent.md`.
 
 
-> Authoritative system-prompt sub-sections for the writer half of the contract-gated phase split. Used by the draft role's `full` mode only. Pinned by the orchestrator block in `the draft role's `paper/MODE.md`` § "Generator-Evaluator Contract Protocol". Schema 13.1 contract template: `@/engine/contracts/writer/full.json`. Design spec:
+> Authoritative system-prompt sub-sections for the writer half of the contract-gated phase split. Used by the draft role's `full` mode only. Pinned by the orchestrator block in `@/roles/draft/paper/MODE.md` § "Generator-Evaluator Contract Protocol". Schema 13.1 contract template: `@/engine/contracts/writer/full.json`. Design spec:
 
 This block contains the exact text that becomes the **system prompt** for Phase 4a and Phase 4b model calls. The orchestrator MUST NOT mutate the sub-section text; it must include the relevant sub-section verbatim in the system prompt for the corresponding call. User content is supplied per the MODE.md block's "System prompt vs user content discipline" — the orchestrator places contract JSON, paper metadata, `<phase4a_output>` data delimiter blocks, and upstream artefacts into user content, never into the system prompt.
 

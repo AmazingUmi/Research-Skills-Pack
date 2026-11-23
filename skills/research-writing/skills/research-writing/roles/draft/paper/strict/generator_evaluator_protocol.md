@@ -3,19 +3,19 @@
 Applies to the `full` mode in strict mode only.
 
 
-> Authoritative orchestration block for the contract-gated phase splits inside the draft role's `full` mode. Schema 13.1 since (`@/engine/contracts/sprint_contract.schema.json`). Templates: `@/engine/contracts/writer/full.json` + `@/engine/contracts/evaluator/full.json`. Design spec:
+> Authoritative orchestration block for the contract-gated phase splits inside `draft full` (Schema 13.1, `@/engine/contracts/sprint_contract.schema.json`). Templates: `@/engine/contracts/writer/full.json` + `@/engine/contracts/evaluator/full.json`.
 >
-> **Applies to the draft role's `full` mode only.** Nine non-full modes (`plan`, `outline-only`, `revision`, `revision-coach`, `abstract-only`, `lit-review`, `format-convert`, `citation-check`, `disclosure`) are byte-equivalent across → and do not invoke this protocol. (The later-added `rebuttal-audit` mode is likewise non-full and does not invoke this protocol.) Pipeline boundary unchanged: the orchestrate role Stage 2 dispatches the draft role in plan or full mode (full only invokes this protocol); Stage 3 dispatches the separate the review role's `panel` mode (5-panel external editorial review). The in-pair Phase 6 evaluator under this protocol and the Stage 3 reviewer are different review layers — see design doc §5.1 audit conclusion 2.
+> **Applies to `draft full` only.** Other modes (`draft abstract`, `draft disclosure`, `draft format-convert`, as well as `outline plan`, `outline outline-only`, `literature citation-check`, `review revision-coach`, `review rebuttal-audit`, `review revise`) do not invoke this protocol. Pipeline boundary: `orchestrate` Stage 2 dispatches `outline plan` and/or `draft full` (`draft full` invokes this protocol in strict mode); Stage 3 dispatches `review panel` (5-panel external editorial review). The in-pair Phase 6 evaluator under this protocol and the Stage 3 reviewer are different review layers.
 
 ### Overview
 
-splits Phase 4 (writer drafting) and Phase 6 (in-pair evaluator review) into paper-blind / paper-visible call pairs gated by the `writer_full` and `evaluator_full` contracts. The split mirrors `@/roles/review/panel/strict/sprint_contract_protocol.md` (the reviewer pattern) but adapts it for single-agent generator modes that have no panel and (for the writer) no scoring_plan.
+This protocol splits Phase 4 (writer drafting) and Phase 6 (in-pair evaluator review) into paper-blind / paper-visible call pairs gated by the `writer_full` and `evaluator_full` contracts. The split mirrors `@/roles/review/panel/strict/sprint_contract_protocol.md` (the reviewer pattern) but adapts it for single-agent generator modes that have no panel and (for the writer) no scoring_plan.
 
 The load-bearing mechanism is the **physical separation of calls**: writer Phase 4a never sees the runtime drafting artefacts; evaluator Phase 6a never sees the writer Phase 4b draft. This destroys the "read the paper, then rationalise the standard" drift path on the in-pair self-quality gate.
 
 ### Four-call structure
 
-For each the draft role's `full` mode invocation, Phase 4 + Phase 6 expand from two single calls into four separate model calls. Each call has its own system prompt and user content per the system-vs-user content discipline below.
+For each `draft full` strict-mode invocation, Phase 4 + Phase 6 expand from two single calls into four separate model calls. Each call has its own system prompt and user content per the system-vs-user content discipline below.
 
 1. **Phase 4a — writer paper-blind pre-commitment.**
    - System prompt: `### Phase 4a — Writer paper-blind pre-commitment` sub-section in `@/roles/draft/paper/agents/draft_writer_agent.md` § "Generator-Evaluator Contract Protocol".

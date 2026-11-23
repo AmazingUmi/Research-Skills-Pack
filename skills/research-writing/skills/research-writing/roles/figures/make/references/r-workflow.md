@@ -45,7 +45,7 @@ image/vector outputs or alter visual layout.
 ```r
 library(ggplot2)
 library(patchwork)
-source("skills/nature-figure/scripts/panel_alignment.R")
+source("scripts/panel_alignment.R")
 
 palette_contract <- c(
   neutral_dark = "#272727",

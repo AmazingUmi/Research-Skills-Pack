@@ -119,5 +119,5 @@ saying what the old text already said.
 
 Content fixes change wording, and wording fixes change pagination, so this order avoids redoing work.
 Any downstream artifact that quotes the manuscript — a response letter, a cover letter, a slide deck
-— must be re-synchronized after every change; see `nature-response/references/package-consistency-audit.md`
+— must be re-synchronized after every change; see `@/roles/review/respond/references/package-consistency-audit.md`
 when a revision package is involved.

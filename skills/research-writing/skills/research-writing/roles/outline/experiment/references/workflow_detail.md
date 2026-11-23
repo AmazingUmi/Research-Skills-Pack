@@ -79,7 +79,7 @@ Most modes work with any LLM runtime that supports prompt + reasoning.
 
 ## validate Mode (Inline)
 
-Two capabilities: **statistical interpretation** and **reproducibility verification**. Accepts results from any source (this agent's run/manage modes, external files, this skill pipeline output).
+Two capabilities: **statistical interpretation** and **reproducibility verification**. Accepts results from any source (this agent's run/manage modes, external files, `research-writing` pipeline output).
 
 ### Procedure
 
@@ -179,7 +179,7 @@ Plan mode outputs use separate templates and also carry Material Passport:
 | `@/roles/outline/experiment/references/irb_ethics_checklist.md` | Human study ethics review checklist |
 | `@/roles/outline/experiment/references/statistical_interpretation_guide.md` | Full statistical interpretation + 11-type fallacy scan protocol |
 | `@/roles/outline/experiment/references/reproducibility_protocol.md` | Re-run methodology, comparison thresholds, verdict criteria |
-| `@/roles/outline/experiment/references/ars_integration_guide.md` | this skill Material Passport, handoff format, pipeline bridging |
+| `@/roles/outline/experiment/references/ars_integration_guide.md` | `research-writing` Material Passport, handoff format, pipeline bridging |
 | `@/roles/outline/experiment/references/study_state_protocol.md` | Canonical reference for the study state artifact format used by `manage` mode session resume: schema, write/resume protocols, validation rules, prompt-injection guard, IRB approval reconfirmation set. |
 | `@/roles/outline/experiment/templates/output_formats.md` | Complete Markdown output templates for all three output types |
 
@@ -191,7 +191,7 @@ This skill works independently. When used with this skill:
 
 - **Consuming this skill output**: Recognizes Stage 1 section headings (`## Research Question Brief`, `## Methodology Blueprint`) to pre-populate plan/manage modes
 - **Producing ARS-compatible output**: All outputs carry Material Passport (Schema 9). Users bring results to Stage 2 manually.
-- **this skill requires zero modification**: No new pipeline stages, no dependencies. The user is the bridge.
+- **`research-writing` requires zero modification**: No new pipeline stages, no dependencies. The user is the bridge.
 
 See `@/roles/outline/experiment/references/ars_integration_guide.md` for details.
 

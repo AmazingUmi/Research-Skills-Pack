@@ -41,7 +41,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_FORMATTER = REPO_ROOT.parent / "roles/draft/paper/agents/formatter_agent.md"
 DEFAULT_ORCHESTRATOR = REPO_ROOT / "../roles/orchestrate/strict/pipeline_orchestrator_agent.md"
 
-V3_9_0_SECTION_HEADER = "## Cite-Time Provenance Finalizer — v3.9.0 extension"
+V3_9_0_SECTION_HEADER = "## Cite-Time Provenance Finalizer — extension (triangulation tiers)"
 
 # Three new v3.9.0 markers that must appear in the finalizer suffix table.
 EXPECTED_NEW_V3_9_0_SUFFIXES = {

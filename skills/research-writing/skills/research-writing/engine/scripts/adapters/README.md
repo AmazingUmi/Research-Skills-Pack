@@ -1,6 +1,6 @@
-# this skill Literature Corpus Adapters
+# research-writing Literature Corpus Adapters
 
-Reference adapters that produce `literature_corpus[]` entries for this skill Material Passport. Defined by the adapter contract at [`the orchestrate role/references/adapters/overview.md`](../../../roles/orchestrate/references/adapters/overview.md).
+Reference adapters that produce `literature_corpus[]` entries for the `research-writing` Material Passport. Defined by the adapter contract at [`roles/orchestrate/references/adapters/overview.md`](../../../roles/orchestrate/references/adapters/overview.md).
 
 ## What these are
 
@@ -53,7 +53,7 @@ Files under `_templates/` and `.obsidian/` are skipped. Wikilinks (`[[other note
 
 ## Validating adapter output
 
-Before using the passport in any this skill workflow:
+Before using the passport in any `research-writing` strict-mode workflow:
 
 ```bash
 python scripts/check_literature_corpus_schema.py \
@@ -63,27 +63,17 @@ python scripts/check_literature_corpus_schema.py \
 
 ## How to write your own adapter
 
-1. Read the adapter contract at [`the orchestrate role/references/adapters/overview.md`](../../../roles/orchestrate/references/adapters/overview.md).
+1. Read the adapter contract at [`roles/orchestrate/references/adapters/overview.md`](../../../roles/orchestrate/references/adapters/overview.md).
 2. Read the JSON schemas:
-   - [`shared/contracts/passport/literature_corpus_entry.schema.json`](../../contracts/passport/literature_corpus_entry.schema.json)
-   - [`shared/contracts/passport/rejection_log.schema.json`](../../contracts/passport/rejection_log.schema.json)
+   - [`contracts/passport/literature_corpus_entry.schema.json`](../../contracts/passport/literature_corpus_entry.schema.json)
+   - [`contracts/passport/rejection_log.schema.json`](../../contracts/passport/rejection_log.schema.json)
 3. Copy one of `folder_scan.py` / `zotero.py` / `obsidian.py` as a starting point.
 4. Change the input-reading and field-mapping code for your source.
 5. Keep the output shape exactly (sorted `literature_corpus[]` by `citation_key`, always emit `rejection_log.yaml`, schema-clean entries only).
 6. Set `obtained_via: "other"` and `adapter_name: "<your-adapter-name>"` on every entry you produce.
 7. Reuse helpers in [`_common.py`](_common.py) where possible — `make_citation_key`, `ensure_unique_citekey`, `parse_csl_name`, `parse_semicolon_names`, `path_to_file_uri`, `write_passport`, `write_rejection_log`, `now_iso`. They encode the contract details so you do not have to re-derive them.
 8. Validate: `python scripts/check_literature_corpus_schema.py --passport <your passport>`.
-9. Write tests modeled on `scripts/adapters/tests/`. The conftest fixtures `clean_timestamps` and `load_yaml` make golden-output testing easy.
 
 ## Privacy reminder
 
-`abstract` and `user_notes` can contain publisher-copyrighted material. Before sharing a passport that contains these fields publicly (e.g., in a public repo or over the web), make sure you have the right to publish that text. this skill does not enforce this — it only warns you in the schema description.
-
-## Tests
-
-```bash
-cd <repo_root>
-pytest scripts/adapters/tests/ -v
-```
-
-CI runs these on every push / PR that touches `scripts/adapters/**`, `shared/contracts/passport/**`, the adapter overview, or either of the two lint scripts.
+`abstract` and `user_notes` can contain publisher-copyrighted material. Before sharing a passport that contains these fields publicly (e.g., in a public repo or over the web), make sure you have the right to publish that text. `research-writing` does not enforce this — it only warns you in the schema description.

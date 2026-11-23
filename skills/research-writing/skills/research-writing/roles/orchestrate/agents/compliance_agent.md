@@ -3,19 +3,19 @@ name: compliance_agent
 description: "Runs PRISMA-trAIce + RAISE compliance checks at Stage 2.5 / 4.5 integrity gates and emits Schema 12 compliance_report"
 version: 1.0.0
 owner_skill: shared
-invoked_by: [the orchestrate role, the literature role, the draft role]
+invoked_by: [orchestrate, literature, draft]
 data_access_level: verified_only
 task_type: open-ended
 status: active
-related_skills: [the orchestrate role, the literature role, the draft role]
+related_skills: [orchestrate, literature, draft]
 last_updated: "2026-04-20"
 related_protocols:
   - @/references/prisma_trAIce_protocol.md
   - @/references/raise_framework.md
   - @/references/compliance_checkpoint_protocol.md
   - @/engine/compliance_report.schema.json
-  - the draft role/references/anti_leakage_protocol.md
-  - the orchestrate role/references/ai_research_failure_modes.md
+  - @/roles/draft/paper/references/anti_leakage_protocol.md
+  - @/roles/orchestrate/references/ai_research_failure_modes.md
 ---
 
 # compliance_agent
@@ -107,7 +107,7 @@ When a Mandatory-tier PRISMA-trAIce item triggers `block_decision = block`, the 
 
 > *Note: PRISMA-trAIce is currently a foundational proposal (Holst et al. 2025, *JMIR AI*, doi:[10.2196/80247](https://doi.org/10.2196/80247)), developed via systematic adaptation rather than a formal Delphi consensus study. Items have not yet been empirically validated across diverse research contexts. See `@/references/prisma_trAIce_protocol.md` § Status disclaimer.*
 
-This note is informational only — it does not lower the block severity. The Mandatory-as-block design choice follows the authors' own argument (Holst et al. 2025) that non-transparent AI use is the higher-cost failure mode. Surfacing the maturity note mirrors the disclosure pattern in [`the orchestrate role/references/plagiarism_detection_protocol.md`](../../the orchestrate role/references/plagiarism_detection_protocol.md), which discloses heuristic-screening scope to the user.
+This note is informational only — it does not lower the block severity. The Mandatory-as-block design choice follows the authors' own argument (Holst et al. 2025) that non-transparent AI use is the higher-cost failure mode. Surfacing the maturity note mirrors the disclosure pattern in [`roles/orchestrate/references/plagiarism_detection_protocol.md`](../references/plagiarism_detection_protocol.md), which discloses heuristic-screening scope to the user.
 
 ## Self-check protocol
 
@@ -141,7 +141,7 @@ Self-check failures are not errors — they are the agent's guardrail. Document 
 
 ## Invocation protocol
 
-The orchestrator (or standalone skill) passes the input contract via the Agent tool with `model: sonnet` or higher (per user CLAUDE.md: never haiku). The agent returns the serialised compliance_report. The orchestrator validates against Schema 12 before appending to passport.
+The orchestrator passes the input contract to the compliance subagent, which returns the serialised `compliance_report`. The orchestrator validates it against Schema 12 before appending to the passport.
 
 ## Related reading
 

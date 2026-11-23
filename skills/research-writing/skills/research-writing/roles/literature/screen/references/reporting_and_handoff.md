@@ -79,7 +79,7 @@ and the draft role covers writing; this skill covers the screening in between.
   `adapter_name: literature screen`). Paste it under `literature_corpus:` in a Material Passport, or
   give it to the draft role or the literature role's research modes as the curated corpus: their literature agents
   then read it first and search only for gaps.
-- **Methods and results**: give the draft role (`full` or `lit-review` mode) the methods
+- **Methods and results**: give `draft full` (or `literature systematic-review` / `lit-review`) the methods
   draft, the PRISMA counts and the excluded-with-reasons list for the Methods, Results and flow
   diagram.
 - **What stays here**: screening decisions. The receiving skills read the corpus; if they

@@ -11,18 +11,18 @@ related: "Position Statement on AI Use in Evidence Synthesis (Cochrane, Campbell
 
 ## Scope disclaimer (required, do not remove)
 
-RAISE's official scope is **evidence synthesis** (systematic review, meta-analysis, scoping review, rapid review, evidence mapping). When this skill applies RAISE **principles** to non-evidence-synthesis work — e.g., the draft role's `full` mode on primary research — this is a **principle extension**, not official RAISE compliance. this skill's `compliance_agent` will only claim RAISE compliance for outputs produced in `systematic_review` or `other_evidence_synthesis` modes.
+RAISE's official scope is **evidence synthesis** (systematic review, meta-analysis, scoping review, rapid review, evidence mapping). When this skill applies RAISE **principles** to non-evidence-synthesis work — e.g., the draft role's `full` mode on primary research — this is a **principle extension**, not official RAISE compliance. `research-writing`'s `compliance_agent` will only claim RAISE compliance for outputs produced in `systematic_review` or `other_evidence_synthesis` modes.
 
 **Used by**: `compliance_agent` (Task 8).
 
 ## Four principles
 
-Each principle carries a definition, this skill check procedure, and pass/warn/fail criteria. These are the universal kernel of RAISE and are checked in every mode.
+Each principle carries a definition, `research-writing` check procedure, and pass/warn/fail criteria. These are the universal kernel of RAISE and are checked in every mode.
 
 ### Principle 1 — Human oversight
 
 **Definition:** AI and automation in evidence synthesis should be used with meaningful human oversight, not as an autonomous replacement.
-**this skill check (Stage 2.5 focus):** At Stage 2.5, verify `methodology_blueprint` specifies reviewer count, qualifications, and adjudication mechanism. At Stage 4.5, verify manuscript describes the human oversight applied in practice.
+**`research-writing` check (Stage 2.5 focus):** At Stage 2.5, verify `methodology_blueprint` specifies reviewer count, qualifications, and adjudication mechanism. At Stage 4.5, verify manuscript describes the human oversight applied in practice.
 **Pass:** Reviewer count + adjudication mechanism + qualifications all present, each with evidence path.
 **Warn:** Any one missing, OR only present in vague form ("authors reviewed AI output").
 **Fail:** Two or more missing.
@@ -30,7 +30,7 @@ Each principle carries a definition, this skill check procedure, and pass/warn/f
 ### Principle 2 — Transparency
 
 **Definition:** Any AI or automation use that makes or suggests judgements must be fully and transparently reported.
-**this skill check (Stage 4.5 focus):** Verify manuscript lists every AI tool used, at what stage, with prompts/parameters/versions. Cross-reference against `user_metadata.ai_tools_used`.
+**`research-writing` check (Stage 4.5 focus):** Verify manuscript lists every AI tool used, at what stage, with prompts/parameters/versions. Cross-reference against `user_metadata.ai_tools_used`.
 **Pass:** All declared tools reported AND all reported tools declared.
 **Warn:** Mismatch in ≤1 tool, or reporting lacks one of {stage, prompt, parameters, version}.
 **Fail:** Multiple tools undeclared OR systematically missing prompts/parameters.
@@ -38,7 +38,7 @@ Each principle carries a definition, this skill check procedure, and pass/warn/f
 ### Principle 3 — Reproducibility
 
 **Definition:** AI-assisted evidence synthesis should be reproducible to a stated level.
-**this skill check:** Verify presence of `passport.repro_lock` (feature) OR equivalent manuscript description (model version, seeds, prompt, data access details). Stochasticity must be declared per `artifact_reproducibility_pattern.md`.
+**`research-writing` check:** Verify presence of `passport.repro_lock` (feature) OR equivalent manuscript description (model version, seeds, prompt, data access details). Stochasticity must be declared per `artifact_reproducibility_pattern.md`.
 **Pass:** Repro_lock present AND stochasticity declared.
 **Warn:** One of the two missing.
 **Fail:** Both missing.
@@ -46,7 +46,7 @@ Each principle carries a definition, this skill check procedure, and pass/warn/f
 ### Principle 4 — Fit-for-purpose
 
 **Definition:** AI tools should be chosen and validated for specific tasks within the evidence synthesis, not applied generically.
-**this skill check (Stage 2.5 focus):** Verify manuscript describes why each AI tool was chosen for its specific task. Look for pilot-phase evidence OR prior validation citation.
+**`research-writing` check (Stage 2.5 focus):** Verify manuscript describes why each AI tool was chosen for its specific task. Look for pilot-phase evidence OR prior validation citation.
 **Pass:** Per-tool justification + ≥1 validation reference.
 **Warn:** Justification present without validation reference.
 **Fail:** Generic "we used AI to save time" with no task-level justification.
@@ -65,7 +65,7 @@ Used when `raise.mode == "full"` (SR and other_evidence_synthesis). Each role ca
 2. Report AI use in the evidence synthesis manuscript transparently.
 3. Ensure ethical, legal, and regulatory standards are adhered to when using AI.
 
-**this skill check:** manuscript contains author responsibility statement; AI-usage disclosure is present; ethics/IRB section addresses AI use.
+**`research-writing` check:** manuscript contains author responsibility statement; AI-usage disclosure is present; ethics/IRB section addresses AI use.
 
 ### Role 2 — AI Development Teams
 
@@ -73,21 +73,21 @@ Used when `raise.mode == "full"` (SR and other_evidence_synthesis). Each role ca
 2. Be transparent about when AI works best, its limitations, and any interests.
 3. Commit to continued learning, development, and monitoring.
 
-**this skill self-declaration:** this skill is open-source (CC BY-NC 4.0); CHANGELOG tracks limitations;
+**`research-writing` self-declaration:** this skill is open-source (CC BY-NC 4.0); CHANGELOG tracks limitations;
 
 ### Role 3 — Methodologists
 
 1. Adhere to open science practice when researching and evaluating AI systems.
 2. Commit to independent evaluations and validation of AI systems.
 
-Different model families may reduce one source of correlated error, but these checks are not a claim of independent validation or improved accuracy. The once-planned sixth-reviewer design was retired in (its failure modes matched this skill's documented anti-patterns).
+Different model families may reduce one source of correlated error, but these checks are not a claim of independent validation or improved accuracy. The once-planned sixth-reviewer design was retired in (its failure modes matched `research-writing`'s documented anti-patterns).
 
 ### Role 4 — Publishers of evidence synthesis
 
 1. Ensure best-practice standards for responsible AI use are clear and integrated into policies and guidelines for authors.
 2. Request transparency and honesty from authors on their use of AI in evidence synthesis.
 
-**this skill note:** Out of this skill's direct control; surfaced in compliance_report as stakeholder context.
+**`research-writing` note:** Out of `research-writing`'s direct control; surfaced in compliance_report as stakeholder context.
 
 ### Role 5 — Users of evidence synthesis
 
@@ -95,7 +95,7 @@ Different model families may reduce one source of correlated error, but these ch
 2. Underscore the potential impacts of AI use in downstream documents and decision-making processes.
 3. Communicate the need for transparent reporting of tool accuracy and biases.
 
-**this skill note:** Out of direct scope; listed for ecosystem completeness.
+**`research-writing` note:** Out of direct scope; listed for ecosystem completeness.
 
 ### Role 6 — Trainers of evidence synthesis methods
 
@@ -103,7 +103,7 @@ Different model families may reduce one source of correlated error, but these ch
 2. Equip trainees with the knowledge they need to determine if an AI tool is appropriate.
 3. Undertake continuous training and development to stay up to date with emerging AI tools.
 
-**this skill note:** Out of direct scope.
+**`research-writing` note:** Out of direct scope.
 
 ### Role 7 — Organisations producing evidence synthesis
 
@@ -111,14 +111,14 @@ Different model families may reduce one source of correlated error, but these ch
 2. Promote, guide, and support responsible AI use in evidence synthesis activities.
 3. Monitor the development and use of AI within the organisation.
 
-**this skill note:** Out of direct scope.
+**`research-writing` note:** Out of direct scope.
 
 ### Role 8 — Funders of evidence synthesis
 
 1. Encourage the responsible use of AI.
 2. Consider sustainability and generalisability of the products they support.
 
-**this skill note:** Out of direct scope.
+**`research-writing` note:** Out of direct scope.
 
 ## Usage in compliance_agent
 

@@ -117,32 +117,32 @@ Run the dependency-free validator on the final plotting source before rendering 
 
 ```bash
 # Python source
-python skills/nature-figure/scripts/validate_figure.py path/to/figure.py
+python scripts/validate_figure.py path/to/figure.py
 
 # R, R Markdown, or Quarto source
-python skills/nature-figure/scripts/validate_figure.py path/to/figure.R
+python scripts/validate_figure.py path/to/figure.R
 
 # Machine-readable report or stricter warning gate
-python skills/nature-figure/scripts/validate_figure.py path/to/figure.py --json
-python skills/nature-figure/scripts/validate_figure.py path/to/figure.py --strict
+python scripts/validate_figure.py path/to/figure.py --json
+python scripts/validate_figure.py path/to/figure.py --strict
 
 # Exported-PDF glyph-size audit
-python skills/nature-figure/scripts/audit_pdf_text.py path/to/figure.pdf --min-pt 5
-python skills/nature-figure/scripts/audit_pdf_text.py path/to/figure.pdf --min-pt 5 --json
+python scripts/audit_pdf_text.py path/to/figure.pdf --min-pt 5
+python scripts/audit_pdf_text.py path/to/figure.pdf --min-pt 5 --json
 
 # Backend-neutral audit of the render-time Python/R panel-layout manifest
-python skills/nature-figure/scripts/audit_panel_alignment.py path/to/figure.alignment-layout.json \
+python scripts/audit_panel_alignment.py path/to/figure.alignment-layout.json \
   --json-out path/to/figure.alignment.json \
   --overlay-svg path/to/figure.alignment.svg \
   --strict
 
 # Mandatory rendered collision audit for Python and R figures
-python skills/nature-figure/scripts/audit_figure_collisions.py path/to/figure.pdf \
+python scripts/audit_figure_collisions.py path/to/figure.pdf \
   --json-out path/to/figure.collision-audit.json \
   --overlay-pdf path/to/figure.collision-audit.pdf
 
 # Optional: make ambiguous WARN findings blocking
-python skills/nature-figure/scripts/audit_figure_collisions.py path/to/figure.pdf --strict
+python scripts/audit_figure_collisions.py path/to/figure.pdf --strict
 ```
 
 The source preflight checks syntax, font configuration and size floor, mathtext shrinkage risk, literal legend-label capitalization, unsafe color maps, editable-text settings, vector/raster exports, DPI, common journal widths, potential sampling or unreported missing-data exclusion, simulated-data leakage, log guards, interpolation monotonicity, stochastic uncertainty encoding, rotated-text anchoring, risky annotation workarounds, and obvious cross-backend plotting references. The panel-alignment gate reads final axes/grob rectangles measured by the selected backend and applies one physical-point contract to Python and R. The PDF text audit scans supported content streams for actual `Tf` font-size operators and catches reduced script glyphs that source-level `fontsize` checks miss. The rendered collision audit uses PyMuPDF geometry from the final PDF and therefore applies equally to Python- and R-generated figures.
@@ -255,7 +255,7 @@ and record the reason, or use `--strict` to make WARN blocking. PyMuPDF is
 declared in `requirements.txt`; install it with:
 
 ```bash
-python -m pip install -r skills/nature-figure/requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 The detector deliberately separates reliable geometry failures from ambiguous

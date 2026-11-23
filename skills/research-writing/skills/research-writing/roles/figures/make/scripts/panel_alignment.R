@@ -133,7 +133,7 @@ require_patchwork_panel_alignment <- function(
   row_groups = NULL,
   column_groups = NULL,
   exemptions = list(),
-  audit_script = "skills/nature-figure/scripts/audit_panel_alignment.py",
+  audit_script = "scripts/audit_panel_alignment.py",
   python = Sys.which("python"),
   overlay_svg = NULL,
   tolerance_pt = 1.5,

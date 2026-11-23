@@ -237,7 +237,7 @@ After E1 has emitted the Claim Registry at a Stage 2.5 or Stage 4.5 integrity ch
   - Record each claim's tier in the Claim Registry (`HIGH-IMPACT` / `RANDOM` / `TOP-UP` for selected claims; `NOT-SELECTED` for the rest) so coverage is inspectable. Cost scales with the count of high-impact claims — a results-dense paper approaches 100% coverage at Stage 2.5, which is the point: consequential distortions surface BEFORE the review stage instead of at the Stage 4.5 backstop.
 - Mode 2 (final-check): 100% of **registered claims**. The denominator is the E1 Claim Registry; semantic extraction completeness remains unknown and is reported separately by E1.1.
 
-External motivation: Ren et al. (2026, arXiv:2607.13104): §3.3 frames active data-acquisition as targeting frequent failure modes and verifier disagreement; §9.2 frames improvement as resource optimization (gating expensive evaluations, penalizing waste). The high-impact-first allocation here is this skill's design inference from those principles, mirroring's reference-verification shift.
+External motivation: Ren et al. (2026, arXiv:2607.13104): §3.3 frames active data-acquisition as targeting frequent failure modes and verifier disagreement; §9.2 frames improvement as resource optimization (gating expensive evaluations, penalizing waste). The high-impact-first allocation here is `research-writing`'s design inference from those principles, mirroring's reference-verification shift.
 
 ## Output Format
 

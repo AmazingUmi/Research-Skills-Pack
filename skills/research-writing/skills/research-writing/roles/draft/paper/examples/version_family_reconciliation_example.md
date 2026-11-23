@@ -86,4 +86,4 @@ The proceedings version presents the Transformer architecture as relying entirel
 The arXiv v1 preprint and the NeurIPS proceedings version both frame the Transformer as an attention-only architecture, but the manuscript cites the proceedings version as the primary record (Vaswani et al., 2017).<!--ref:vaswani2017-arxiv-v1 ok--><!--anchor:section:arxiv:1706.03762v1:sec3--><!--ref:vaswani2017-neurips ok--><!--anchor:section:papers.nips.cc:7181:sec3-->
 ```
 
-The important rule is that each version-bound claim has its own slug and locator. this skill does not decide which version is "better"; the scholar selects the version appropriate to the claim.
+The important rule is that each version-bound claim has its own slug and locator. `research-writing` does not decide which version is "better"; the scholar selects the version appropriate to the claim.

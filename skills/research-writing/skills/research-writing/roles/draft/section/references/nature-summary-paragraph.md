@@ -7,9 +7,9 @@
 - [Canonical sentence-level structure](#canonical-sentence-level-structure)
 - [Word-count and compression principle](#word-count-and-compression-principle)
 - [How to read the annotated example in the image](#how-to-read-the-annotated-example-in-the-image)
-- [Practical writing rules for this skill](#practical-writing-rules-for-this-skill)
+- [Practical writing rules for `research-writing`](#practical-writing-rules-for-this-skill)
 - [Frequent failure modes](#frequent-failure-modes)
-- [Relationship to other references in this skill](#relationship-to-other-references-in-this-skill)
+- [Relationship to other references in `research-writing`](#relationship-to-other-references-in-this-skill)
 
 
 ## What this reference is for
@@ -217,7 +217,7 @@ What these lines do:
 1. They widen from the specific finding to broader methodological and translational significance.
 2. They remain concrete, rather than ending with vague claims about importance.
 
-## Practical writing rules for this skill
+## Practical writing rules for `research-writing`
 
 When drafting a `Nature` summary paragraph:
 
@@ -256,7 +256,7 @@ When drafting a `Nature` summary paragraph:
 1. The ending jumps to societal or clinical importance unsupported by the evidence.
 2. The paragraph sounds inflated rather than authoritative.
 
-## Relationship to other references in this skill
+## Relationship to other references in `research-writing`
 
 1. Use this file together with `references/abstract.md` when the user is drafting an abstract for a broad-audience Nature-family venue.
 2. Use `static/fragments/journal/nature.md` for journal-level constraints such as audience and claim calibration.

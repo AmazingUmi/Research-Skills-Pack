@@ -376,9 +376,9 @@ writes the study state to disk every state-changing turn. The user can
 close and reopen sessions arbitrarily; `resume <study_id>` rebuilds
 context from disk. The artifact is single source of truth.
 
-**this skill coupling:** This skill knows this skill Material Passport Schema 9 (via
+**`research-writing` coupling:** This skill knows `research-writing` Material Passport Schema 9 (via
 ars_integration_guide.md). this skill does NOT know about study_state.md
-artifacts — they are this skill's internal persistence format. Material
+artifacts — they are `research-writing`'s internal persistence format. Material
 Passport remains the unidirectional handoff to this skill.
 
 **Runtime requirements:** Session resume requires the host LLM runtime

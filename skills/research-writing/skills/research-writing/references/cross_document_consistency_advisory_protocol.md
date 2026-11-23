@@ -7,7 +7,7 @@ The deterministic implementation is
 
 The family consists of:
 
-- `preregistration-artifact/1.0`, the persistent the literature role handoff sidecar;
+- `preregistration-artifact/1.0`, the persistent literature role handoff sidecar;
 - `cross-document-source-manifest/1.0`, the exact two-artifact source authority;
 - `cross-document-consistency-advisory-draft/1.0`, untrusted semantic input;
 - `cross-document-consistency-advisory/1.0`, the replay-finalized carrier; and
@@ -200,22 +200,7 @@ The field-relative ladder in
 There is no deterministic keyword matcher or numeric ranker, and no ladder
 observation grants revision authority.
 
-## Legacy multi-file audit non-migration
-
-The existing Codex multi-file audit runner, its rounds/convergence state, and
-its `audit_artifact_entry` gate remain separate legacy consumers. An old
-multi-file audit `PASS` cannot be mapped, projected, or translated into
-`NO_LISTED_INCONSISTENCY_LOCATED`. Conversely, a
-`POTENTIAL_INCONSISTENCY_LOCATED` observation cannot be mapped, projected, or
-translated into an old-audit P1/P2/P3 finding, `PASS` / `MINOR` / `MATERIAL`
-verdict, gate result, convergence decision, or `audit_artifact_entry`.
-
-never invokes the legacy runner, consumes an old audit output, or writes
-into its carrier. Existing audit behavior and bytes remain unchanged; the two
-surfaces may be shown independently but cannot satisfy, suppress, aggregate, or
-change one another.
-
-## Pipeline coexistence with
+## Pipeline coexistence with tortured-phrase screening
 
 tortured-phrase screening and run inside the **single existing**
 mandatory Stage-5 entry checkpoint after the same exact Stage 4.5 PASS. The

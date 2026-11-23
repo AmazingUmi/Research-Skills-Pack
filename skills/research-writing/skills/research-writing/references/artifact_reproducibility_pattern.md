@@ -2,9 +2,9 @@
 
 ## Why this exists
 
-this skill produces research artifacts — draft papers, literature reviews, review reports. A year
+`research-writing` produces research artifacts — draft papers, literature reviews, review reports. A year
 from now, you may want to reproduce one. Today's Material Passport (Schema 9) captures WHO
-produced the artifact and WHEN, but not WITH WHAT. Which LLM? Which this skill version? Which
+produced the artifact and WHEN, but not WITH WHAT. Which LLM? Which `research-writing` version? Which
 skill files? Which session materials?
 
 The `repro_lock` sub-block fills that gap.

@@ -222,53 +222,6 @@ SLIM checkpoints never reset; a MANDATORY checkpoint resets and stays MANDATORY 
 
 Full protocol: [`@/roles/orchestrate/strict/passport_as_reset_boundary.md`](../../../roles/orchestrate/strict/passport_as_reset_boundary.md).
 
-#### Inquiry Branch Ledger (opt-in alpha)
-
-**Flag:** `RW_INQUIRY_LEDGER=1`. Unset or `0` means the entire sequence below
-is omitted: no ledger read/write, no pointer, no summary, and no user-facing
-branch interaction. The ledger needs a research-workflow profile binding
-(`@/engine/contracts/README.md` § Research-family workflow profiles), which no pipeline
-step creates; without one, say so once and continue linearly. With the flag on,
-an in-memory first branch still follows the linear path; do not publish a ledger or `inquiry_ledger_ref` until a second
-branch has been explicitly recorded.
-
-**Authority and replay:** use `@/engine/scripts/inquiry_branch_ledger.py` for every
-load, append, replay, summary, and ledger/passport commit. Supply the explicit
-workspace root, expected `project_ref`, and the exact canonical profile files
-matching the initial binding and every `profile_rebound`. An unresolved profile
-binding, invalid event chain, over-budget post-state, missing stale event, or
-broken pointer is a visible hard error. Never infer a profile or repair ledger
-bytes in the model context. The runtime's stable sidecar lock (the same
-`.<passport-basename>.lock` required by the reset-boundary protocol) and
-recovery journal are the only authorized two-file publication path.
-
-**Author/AI boundary:** an AI-surfaced facet is appended with actor `ai`, enters
-`parked`, and is never rendered as the author's position. Activation requires
-an explicit author adoption receipt retaining its source event and original
-text. Park, reject, reopen, merge, archive, profile correction, and stale-cause
-resolution are likewise explicit author actions. A reopen-condition signal
-records only that evidence may match a stored condition; it never reopens a
-branch without the author.
-
-**Summary moments:** ask the runtime for a compact summary at exactly:
-
-1. the Stage 1 design-freeze checkpoint;
-2. the Stage 2.5 MANDATORY checkpoint;
-3. the Stage 4.5 MANDATORY checkpoint; or
-4. immediately after a recorded `reopen_condition_signal` (pass its event id).
-
-If the runtime emits an empty string (flag off or no more than one introduced
-branch), insert nothing and ask nothing. Otherwise place its complete
-`### Inquiry Branch Summary` block after ordinary checkpoint state and before
-the checkpoint response prompt. Do not add a graph, ranking, recommendation,
-or extra branch question. The block's `skip`, `off`, and reset-to-simple-path
-choices affect future display only and never delete scholar-owned events.
-
-The ledger is a memory surface, not a gate: it cannot change an integrity
-PASS/FAIL, satisfy a mandatory checkpoint, establish novelty/correctness/value,
-or silently regenerate a stale artifact. Author-recorded first-degree stale
-causes remain visible until individually reconfirmed or superseded.
-
 #### FULL Checkpoint Template (with Decision Dashboard)
 
 ```
@@ -482,12 +435,12 @@ Users may request changing a sub-skill's mode at a checkpoint. Not all switches 
 
 | Switch | Safety | Notes |
 |--------|--------|-------|
-| the literature role: quick -> full | SAFE | More thorough; may add time |
-| the literature role: full -> quick | DANGEROUS | Loss of rigor; warn user explicitly |
-| the draft role: plan -> full | SAFE | Standard progression |
-| the draft role: full -> plan | PROHIBITED | Cannot un-write a draft |
-| the review panel: quick -> guided | SAFE | More interactive review |
-| the review panel: guided -> quick | DANGEROUS | Loses interactive depth |
+| `literature`: `brief` -> `deep` | SAFE | More thorough; may add time |
+| `literature`: `deep` -> `brief` | DANGEROUS | Loss of rigor; warn user explicitly |
+| `outline plan` -> `draft full` | SAFE | Standard progression |
+| `draft full` -> `outline plan` | PROHIBITED | Cannot un-write a draft |
+| `review`: `panel` -> `guided` | SAFE | More interactive review |
+| `review`: `guided` -> `panel` | DANGEROUS | Loses interactive depth |
 | Any integrity check mode change | PROHIBITED | Integrity verification modes are fixed by pipeline design |
 
 **DANGEROUS switches**: Orchestrator MUST display warning: "This switch reduces quality. Previously completed work at the higher quality level will be discarded. Are you sure? (yes/no)"
@@ -534,36 +487,6 @@ Only the exact column-0 `[CROSS-MODEL-HANDOFF v1]` fence is valid; an indented o
 **Distinction from other agents.** This is not `integrity_verification_agent` (that gates at Stage 2.5/4.5, blocking). It is not the Stage 6 AI Self-Reflection Report (that is AI evaluating itself; observer is AI evaluating the human collaboration pattern). It is not `socratic_mentor_agent` (that intervenes in real time; observer operates post-hoc).
 
 **Credit.** Observer operationalizes Wang, S., & Zhang, H. (2026). "Pedagogical partnerships with generative AI in higher education: how dual cognitive pathways paradoxically enable transformative learning." *IJETHE* 23:11. DOI [10.1186/s41239-026-00585-x](https://doi.org/10.1186/s41239-026-00585-x).
-
-### 3.5 Audit Artifact Gate (Step 6)
-
-**Activation: opt-in, off by default.** The gate runs only when `RW_AUDIT_ARTIFACT_GATE=1` is set and the user agrees, for this run, to what it requires: at each trigger below, the user runs `scripts/run_codex_audit.sh` outside this session (its header forbids same-session invocation), and the wrapper sends the deliverable and its bundled inputs to the provider and model it names. the variable is configuration, not consent. Unset or declined, the gate does not run and the transition continues to its next check. The Stage 2.5 and 4.5 integrity gates run either way. **Trigger:** when the gate is active, at every stage transition where a downstream agent (`synthesis_agent`, `research_architect_agent` survey-designer mode, or `report_compiler_agent` abstract-only mode) just completed a deliverable.
-
-**Decision policy.** First check verdict status. If `AUDIT_FAILED` (Path B5 short-circuit per spec §5.6), BLOCK without running the eleven gating checks; surface `verdict.failure_reason`; user must dispatch a fresh wrapper run. Otherwise, validate against the eleven gating verification checks (spec §5.2), then apply ship/block per verdict status (spec §5.3 — rows evaluated top-to-bottom, first matching row wins):
-
-- `PASS` (`p1 == 0 AND p2 == 0 AND p3 == 0`) → proceed to next stage; append `[Audit: PASS at round N]` line to FULL checkpoint.
-- `MINOR` (`p1 == 0 AND p2 == 0 AND p3 <= 3`) → MANDATORY checkpoint with finding details; user choice required: `continue` (ship) / `iterate` (dispatch revision) / `pause` (stop).
-- `MATERIAL + acknowledgement` (latest entry's `verdict.status == "MATERIAL"` AND latest entry carries an `acknowledgement` whose `finding_ids` covers every current `findings[].id`) → proceed to next stage; emit FULL checkpoint with `[Audit: MATERIAL at round N, residue acknowledged by user at <acknowledged_at>]` line. This row has higher precedence than plain `MATERIAL`.
-- `MATERIAL` (`p1 > 0 OR p2 > 0 OR p3 > 3`, AND latest entry either has no `acknowledgement` OR its `acknowledgement.finding_ids` does not cover every current `findings[].id` — defense-in-depth: the partial-coverage branch is unreachable under §5.4 lint rules but fails closed on hand-edit or lint bypass) → BLOCK; surface findings; re-invoke producing agent with revision prompt; deployment runs the wrapper at `--round N+1 --previous-findings <prior verdict.yaml>` for the next round audit. **Only after `round == target_rounds` (spec §5.4 default 3) still MATERIAL** does the gate emit the ESCALATION block offering `ship_with_known_residue` / `another_round` (raises cap by 1) / `abort_stage` — these three choices are escalation-only, not the default MATERIAL response.
-
-**Procedure.** Path A → Path B fall-through. Full procedure (A1–A7, B1–B11, A1.5 supersession preflight, B1a tuple-match recovery, B8a/B8b/B8c late freshness barriers, F-067 / F-069 / F-070 / F-072 closures, the 24-row Failure State Inventory) is the implementation contract and lives in spec §5.6 — orchestrator follows that procedure exactly. The prompt's role is to declare the gate, name the decision policy, and reference §5.6.
-
-- **Path A** re-verifies an already-merged persisted entry (recovery on resume / re-transition). Failure phases — all fall through to Path B with reason carried — are: `P-PA-precond` (no matching persisted entry), `P-PA-schema` (schema validation), `P-PA-gate` (eleven-gate failure), `P-PA-verdict-schema` (verdict file schema), `P-PA-verdict-mirror` (verdict mirror drift, Pattern C3 evidence), `P-PA-stale-late` (late freshness recheck), `P-PA-supersede-preempt` (A1.5 found a higher-round proposal). All seven defined inline in spec §5.6 inventory; this prompt cites them by ID only.
-- **Path B** merges a fresh proposal file (first-time merge or supersession of a failed Path A entry). Terminal BLOCK phases — surface diagnostic and require re-audit / inspect / disk check — are: `P-PB-empty` (no proposal), `P-PB-supersede-missing` (higher-round proposal absent), `P-PB-ambig` (proposal selection ambiguity), `P-PB-proposal-schema` (Pattern C3 attack surface), `P-PB-audit-failed` (audit attempted but failed), `P-PB-gate` (eleven-gate failure), `P-PB-verdict-schema`, `P-PB-verdict-mirror` (Pattern C3 evidence), `P-PB-stale-late` (bundle mutated post-gate), `P-PB-snapshot` (proposal/sidecar mutated mid-flow, restart at B1), `P-PB-persisted-schema`, `P-PB-passport-write`. Recovery phases (continue silently) are: `P-PB-dup-early` (B1a idempotent recovery from prior crash), `P-PB-dup-other` (run_id collision under hand-edit), `P-PB-dup-late` (B8b idempotent re-check), `P-PB-consume-fail` (entry committed; proposal-move best-effort), `P-PB-crash` (recovery on next session via Path A or Path B + B1a). All seventeen defined inline in spec §5.6 inventory; this prompt cites them by ID only.
-
-**Hard rules.**
-
-- Audit gate cannot be skipped — there is no "skip audit" option in checkpoint command vocabulary.
-- Audit gate runs BEFORE collaboration_depth_agent observer dispatch and BEFORE integrity_verification_agent dispatch. It is the first transition-time check.
-- A `verdict_status: PASS` does NOT imply integrity check is skipped. Stage 2.5 / 4.5 integrity gates remain mandatory per existing §3 Hard boundaries rule 9.
-
-**Failure surfacing.** Any block message uses the standard FULL/MANDATORY checkpoint visual (━━━ separator). Block message MUST include: why blocked (which check failed / which severity finding triggered), where to look (file:line for findings; artifact path for verification failures), what to do next (re-audit command, revision dispatch, escalation options).
-
-**Cross-references.**
-
-- Audit template: `shared/templates/codex_audit_multifile_template.md`
-- Schema: `@/engine/contracts/passport/audit_artifact_entry.schema.json`
-- Wrapper: `scripts/run_codex_audit.sh`
 
 ### 3.6 Claim-Faithfulness Audit Gate
 
@@ -663,7 +586,7 @@ caller-reported artifact hashes.
 
 Consumer sequencing:
 
-1. During Stage 2 the draft role full/plan work, render the `FORMATIVE`
+1. During Stage 2 (`outline plan` / `draft full`), render the `FORMATIVE`
    marker for `structure_architect_agent`, record its completed outline, and
    pass that same receipt/context pointer through argument and drafting. In a
    full run, Phase 6a remains paper-blind under the same authority and its
@@ -823,30 +746,9 @@ Notify state_tracker_agent to update state whenever a stage begins or completes:
 - Checkpoint passed: `update_pipeline_state("running")`
 - Material produced: `update_material(material_name, true)`
 - Integrity check result: `update_integrity(stage_id, verdict, details)`
-- Pipeline terminal transition: on the Stage 6 terminal acknowledgement (`finish` / `end` / `done` / `confirm`, or an unambiguous natural-language equivalent) — `update_stage("6", "completed", outputs)` + `update_pipeline_state("completed")`; if the user declined Stage 6 at the Stage 5 completion checkpoint — `update_stage("6", "skipped", {reason: "user declined Stage 6"})` + `update_pipeline_state("completed")`. Persist this transition first, without consulting activity metadata.
+- Pipeline terminal transition: on the Stage 6 terminal acknowledgement (`finish` / `end` / `done` / `confirm`, or an unambiguous natural-language equivalent) — `update_stage("6", "completed", outputs)` + `update_pipeline_state("completed")`; if the user declined Stage 6 at the Stage 5 completion checkpoint — `update_stage("6", "skipped", {reason: "user declined Stage 6"})` + `update_pipeline_state("completed")`.
 
 Request state_tracker_agent to produce the Progress Dashboard when needed.
-
-### Post-terminal adjudication-activity sequence
-
-After the existing terminal transition above is durable, and only when the user
-selected an explicit local activity store, perform this best-effort sequence:
-
-1. pass the explicit state path, artifact-root path, and the state tracker's
-   explicit five-row `pending_adjudication_activity_bindings[]` value to
-   `seal_terminal_inventory(state_path, artifact_root, pending_bindings)`;
-2. let that deterministic helper calculate raw artifact hashes and atomically
-   seal the root `adjudication_activity_sources` inventory without changing the
-   already-terminal state/stage/status;
-3. run `build-input` using only that sealed inventory, then idempotent
-   `append-run`, and optionally `render`.
-
-The helper may not discover the pending field itself, accept caller-reported
-hashes, infer paths, scan/glob a directory, or use a clock/network/model. Any
-seal/build/append/render failure is surfaced only as an advisory diagnostic and
-does not roll back, delay, or rewrite the terminal outcome. The terminal state
-file's root `run_id` plus sealed root `adjudication_activity_sources` are exact
-source/run authority; the pending rows are not.
 
 ---
 
@@ -982,7 +884,7 @@ The integrity gates require `experiment_intake_declaration` on every post-passpo
 
 Do not ask when the run reaches no integrity gate (a format conversion that enters neither Stage 2.5 nor Stage 4.5). Do not ask when the passport already carries a declaration: that declaration is the intake record even without `scholar_answer` or a ledger entry, so § Run ledger and handoff check does not reopen it; when it has no `scholar_answer`, say once that the original words are not on record. The timing follows the scholar's choice of entry point, not the paper's content.
 
-**The question.** Ask it in the user's language: "Does this paper report experiments or data analyses that you ran yourself, for example a survey you administered, data you analyzed, or a model you trained? Please answer in your own words. If it does, you will be asked to record each one; this skill does not run experiments."
+**The question.** Ask it in the user's language: "Does this paper report experiments or data analyses that you ran yourself, for example a survey you administered, data you analyzed, or a model you trained? Please answer in your own words. If it does, you will be asked to record each one; `research-writing` does not run experiments."
 
 **Recording the answer.** A yes sets `status: experiments_declared` and a no sets `status: no_experiments_declared`, each with `declared_at` (when the scholar answered), `declared_by: scholar`, and `scholar_answer` holding the scholar's words unchanged. If the answer is neither a yes nor a no, ask once more; never choose a status for the scholar, and never set `legacy_unknown` from this question. When the run has a passport file, also append the question and answer to the run ledger as an in-stage question that changes a deliverable (§ Run ledger and handoff check). If the scholar does not answer, say that the Stage 2.5 integrity gate will stop until they do, and dispatch no writer or integrity gate before they answer.
 

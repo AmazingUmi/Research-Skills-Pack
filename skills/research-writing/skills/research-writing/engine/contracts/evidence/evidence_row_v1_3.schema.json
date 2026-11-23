@@ -1,7 +1,7 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
  "$id": "https://github.com/Imbad0202/academic-research-skills/contracts/evidence/evidence_row_v1_3.schema.json",
- "title": "this skill Shared Evidence Row v1.3 — claim-standing advisory surface",
+ "title": "research-writing Shared Evidence Row v1.3 — claim-standing advisory surface",
  "description": "Closed shared evidence-row carrier owned by , claim_standing_advisory surface (design §5.2). One row per (probe claim, selected work-family candidate) carrying the bounded inspected-evidence excerpt and its exact source hash/span binding. The row expresses provenance and availability only: it never carries a stance, a support verdict, or a score, and an exact excerpt match never determines stance. Abstract-level evidence is declared as such and is never called verified full text. Rendering is inert; rows never touch the read ledger.",
  "type": "object",
  "additionalProperties": false,

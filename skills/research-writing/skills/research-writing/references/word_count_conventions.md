@@ -4,13 +4,13 @@
 
 **Audience:** Agents budgeting word counts under a hard cap (abstract, executive summary, INSIGHT block). Human authors verifying that an agent's word count matches the publisher's.
 
-**Why this exists:** Different word-count algorithms produce different totals on the same text. The differential is small per sentence but compounds: on a 250-word abstract, the choice between whitespace-split and hyphenated-as-1 can swing the total by ~12 words. An agent that uses a different algorithm than the publisher believes it is meeting the cap when it is over by 5%. This reference fixes a single canonical algorithm for this skill pipelines, documents how publishers diverge, and specifies the buffer rule that makes minor publisher variation safe.
+**Why this exists:** Different word-count algorithms produce different totals on the same text. The differential is small per sentence but compounds: on a 250-word abstract, the choice between whitespace-split and hyphenated-as-1 can swing the total by ~12 words. An agent that uses a different algorithm than the publisher believes it is meeting the cap when it is over by 5%. This reference fixes a single canonical algorithm for `research-writing` pipelines, documents how publishers diverge, and specifies the buffer rule that makes minor publisher variation safe.
 
 ---
 
 ## The canonical algorithm: whitespace-split
 
-this skill pipelines count words as `len(body.split())` in Python — that is, splits on any whitespace run and counts the resulting non-empty tokens.
+`research-writing` pipelines count words as `len(body.split())` in Python — that is, splits on any whitespace run and counts the resulting non-empty tokens.
 
 ### Why whitespace-split
 
@@ -36,17 +36,17 @@ this skill pipelines count words as `len(body.split())` in Python — that is, s
 - Whitespace runs collapse to one delimiter; they do not contribute tokens.
 - Empty strings between consecutive whitespace characters are filtered by `split()` with no argument.
 - Markdown formatting (`**bold**`, `*italic*`, `` `code` ``) is part of the surrounding token; the asterisks and backticks are not separate tokens.
-- this skill HTML-comment markers (see next section) — strip them before splitting.
+- `research-writing` HTML-comment markers (see next section) — strip them before splitting.
 
 ### HTML-comment markers (— one rule for all marker kinds)
 
-this skill working drafts carry HTML-comment markers: `<!--ref:slug-->` / `<!--anchor:kind:value-->` (.1/, inline after citations) and `<!--block:BNNNN-->` (one standalone line per block). **Strip every `<!--...-->` comment before computing `len(body.split())`.** Inline ref/anchor markers usually glue onto the preceding token (zero count impact) but add a token whenever whitespace precedes them; block markers are standalone lines and would inflate the total by one token per block — on a 60-block paper that is ~60 phantom words, and it would also corrupt `word_count_delta` (Schema 8) across patch-mode revision rounds. One rule covers every marker kind, current and future: markers are audit metadata, never countable content. (Phase 7 separately strips markers from converted final outputs — `formatter_agent.md` § this skill Marker Stripping — so publisher-side counts never see them either.)
+`research-writing` working drafts carry HTML-comment markers: `<!--ref:slug-->` / `<!--anchor:kind:value-->` (.1/, inline after citations) and `<!--block:BNNNN-->` (one standalone line per block). **Strip every `<!--...-->` comment before computing `len(body.split())`.** Inline ref/anchor markers usually glue onto the preceding token (zero count impact) but add a token whenever whitespace precedes them; block markers are standalone lines and would inflate the total by one token per block — on a 60-block paper that is ~60 phantom words, and it would also corrupt `word_count_delta` (Schema 8) across patch-mode revision rounds. One rule covers every marker kind, current and future: markers are audit metadata, never countable content. (Phase 7 separately strips markers from converted final outputs — `formatter_agent.md` § this skill Marker Stripping — so publisher-side counts never see them either.)
 
 ---
 
 ## Publisher conventions and how to adapt
 
-Most publishers use a whitespace-equivalent algorithm in practice but state different conventions in their author guidelines. The 3–5% buffer rule (below) makes this skill pipelines robust to the convention divergence without per-publisher adapters.
+Most publishers use a whitespace-equivalent algorithm in practice but state different conventions in their author guidelines. The 3–5% buffer rule (below) makes `research-writing` pipelines robust to the convention divergence without per-publisher adapters.
 
 ### Common publisher families
 
@@ -75,7 +75,7 @@ If the publisher's algorithm is ambiguous, default to this skill canonical (whit
 
 ## The 3–5% buffer rule
 
-this skill pipelines reserve **3–5% below the publisher's stated hard cap** as buffer. For a 250-word abstract:
+`research-writing` pipelines reserve **3–5% below the publisher's stated hard cap** as buffer. For a 250-word abstract:
 
 - 3% buffer → target 242 words
 - 5% buffer → target 237 words
@@ -120,5 +120,3 @@ The `report_compiler_agent` abstract-only mode prompt enforces the canonical alg
 ## Cross-references
 
 - `@/references/protected_hedging_phrases.md` — protected hedging phrases share the abstract budget; budget allocation order specified there.
-- `shared/templates/codex_audit_multifile_template.md` — audit dimensions including word-count verification.
-- this skill feedback memory `feedback_word_count_convention_mismatch.md` — original empirical observation of whitespace-split vs. hyphenated-as-1 differential (~12 words on a 250-word abstract).

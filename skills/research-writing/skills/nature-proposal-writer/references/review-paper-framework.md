@@ -27,7 +27,7 @@ Search multiple independent source classes:
 | Scholarly databases and publisher search | Expand beyond the local collection |
 | Full text | Verify methods, evidence, limitations, figures, and exact claims |
 
-When available, route broad discovery and citation verification through `nature-academic-search`, and lawful full-text retrieval through `nature-downloader`. Run independent source searches in parallel when permitted, then deduplicate by DOI, title, and study identity.
+When available, route broad discovery and citation verification through `$research-writing literature search`, and lawful full-text retrieval through `$research-writing literature fulltext`. Run independent source searches in parallel when permitted, then deduplicate by DOI, title, and study identity.
 
 Record every included source with a stable identifier and the specific review question it supports. Do not treat search-result snippets as evidence.
 
@@ -110,7 +110,7 @@ Retain a standalone methods section when readers need it to judge whether result
 
 ## Phase 8: Figure strategy
 
-Route submission-grade scientific figures through `nature-figure` when available. Match the production method to the evidence type:
+Route submission-grade scientific figures through `$research-writing figures make` when available. Match the production method to the evidence type:
 
 | Figure type | Preferred source or method |
 |---|---|

@@ -1,6 +1,6 @@
 # Adapter Contract — Producing `literature_corpus[]` Entries
 
-**Status**: Stable as of this skill .4
+**Status**: Stable as of `research-writing` .4
 **Applies to**: any adapter that produces a Material Passport `literature_corpus[]` field
 **Authoritative schemas**:
 - [`@/engine/contracts/passport/literature_corpus_entry.schema.json`](../../../../engine/contracts/passport/literature_corpus_entry.schema.json)
@@ -13,11 +13,11 @@ An **adapter** is a program (in any language) that reads a user-owned corpus sou
 1. **`passport.yaml`** with a top-level `literature_corpus` array conforming to `literature_corpus_entry.schema.json`.
 2. **`rejection_log.yaml`** conforming to `rejection_log.schema.json`, always emitted (empty when no rejections).
 
-this skill provides three Python reference adapters in [`scripts/adapters/`](../../../../engine/scripts/adapters/). Users are expected to write their own adapters for non-reference sources. The three reference adapters are starting points, not production tools.
+`research-writing` provides three Python reference adapters in [`scripts/adapters/`](../../../../engine/scripts/adapters/). Users are expected to write their own adapters for non-reference sources. The three reference adapters are starting points, not production tools.
 
 ## 2. Why a contract, not a plugin API
 
-this skill deliberately does NOT run adapter code itself. The adapter runs in the user's environment, reads the user's data, and emits YAML files. this skill reads those YAML files. Rationale:
+`research-writing` deliberately does NOT run adapter code itself. The adapter runs in the user's environment, reads the user's data, and emits YAML files. this skill reads those YAML files. Rationale:
 
 - Each corpus source (Zotero, Obsidian, custom) has its own versioning, auth, and data quirks. Pinning one plugin API would force this skill to track all of them.
 - Keeping the boundary at "YAML files on disk" means a user can use any language, any scheduling mechanism, and any privacy posture without touching this skill internals.
@@ -150,4 +150,4 @@ The three reference adapters have pytest coverage under `scripts/adapters/tests/
 
 - [`@/engine/handoff_schemas.md`](../../../../engine/handoff_schemas.md) Schema 9: the `literature_corpus[]` field lives inside the Material Passport.
 - [`@/roles/orchestrate/strict/passport_as_reset_boundary.md`](../../strict/passport_as_reset_boundary.md): `literature_corpus[]` is consumed across reset boundaries like any other passport field.
-- this skill agents that consume `literature_corpus[]` are **deferred** to . As of , the field is a defined input port with no runtime consumer; adapters produce it, future this skill versions read it.
+- this skill agents that consume `literature_corpus[]` are **deferred** to . As of , the field is a defined input port with no runtime consumer; adapters produce it, future `research-writing` versions read it.

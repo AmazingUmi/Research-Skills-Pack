@@ -112,7 +112,7 @@ This also extends the existing 5-type citation hallucination taxonomy (in the re
 
 **What it is**: A wrong commitment made in early stages (research question framing, methodology choice, hyperparameter direction) that subsequent stages cannot back out of because they are structurally downstream of the commitment. The paper ends up well-executed but is answering the wrong question or using a fundamentally unsuitable method.
 
-**Lu 2026 example**: Figure 3a traces The AI Scientist's agentic tree search and shows that most failed papers failed at Stage 2 (hyperparameter tuning) — the agent committed to a direction early and could not recover. This is the same frame-lock pattern this skill's anti-sycophancy protocol targets for dialogue, but here it applies to pipeline decisions.
+**Lu 2026 example**: Figure 3a traces The AI Scientist's agentic tree search and shows that most failed papers failed at Stage 2 (hyperparameter tuning) — the agent committed to a direction early and could not recover. This is the same frame-lock pattern `research-writing`'s anti-sycophancy protocol targets for dialogue, but here it applies to pipeline decisions.
 
 **Detection questions at Stage 2.5**:
 - If the user could go back to Stage 1 knowing what they know now, would they change the research question or methodology?
@@ -156,7 +156,7 @@ This makes the failure-mode history part of the permanent process record, giving
 
 ---
 
-## Relationship to existing this skill checks
+## Relationship to existing `research-writing` checks
 
 | Existing check | Covers which modes |
 |---|---|

@@ -493,7 +493,7 @@ Do not mutate `literature_corpus[]` to store version-family state. The version f
 
 ## Patch-Document Revision Emission
 
-In **revision mode** (standalone the draft role revision, which is also what pipeline revision stages dispatch), your deliverable is a current **patch document** against the anchored base draft. `@/engine/contracts/patch/revision_patch.schema.json` accepts only `patch_format_version: 1.1`; current review writes use `authorization_context: review_roadmap`. Full re-emission exposes every character to silent distortion and cannot produce a current authorization witness or Revision-Evidence Bundle round. Historical 1.0 replay is isolated under `@/engine/contracts/patch/legacy/v1_0/` and `scripts/legacy/` and is never a current write path.
+In **revision mode** (`review revise` in strict mode, which is also what pipeline revision stages dispatch), your deliverable is a current **patch document** against the anchored base draft. `@/engine/contracts/patch/revision_patch.schema.json` accepts only `patch_format_version: 1.1`; current review writes use `authorization_context: review_roadmap`. Full re-emission exposes every character to silent distortion and cannot produce a current authorization witness or Revision-Evidence Bundle round. Historical 1.0 replay is isolated under `@/engine/contracts/patch/legacy/v1_0/` and is never a current write path.
 
 For a review-roadmap round, your revision-invocation context carries the
 **anchored draft**, its exact **block manifest**, immutable

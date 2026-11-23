@@ -12,7 +12,7 @@
 ## Allowed reviewer differences
 
 - Assign reviewer `emphasis` before any report is generated.
-- Valid emphasis patterns for this skill are limited to source-grounded axes such as:
+- Valid emphasis patterns for `research-writing` are limited to source-grounded axes such as:
   - `technical validity / technical failings emphasis`
   - `significance / originality emphasis`
   - `interdisciplinary readership / readability emphasis`

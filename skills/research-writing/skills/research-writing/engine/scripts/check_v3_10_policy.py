@@ -74,8 +74,8 @@ _LOOKUP_INDEX_RE = re.compile(
     re.IGNORECASE,
 )
 
-V3_10_FINALIZER_HEADER = "## Cite-Time Provenance Finalizer — v3.10 extension"
-V3_10_FORMATTER_HEADER = "## Cite-Time Terminal Policy Gate (v3.10)"
+V3_10_FINALIZER_HEADER = "## Cite-Time Provenance Finalizer — extension (terminal policy layer)"
+V3_10_FORMATTER_HEADER = "## Cite-Time Terminal Policy Gate"
 
 
 # ---------------------------------------------------------------------------

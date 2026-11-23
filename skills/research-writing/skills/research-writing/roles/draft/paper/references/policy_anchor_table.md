@@ -109,7 +109,7 @@
 **Renderer rules (Nature track):**
 - Disclosure location: Methods section by default (or "suitable alternative" if Methods is not present in the manuscript type). Renderer emits placement instruction citing the verbatim "Methods section (and if a Methods section is not available, in a suitable alternative part)" language.
 - Field #15 carve-out semantics: **eliminate** strength — copyediting-only use produces **no disclosure paragraph**, only an internal log entry. Renderer MUST NOT collapse this into a boolean shared with IEEE's downgrade semantics (Decision Doc §4.3 G7 invariant).
-- Field #16 mandate: image-rights handled via the §4.4 #5 hybrid output channel. Renderer emits (a) standalone `image_disclosure_instructions.md` block describing per-image carve-out classification and Nature label text; (b) a suggested patch diff against manuscript source figure metadata (caption / alt-text / image-field caption) for the author to optionally apply. this skill does not modify manuscript source autonomously.
+- Field #16 mandate: image-rights handled via the §4.4 #5 hybrid output channel. Renderer emits (a) standalone `image_disclosure_instructions.md` block describing per-image carve-out classification and Nature label text; (b) a suggested patch diff against manuscript source figure metadata (caption / alt-text / image-field caption) for the author to optionally apply. `research-writing` does not modify manuscript source autonomously.
 
 ---
 

@@ -9,7 +9,7 @@ heatmap values, microscopy annotations, and scale bars can be intentional.
 
 PyMuPDF is imported lazily so ``--self-test`` can exercise the geometry core in
 minimal CI environments. Install the runtime dependency with
-``python -m pip install -r skills/nature-figure/requirements.txt``.
+``python -m pip install -r requirements.txt``.
 """
 
 from __future__ import annotations
@@ -256,7 +256,7 @@ def extract_pdf_geometry(path: Path) -> list[PageGeometry]:
         except ImportError as exc:
             raise RuntimeError(
                 "PyMuPDF is required for rendered collision QA. Install it with: "
-                "python -m pip install -r skills/nature-figure/requirements.txt"
+                "python -m pip install -r requirements.txt"
             ) from exc
 
     document = fitz.open(path)

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Imbad0202/academic-research-skills/contracts/evidence/evidence_row.schema.json",
-  "title": "this skill Shared Evidence Row v1",
+  "title": "research-writing Shared Evidence Row v1",
   "description": "Closed shared evidence-row carrier owned by . V1 persists one row per (Phase E claim, citation anchor) in Integrity Report phases.E_claims.evidence_rows[]. excerpt.state is provenance/availability only and MUST NOT be interpreted as a Phase E support verdict, severity, read attestation, or gate decision. Cross-field, exact-substring, word-budget, hash, strict-percent-decoding, and replay invariants are enforced by scripts/evidence_rows.py.",
   "type": "object",
   "additionalProperties": false,

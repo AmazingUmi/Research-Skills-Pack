@@ -1,11 +1,8 @@
----
-name: nature-shared
-description: Internal shared-reference support package for installed Nature Skills, including nature-writing, nature-polishing, nature-response, nature-reader, and nature-paper2ppt. Do not invoke it as a standalone user workflow. Load only the specific core or journal-format file requested by another Nature skill.
----
+<!-- Internal shared-reference bundle inside research-writing (ported from Nature Skills `nature-shared`); loaded on demand via `@/references/nature-shared/...`, not registered as a separate skill. -->
 
 # Nature Shared References
 
-Use this package only as a dependency of another installed Nature skill.
+Use these files only when referenced by a Nature-derived mode inside `research-writing` (`draft section`, `draft polish`, `draft stats-report`, `draft data-availability`, `figures make`, `literature read`, `review nature`, `review respond`).
 
 - Load the exact referenced file; do not preload the whole package.
 - Treat `core/` and `journal-formats/` as shared definitions, not standalone workflows.

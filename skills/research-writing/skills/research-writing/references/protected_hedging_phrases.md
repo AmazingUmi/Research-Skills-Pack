@@ -4,7 +4,7 @@
 
 **Audience:** Upstream calibration agents (the draft role Stage 4, the literature role Phase 3 abstract handoff). The downstream `report_compiler_agent` reads this reference indirectly through the dispatch context that upstream calibration produces.
 
-**Why this exists:** Live this skill pipeline runs surfaced a recurring failure where the abstract compiler, under hard word-count pressure (i.e., a fixed word budget set by the publisher), dropped epistemic hedges that the body of the paper depended on. The fix routes through a roster of protected hedging phrases that ride in the dispatch context to the compiler. A claim qualified by "may," "tentative," "preliminary," or "in this institutional context" in the body became unconditional in the abstract. The compression-driven drift created compression overclaim — the abstract no longer accurately represented the paper's epistemic stance, which is a publication-integrity failure.
+**Why this exists:** Live `research-writing` pipeline runs surfaced a recurring failure where the abstract compiler, under hard word-count pressure (i.e., a fixed word budget set by the publisher), dropped epistemic hedges that the body of the paper depended on. The fix routes through a roster of protected hedging phrases that ride in the dispatch context to the compiler. A claim qualified by "may," "tentative," "preliminary," or "in this institutional context" in the body became unconditional in the abstract. The compression-driven drift created compression overclaim — the abstract no longer accurately represented the paper's epistemic stance, which is a publication-integrity failure.
 
 The fix is to make hedging phrases **budget-protected**: upstream calibration marks specific phrases as protected, the protected list rides in the dispatch context to the abstract compiler, and the compiler honours the protection ahead of any other compression target.
 
@@ -114,4 +114,3 @@ The `report_compiler_agent` abstract-only mode prompt enforces the dispatch-cont
 ## Cross-references
 
 - `@/references/word_count_conventions.md` — whitespace-split standard, 3–5% buffer rule, publisher conventions.
-- `shared/templates/codex_audit_multifile_template.md` — audit dimensions including compression overclaim detection.

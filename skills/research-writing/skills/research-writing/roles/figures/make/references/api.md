@@ -416,8 +416,8 @@ label_y = label_y_above(metric_center, metric_spread)
 For compact mathematical labels, prefer supported Unicode glyphs such as `R²` over `$R^2$` when the meaning is unchanged, then audit the exported PDF:
 
 ```bash
-python skills/nature-figure/scripts/audit_pdf_text.py figure.pdf --min-pt 5
-python skills/nature-figure/scripts/audit_figure_collisions.py figure.pdf \
+python scripts/audit_pdf_text.py figure.pdf --min-pt 5
+python scripts/audit_figure_collisions.py figure.pdf \
   --json-out figure.collision-audit.json \
   --overlay-pdf figure.collision-audit.pdf
 ```
