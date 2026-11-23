@@ -1,4 +1,0 @@
-interface:
-  display_name: "PaperOrchestra · 文献核查"
-  short_description: "Verify research citations and synthesize prior work"
-  default_prompt: "用 $paper-orchestra-literature 核查这些论断的出处并整理相关工作。"

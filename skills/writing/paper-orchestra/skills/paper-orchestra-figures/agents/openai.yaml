@@ -1,4 +1,0 @@
-interface:
-  display_name: "PaperOrchestra · 科研图表"
-  short_description: "Plan, build, and audit evidence-grounded figures"
-  default_prompt: "用 $paper-orchestra-figures 根据这张指标表出图并写图注。"

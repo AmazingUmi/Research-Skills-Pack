@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Writing · 科研写作"
+  short_description: "Plan, research, draft, figure, and review scientific papers"
+  default_prompt: "用 $research-writing 根据已有研究材料组稿；只做一项任务时可写 $research-writing literature 或 $research-writing review。"

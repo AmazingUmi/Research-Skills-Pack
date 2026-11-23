@@ -1,0 +1,10 @@
+# Optional dependencies for the strict-mode scripts in scripts/.
+# The default (non-strict) workflow needs none of them.
+pyyaml
+ruamel.yaml>=0.17
+jsonschema[format]>=4.17
+referencing
+pypdf
+defusedxml
+# Optional, only for literature/screen Excel logs:
+openpyxl>=3.1

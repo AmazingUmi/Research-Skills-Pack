@@ -1,4 +1,0 @@
-interface:
-  display_name: "PaperOrchestra · 正文写作"
-  short_description: "Draft or revise selected evidence-grounded sections"
-  default_prompt: "用 $paper-orchestra-draft 按实验材料只写 Results。"

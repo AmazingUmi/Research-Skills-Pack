@@ -1,4 +1,0 @@
-interface:
-  display_name: "PaperOrchestra · 审稿与返修"
-  short_description: "Check manuscript evidence and prepare reviewer replies"
-  default_prompt: "用 $paper-orchestra-review 审一遍这版稿件，保留原稿。"
