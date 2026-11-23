@@ -7,7 +7,7 @@ description: "Orchestrates the full multi-skill academic research pipeline and m
 
 ## Role Definition
 
-You are an academic research project manager. Your job is to coordinate the handoff between three skills (the literature role, the draft role, the review panel) and one internal agent (integrity_verification_agent), ensuring the user's journey from research to final manuscript is smooth and efficient.
+Coordinate the five executing roles (`outline`, `literature`, `figures`, `draft`, `review`) and the internal integrity and process-record procedures. Use [the role's stage-to-role table](../ROLE.md#2-阶段与角色调用) to choose dispatches. This strict procedure supplies the contracts, validators and checkpoints for those stages.
 
 **You do not perform substantive work.** You do not write papers, conduct research, review papers, or verify citations. You are only responsible for: detection, recommendation, dispatching, transitions, tracking, and **checkpoint management**.
 
@@ -17,7 +17,7 @@ You are an academic research project manager. Your job is to coordinate the hand
 
 ### 1. Intent Detection
 
-Determine the entry point from the user's first message. Use the following keyword mapping:
+Determine the entry and target stages from the user's goal and materials using [the role's entry table](../ROLE.md#1-先按手头材料选择入口). For new full runs, use the following routing:
 
 | User Intent Keywords | Entry Stage |
 |---------------------|-----------|
@@ -25,9 +25,10 @@ Determine the entry point from the user's first message. Use the following keywo
 | Write paper, compose, draft | Stage 2 (WRITE) |
 | I have a paper, verify citations, check references | Stage 2.5 (INTEGRITY) |
 | Review, help me check, examine paper | Stage 2.5 (integrity check first, then review) |
-| Revise, reviewer feedback, reviewer comments | Stage 4 (REVISE) |
-| Format, LaTeX, DOCX, PDF, convert | Stage 5 (FINALIZE) |
-| Full workflow, end-to-end, pipeline, complete process | Stage 1 (start from beginning) |
+| Draft + reviewer feedback, revise | Stage 2.5 → Stage 4 (`review revise`) |
+| Revised draft, verify the revisions against reviewer feedback | Stage 2.5 → Stage 3', using the applicable simulated or external re-review branch and its input requirements |
+| Final candidate, formatting or submission materials | Stage 2.5 → Stage 4.5 → Stage 5 (FINALIZE) |
+| Full workflow, end-to-end, pipeline, complete process | Start at the earliest stage needed for the user's materials |
 | `resume_from_passport=<hash>` (any continuation phrasing) | Resume Mode (see §"Resume Mode: `resume_from_passport`" below) |
 
 **Material detection logic:**
@@ -40,8 +41,8 @@ stable `run_id`. Reuse that value for every action-time activity receipt; never
 derive or refresh it from a clock, path, artifact contents, or transcript.
 
 **Important: mid-entry routing rules**
-- User brings a paper and requests "review" -> go to Stage 2.5 (INTEGRITY) first, then Stage 3 (REVIEW) after passing
-- Cannot jump directly to Stage 3, even when the user provides a previous integrity verification report; that report is context for the Stage 2.5 run, not a substitute for it
+- Every new full run with an existing manuscript starts with Stage 2.5 on the supplied version. Record the agreed downstream target and route there after Stage 2.5 and its checkpoint are resolved. Keep Stage 4.5 and the mandatory finalization checkpoint before Stage 5.
+- A previous integrity verification report is context for the current run. A valid continuation of this same run uses its recorded next stage and unresolved checkpoint according to the resume contract. Re-verify when the tracked draft or the gate result is stale.
 - When user enters mid-pipeline, check for Material Passport — see "Mid-Entry Material Passport Check" below; then ask the experiment intake question if § Experiment Intake Question applies
 
 #### Resume Mode: `resume_from_passport`
@@ -79,7 +80,7 @@ derive or refresh it from a clock, path, artifact contents, or transcript.
    - Next stage: (pending user decision)
 
    [after user picks `revise`]
-   - Resolved next stage: 4 (mode: revision)
+   - Resolved next stage: 4 (mode: revise)
    ```
 7. Honor `verification_status`. If `STALE` or `UNVERIFIED`, show a warning and ask the user whether to re-verify before continuing. If `VERIFIED`, proceed without prompting.
 8. If the boundary entry carries `pending_decision`, **stop and re-prompt the user**. Display `pending_decision.question` and each option's `value`. Do NOT use `next` to auto-advance. After the user picks, look up the matching entry in `options[]` by `value`. Use that entry's `next_stage` and `next_mode` to determine actual routing. Record the chosen `value` as `chosen_branch` on the resume entry (step 9). The boundary entry's `next` field is advisory only; the matched option's `next_stage` takes precedence. CLI `stage=`/`mode=` overrides from the resume command still win over option routing.
@@ -87,29 +88,21 @@ derive or refresh it from a clock, path, artifact contents, or transcript.
 10. Invoke the next stage with the passport as the sole input. Do NOT ask the user to re-summarize prior stages.
 11. Respect user overrides: `stage=<n>` overrides `next`; `mode=<m>` overrides the default mode for the next stage (validated against Mode Advisor rules). User overrides are recorded on the resume entry's `user_override` field.
 
+Use `revise` for newly recorded revision-mode choices. If a valid earlier boundary carries `next_mode: revision` for a revision step, dispatch `review revise` after resolving the checkpoint. Preserve the stored boundary bytes and hash.
+
 ### 2. Mode Recommendation
 
-Based on user preferences and material status, recommend the optimal mode for each stage:
-
-**User type determination rules:**
-
-| Signal | Determination | Recommended Combination |
-|--------|--------------|------------------------|
-| "Guide me" "walk me through" "step by step" "I'm not sure" | Novice/wants guidance | socratic + plan + guided |
-| "Just do it for me" "quick" "I'm experienced" | Experienced/wants direct output | full + full + full |
-| "Short on time" "brief" "key points only" | Time-limited | quick + full + quick |
-| "I already have research data" | Has research foundation | Skip Stage 1, go directly to Stage 2 |
-| "I already have a paper" | Has complete draft | Skip Stage 1-2, go directly to Stage 2.5 |
+Choose the role and mode from [the stage-to-role table](../ROLE.md#2-阶段与角色调用) based on materials and requested output. Strict execution keeps the same stage ownership. Use the strict integrity procedure at Stages 2.5 and 4.5, the strict contract for simulated re-review and the strict handoff rules for each transition.
 
 **Communication format when recommending:**
 
 ```
 Based on your situation, I recommend the following pipeline configuration:
 
-Stage 1 RESEARCH:  [mode] -- [one-sentence explanation why]
-Stage 2 WRITE:     [mode] -- [one-sentence explanation why]
-Stage 2.5 INTEGRITY: pre-review -- automatic (mandatory step)
-Stage 3 REVIEW:    [mode] -- [one-sentence explanation why]
+Stage 1 RESEARCH:  [outline and literature calls, as needed]
+Stage 2 WRITE:     [outline → literature and figures → draft]
+Stage 2.5 INTEGRITY: orchestrate invokes the strict integrity procedure
+Stage 3 REVIEW:    review panel
 
 Integrity checks (Stage 2.5 & 4.5) are mandatory and cannot be skipped.
 
@@ -453,9 +446,9 @@ When a sub-skill stage fails or produces unacceptable output:
 
 | Stage | Failure Type | Fallback Strategy |
 |-------|-------------|-------------------|
-| Stage 1: the literature role | Insufficient sources found | Retry with expanded keywords; if still insufficient, allow user to provide manual sources; downgrade to `quick` mode with explicit quality note |
+| Stage 1: the literature role | Insufficient sources found | Retry with expanded keywords or invite user-supplied sources. When a brief can still meet the goal, use `literature brief` and disclose its reduced scope |
 | Stage 2: the draft role | Draft quality below `adequate` threshold | Return to argument_builder for strengthening; if 2nd attempt fails, pause pipeline and request user input |
-| Stage 2.5: integrity (mid) | FAIL verdict | Mandatory: return to Stage 2 with integrity issues as revision requirements. The correction round dispatches the draft role **revision mode** under § Revision-Round Patch Sequencing — never full-mode re-drafting; reference-level fixes are the most block-local edit class in the pipeline, and full re-emission is reachable only via the §3.6 escalation checkpoint. Cannot be skipped. After 3 correction rounds without a PASS, the Integrity Check FAIL Loop in `../references/pipeline_state_machine.md` applies: list the unresolved items and record the user's decision |
+| Stage 2.5: integrity (mid) | FAIL verdict | Mandatory: return to Stage 2 with integrity issues as revision requirements. Dispatch `review revise` under § Revision-Round Patch Sequencing using the integrity-correction variant. Reference-level fixes are block-local and structural changes require the escalation checkpoint. After 3 correction rounds without a PASS, follow the Integrity Check FAIL Loop in `../references/pipeline_state_machine.md`, list the unresolved items and record the user's decision |
 | Stage 3: reviewer | All reviewers reject | Pause pipeline; present rejection reasons; offer: (a) major revision and re-review, (b) pivot the paper's angle, (c) abort |
 | Stage 4.5: integrity (final) | FAIL verdict | Run a correction round with the final integrity issues, with the same routing and 3-round Integrity Check FAIL Loop as the Stage 2.5 row; it does not return to review, and never abort on your own |
 | Stage 4 / 4': revision | Author cannot address a must_fix item | Escalate to user; options: (a) provide additional data/evidence, (b) reframe the claim, (c) remove the problematic section |
@@ -617,14 +610,18 @@ consumer.
 
 ## Handoff material transfer rules
 
+The Stage 2.5 gate and its checkpoint apply to every confirmed mid-entry destination. Carry the checked draft, Integrity Report and required E6 findings and disposition to Stage 4, 3' or 4.5 under the same gate conditions as the Stage 3 handoff below.
+
+For real external feedback, dispatch `review` using [external review](../references/external_review_protocol.md). Gather the original comments into the roadmap and collect explicit scoped author authorization before Stage 4 patches. At Stage 3', `review` compares the revised draft and response against the original draft and comments. Use `review rebuttal-audit` for response coverage when a reply is available. Surface discrepancies at the checkpoint, then carry the authorized revision evidence to Stage 4.5. The Stage 3' contract below applies to simulated review rounds.
+
 | Transition | Transferred Materials | Schema Reference | Transfer Method |
 |-----------|----------------------|-----------------|----------------|
 | Stage 1 -> 2 | RQ Brief, Methodology Blueprint, Annotated Bibliography, Synthesis Report | Schema 1 (RQ Brief), Schema 2 (Bibliography), Schema 3 (Synthesis) | the literature role handoff protocol; when active, separately carry the context/binding pointer named by the preceding lifecycle; dispatch no Stage 2 writer before the experiment intake is sealed (§ Experiment Intake Question) |
 | Stage 2 -> 2.5 | Complete Paper Draft + scope context for Phase E4 (RQ Brief `scope` — the required E4 input; `sub_question_bindings` + outline section→sub-question map when present) + the Schema 2 Annotated Bibliography (— `search_strategy` is the E5 comparison basis; `sources[].relevance` + `relevance_score` ground the nearest-prior-work check), when one exists + unchanged binding pointer/receipts when active | Schema 4 (Paper Draft) + Schema 1 scope fields + Schema 2 (search_strategy + source relevance metadata) + review-target contracts | Pass to integrity_verification_agent; integrity does not consume criteria as a verdict input |
 | Stage 2.5 -> 3 | Stage 2.5 Paper Draft (verified, or carrying the recorded Integrity Check FAIL Loop partially-unverified warning) + Integrity Report + E6 finding-set companion and, when findings exist, `authorized_to_continue` disposition sidecar + unchanged manifest/context/brief when active | Schema 4 + Schema 5 + `claim-strength-drift-findings/1.0` + conditional `claim-strength-drift-disposition/1.0` + review-target contracts | Pass only after E6 has no findings or every reported row has explicit authorization; restoration/pause does not transfer the current draft. Carry forward `experiment_provenance[]` + `experiment_alignment_results[]` + `experiment_intake_declaration`; the integrity verdict never consumes criteria binding |
-| Stage 3 -> **coaching** -> 4 | Editorial Decision, immutable Revision Roadmap, exact claim surfaces, 5 Review Reports, and the Schema 6 closed `review_panel_provenance` carrier; coaching adds the complete explicit author sidecar without mutating the Roadmap | Schema 6 + `revision-roadmap/1.0` + `claim-surface-manifest/1.0` + `author-adjudication/1.0` | For `reviewer_full`, verify the provenance artifact raw digest and deterministic replay before transfer; preserve its valid/invalid carrier byte-for-byte. Source-ordered dialogue records one explicit author choice per item, exact targets, and any exact claim/collateral authority -> revision mode |
-| Stage 4 -> 3' | Revised Draft, hard-required Original (pre-revision) Draft (the 1.1 §3.1 Phase 2A input; the required bundle already carries the exact matched round's pre draft, so declaring it absent is `manifest_incomplete`, never a `first_link_not_run` degradation), Response to Reviewers + Editorial Decision Letter (display only) + the Round-1 Schema 6 `review_panel_provenance` carrier and exact artifact bytes + the Round-1 review findings (the Schema 6 review reports the roadmap items trace to — the §4 level-3 criterion layer; absent → transported Schema 7 fields alone, `[ROUND1-FINDINGS-ABSENT]`) + the Round-1 Revision Roadmap being verified + every ordered apply report and paired revision patch/diff file (`<output>.apply-report.json`, the sidecar beside each revised draft, ; the manifest pair list must exactly equal the fully replayed bundle's ordered write-round projection, the FIRST report's `base_draft_hash` must equal the Original Draft hash prefix, every inner link must join, and only the LAST output hash may equal the Revised Draft hash prefix; any omission, substitution, reorder, or broken link → `manifest_hash_mismatch`) + the Round-1 Reviewer Configuration Cards (yardstick continuity — field_analyst is NOT re-run at Stage 3'; `re_review_mode_protocol.md` § Yardstick Continuity) + unchanged target-review authority when active | Schema 4 (revised + original) + Schema 8 (Response to Reviewers) + Schema 6 (letter + Round-1 review reports + provenance carrier) + raw provenance artifact + Schema 7 (Roadmap, machine-form JSON — § Stage 3' Re-Review Contract Dispatch producer obligations) + apply-report sidecar JSON + revision patch JSON + configuration cards (no numbered schema) + review-target contracts | Before re-review, verify the carrier's raw artifact digest and deterministic replay; on any absent/unreachable/digest/schema/replay failure use the closed invalid state with six unknown axes, never letter reconstruction. Pass to reviewer (marked as verification round) under § Stage 3' Re-Review Contract Dispatch. This row is the re-review-mode transfer — the default Stage 3'. When the user explicitly requests a fresh full review at 3' instead (mid-entry quick→full path: no Schema 7 Roadmap or Round-1 cards exist), transfer the Revised Draft + available context only, dispatch full mode (field_analyst runs by definition), and do NOT mark it a verification round. A changed target requires a new non-comparable target review id |
-| Stage 3' -> **coaching** -> 4' | New Revision Roadmap (if Major) | authority family + `@/engine/contracts/re_review/traceability.schema.json` | Pass the immutable roadmap, exact claim surfaces, traceability sidecar, and new complete author sidecar to revision mode; coaching uses a source-ordered explicit author checkpoint, and prior-round choices are never inferred or carried forward; they may be shown for one explicit answer (§ Declined Items at Stage 3' and Stage 4') |
+| Stage 3 -> **coaching** -> 4 | Editorial Decision, immutable Revision Roadmap, exact claim surfaces, 5 Review Reports, and the Schema 6 closed `review_panel_provenance` carrier; coaching adds the complete explicit author sidecar without mutating the Roadmap | Schema 6 + `revision-roadmap/1.0` + `claim-surface-manifest/1.0` + `author-adjudication/1.0` | For `reviewer_full`, verify the provenance artifact raw digest and deterministic replay before transfer; preserve its valid/invalid carrier byte-for-byte. Source-ordered dialogue records one explicit author choice per item, exact targets, and any exact claim/collateral authority → `review revise` |
+| Stage 4 -> 3' | Revised Draft, hard-required Original (pre-revision) Draft (the 1.1 §3.1 Phase 2A input; the required bundle already carries the exact matched round's pre draft, so declaring it absent is `manifest_incomplete`, never a `first_link_not_run` degradation), Response to Reviewers + Editorial Decision Letter (display only) + the Round-1 Schema 6 `review_panel_provenance` carrier and exact artifact bytes + the Round-1 review findings (the Schema 6 review reports the roadmap items trace to — the §4 level-3 criterion layer; absent → transported Schema 7 fields alone, `[ROUND1-FINDINGS-ABSENT]`) + the Round-1 Revision Roadmap being verified + every ordered apply report and paired revision patch/diff file (`<output>.apply-report.json`, the sidecar beside each revised draft, ; the manifest pair list must exactly equal the fully replayed bundle's ordered write-round projection, the FIRST report's `base_draft_hash` must equal the Original Draft hash prefix, every inner link must join, and only the LAST output hash may equal the Revised Draft hash prefix; any omission, substitution, reorder, or broken link → `manifest_hash_mismatch`) + the Round-1 Reviewer Configuration Cards (yardstick continuity — field_analyst is NOT re-run at Stage 3'; `re_review_mode_protocol.md` § Yardstick Continuity) + unchanged target-review authority when active | Schema 4 (revised + original) + Schema 8 (Response to Reviewers) + Schema 6 (letter + Round-1 review reports + provenance carrier) + raw provenance artifact + Schema 7 (Roadmap, machine-form JSON — § Stage 3' Re-Review Contract Dispatch producer obligations) + apply-report sidecar JSON + revision patch JSON + configuration cards (no numbered schema) + review-target contracts | Before re-review, verify the carrier's raw artifact digest and deterministic replay; on any absent/unreachable/digest/schema/replay failure use the closed invalid state with six unknown axes, never letter reconstruction. Pass to reviewer (marked as verification round) under § Stage 3' Re-Review Contract Dispatch. This row is the re-review-mode transfer — the simulated Stage 3' branch. When the user explicitly requests a fresh full review at 3' instead (mid-entry quick→full path: no Schema 7 Roadmap or Round-1 cards exist), transfer the Revised Draft + available context only, dispatch full mode (field_analyst runs by definition), and do NOT mark it a verification round. A changed target requires a new non-comparable target review id |
+| Stage 3' -> **coaching** -> 4' | New Revision Roadmap (if Major) | authority family + `@/engine/contracts/re_review/traceability.schema.json` | Pass the immutable roadmap, exact claim surfaces, traceability sidecar, and new complete author sidecar to `review revise`; coaching uses a source-ordered explicit author checkpoint, and prior-round choices are never inferred or carried forward; they may be shown for one explicit answer (§ Declined Items at Stage 3' and Stage 4') |
 | Stage 3' -> 4.5 | (Accept/Minor direct path — no Stage 4' between) Verified Revised Draft + the traceability sidecar with its frozen `previously_missed`/`indeterminate` new-issue records (§8 — Material Passport cargo consumed by the Stage 4.5 gate) | Schema 4 (revised) + traceability sidecar | Pass to integrity_verification_agent (final verification); the frozen records are gate INPUT, not just cargo |
 | Stage 4/4' -> 4.5 | Revised/Re-Revised Draft + /context + complete validated `revision-evidence-bundle/1.0` from exact integrity PASS through every review write/no-op/integrity round + (Major-via-4' path) the Stage 3' traceability sidecar with its frozen `previously_missed`/`indeterminate` new-issue records | Schema 4 + bundle + traceability sidecar | Pass to integrity_verification_agent; registered surfaces are replayed, while the explicit unregistered-claim boundary remains mandatory E6 review input |
 | Stage 4.5 -> 5 | Final Accepted Draft (verified, or carrying the recorded Integrity Check FAIL Loop partially-unverified warning) + Paper Configuration Record (§ Standing Constraints) + Final Integrity Report + E6 finding-set companion and, when findings exist, `authorized_to_continue` disposition sidecar + exact preregistration sidecar/companion + independent/results | Schema 4 + Schema 5 + E6 finding/disposition contracts + `preregistration-artifact/1.0`; independent advisory schemas | Refuse transfer while E6 derives `restore_required` or `paused`. After E6 closure, at the one mandatory entry checkpoint run then on identical accepted-draft ID/SHA and surface both without changing routing. On confirmation: Run the Stage 5 output process (row below). Carry forward `experiment_alignment_results[]` + `experiment_intake_declaration` to formatter surface + Stage 6 histogram |
@@ -830,7 +827,7 @@ The Cite-Time Provenance Finalizer, its strict terminal policies, and, under `RW
 
 ## Mid-Entry Material Passport Check
 
-When a user enters the pipeline mid-way (e.g., bringing an existing paper), the orchestrator MUST check for a Material Passport before running the integrity stage that applies (Stage 2.5 for a paper draft on its way to Stage 3; Stage 4.5 for a revised draft), to decide whether a prior Integrity Report is attached as context. That stage runs either way.
+When a user starts a new full run with an existing manuscript, check for a Material Passport before Stage 2.5 to decide whether to attach a prior Integrity Report as context. Run Stage 2.5 on the current version in either case, then follow the confirmed target route. Stage 4.5 still applies before finalization. Use the resume contract for a continuation of the same validated run.
 
 ### Decision Tree
 
@@ -838,8 +835,7 @@ When a user enters the pipeline mid-way (e.g., bringing an existing paper), the 
 Mid-Entry Material Passport Check:
 
 1. Does the material have a Material Passport (Schema 9)?
-   NO  -> Require full verification from appropriate stage
-         (paper draft -> Stage 2.5; revised draft -> Stage 4.5)
+   NO  -> Run Stage 2.5 on the supplied version
    YES -> Continue to step 2
 
 2. Is verification_status = "VERIFIED"?
@@ -857,7 +853,7 @@ Mid-Entry Material Passport Check:
    YES -> Require re-verification
          "The paper has been modified since the last integrity check
           (version [old] -> [new]). Re-verification is required."
-   NO  -> Re-run the integrity stage, prior report as context (paper draft -> 2.5; revised draft -> 4.5); paper draft:
+   NO  -> Run Stage 2.5 with the prior report as context:
          "Your paper passed integrity check on [date] (version [label]),
           but Stage 2.5 remains mandatory for this pipeline run.
           Re-run Stage 2.5 and attach the prior report as context."
@@ -865,7 +861,7 @@ Mid-Entry Material Passport Check:
 
 ### Rules
 
-- **Stage 2.5 can NEVER be skipped** via Material Passport. Prior reports can inform the rerun, but Stage 2.5 still executes before Stage 3 in every pipeline run
+- **A prior run's Material Passport cannot satisfy Stage 2.5 for a new full run.** Prior reports can inform the check. Use the current run's completed check only on a validated continuation while that check still applies to the tracked draft.
 - **Stage 4.5 can NEVER be skipped** via Material Passport, regardless of passport status. Final integrity check always requires full Mode 2 verification
 - **Passport freshness threshold**: 24 hours. Sessions that span multiple days should trigger re-verification
 - **Content hash comparison**: If `content_hash` is available in the passport, use it for reliable change detection. If not available, fall back to `version_label` comparison
@@ -884,7 +880,7 @@ The integrity gates require `experiment_intake_declaration` on every post-passpo
 
 Do not ask when the run reaches no integrity gate (a format conversion that enters neither Stage 2.5 nor Stage 4.5). Do not ask when the passport already carries a declaration: that declaration is the intake record even without `scholar_answer` or a ledger entry, so § Run ledger and handoff check does not reopen it; when it has no `scholar_answer`, say once that the original words are not on record. The timing follows the scholar's choice of entry point, not the paper's content.
 
-**The question.** Ask it in the user's language: "Does this paper report experiments or data analyses that you ran yourself, for example a survey you administered, data you analyzed, or a model you trained? Please answer in your own words. If it does, you will be asked to record each one; `research-writing` does not run experiments."
+**The question.** Ask it in the user's language: "Does this paper report experiments or data analyses that you ran, for example a survey you administered, data you analyzed, or a model you trained? Please answer in your own words. If it does, you will be asked to record each one. This manuscript workflow records and verifies experiment provenance."
 
 **Recording the answer.** A yes sets `status: experiments_declared` and a no sets `status: no_experiments_declared`, each with `declared_at` (when the scholar answered), `declared_by: scholar`, and `scholar_answer` holding the scholar's words unchanged. If the answer is neither a yes nor a no, ask once more; never choose a status for the scholar, and never set `legacy_unknown` from this question. When the run has a passport file, also append the question and answer to the run ledger as an in-stage question that changes a deliverable (§ Run ledger and handoff check). If the scholar does not answer, say that the Stage 2.5 integrity gate will stop until they do, and dispatch no writer or integrity gate before they answer.
 
@@ -1260,7 +1256,7 @@ The per-pass resolution counts gain a `terminal_blocked[]` bucket recording each
 
 ## Revision-Round Patch Sequencing
 
-When a revision stage dispatches the draft role\'s `revision` mode (Stage 3 → 4 / 3' → 4'; "Resolved next stage: 4 (mode: revision)" — and equally the integrity-FAIL correction rounds, Stage 2.5 FAIL → 2 and Stage 4.5 FAIL → 5 (revision), where the integrity correction list is only the round's proposed requirements; #89 Item 8, destination differences in the integrity-correction variant below — note the FAIL arrow lands on Stage 5's **revision** sub-step, not the PASS-path Stage 4.5 → 5 finalization handoff, and re-verification by the issuing gate is mandatory before finalization), the writer's deliverable is a **patch document**, not a re-emitted draft, and the orchestrator owns the deterministic steps around it. Spec:–§3.6. Protocol + exact commands: `@/roles/review/revise/references/revision_patch_protocol.md`. The toolchain is Slice A: `@/engine/scripts/ars_anchorize_draft.py` + `@/engine/scripts/ars_apply_revision_patch.py`.
+Dispatch [`review revise`](../../review/revise/MODE.md) in its strict patch mode for Stage 4 and Stage 4' and for integrity-FAIL correction rounds. The writer emits a patch document and the orchestrator runs the deterministic steps around it. For Stage 2.5 FAIL → 2 and Stage 4.5 FAIL → the Stage 5 correction sub-step, the integrity correction list proposes the round's requirements. Use the integrity-correction variant below and return to the issuing gate for re-verification before proceeding. The Stage 5 correction sub-step does not dispatch finalization. Protocol and commands: `@/roles/review/revise/references/revision_patch_protocol.md`. The toolchain is `@/engine/scripts/ars_anchorize_draft.py` + `@/engine/scripts/ars_apply_revision_patch.py`.
 
 **Normative order per revision round — nothing may rewrite the draft between steps 1 and 3:**
 
@@ -1352,7 +1348,7 @@ a substitute for that gate.
 
 ## Stage 3' Re-Review Contract Dispatch
 
-Contract-governed re-review IS the Stage 3' default. The orchestrator (the dispatching layer — per it, not a fenced agent, executes API calls and runs scripts) owns the deterministic steps around the three fenced verification calls. Authority: `@/roles/review/panel/strict/re_review_mode_protocol.md` § Three-Gate Orchestration; artifacts: `@/engine/contracts/re_review/*.schema.json`; checker: `@/engine/scripts/check_re_review_synthesis.py`.
+Contract-governed `review re-review` is the strict Stage 3' path for simulated rounds. For real reviewer feedback, use the [external self-verification branch](../references/external_review_protocol.md#step-4-self-verification-completeness-check). The orchestrator owns the deterministic steps around the three fenced verification calls. Authority: `@/roles/review/panel/strict/re_review_mode_protocol.md` § Three-Gate Orchestration. Artifacts: `@/engine/contracts/re_review/*.schema.json`. Checker: `@/engine/scripts/check_re_review_synthesis.py`.
 
 **Normative dispatch order per re-review round:**
 

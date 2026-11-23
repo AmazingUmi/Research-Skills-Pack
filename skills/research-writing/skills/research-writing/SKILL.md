@@ -5,7 +5,7 @@ description: 科研论文写作的统一入口，整合了 Paper Orchestra、ARS
 
 # Research Writing · 科研论文写作
 
-本技能由六个角色组成。编排角色管整稿的阶段、检查点和汇合，另外五个角色各管一个写作阶段。每个角色的 `ROLE.md` 写明它的模式、要加载的 agent 和参考、交付物，以及验收方式。
+本技能提供六个角色。`orchestrate` 负责整稿调度、两次完整性核查、作者检查点和过程记录，按阶段把任务派给大纲、文献、图表、正文和审稿角色。各 `ROLE.md` 说明可用模式、所需材料、交付与验收。一个阶段可调用多个角色，任务卡要写清负责角色和是否有主稿写入权。
 
 ## 首要规则
 
@@ -37,7 +37,7 @@ description: 科研论文写作的统一入口，整合了 Paper Orchestra、ARS
 
 ## 调用方式
 
-写 `$research-writing <角色> [模式]`，例如 `$research-writing review panel`、`$research-writing literature systematic-review`。角色名是 `orchestrate`、`outline`、`literature`、`figures`、`draft`、`review`。只写角色时，由该角色按请求选择模式。不写角色时按上文路由。
+写 `$research-writing <角色> [模式]`，例如 `$research-writing review panel`、`$research-writing literature systematic-review`。角色名是 `orchestrate`、`outline`、`literature`、`figures`、`draft`、`review`。只写角色时按其 `ROLE.md` 选择适用模式或执行默认做法。整稿组稿的 `outline` 直接交付大纲、证据表和任务卡。角色内的模式随本技能一起导入，独立的配套技能按需另行导入。
 
 `$research-writing full` 等同于 `orchestrate full`，走完整流程（含完整性核查、审稿、返修与定稿）；`$research-writing draft full` 只写出整篇初稿。
 
@@ -48,7 +48,7 @@ description: 科研论文写作的统一入口，整合了 Paper Orchestra、ARS
 - **严格模式。** 系统综述、引文完整性门禁等需要脚本校验的任务，可以启用 Material Passport 和 `engine/` 下的校验脚本。默认使用证据矩阵，两者的字段映射见[交接约定](references/handoff.md)。
 - **路径约定。** 角色与模式文件中以 `@/` 开头的路径，以本技能根目录（本文件所在目录）为基准；`agents/`、`references/`、`templates/`、`strict/` 等不带前缀的路径相对于当前模式目录。
 - **可选会话选项。** `reading-probe` 与 `adjacent-probe` 两个苏格拉底提问环节默认关闭，只有用户本人在消息中要求时才打开。
-- **外部工具。** 需要符号推导、MATLAB 或 Octave 工作流、单位与不确定度计算时，使用 Research Engineering 的 `sympy`、`matlab` 和 `uncertainty-and-units`，需要另行导入。这些工具不可用时，相关结论标为待核。
+- **外部工具。** 符号推导、MATLAB 或 Octave 工作流、单位与不确定度核算、专门的统计建模可按需使用 Research Engineering 中已导入的 `sympy`、`matlab`、`uncertainty-and-units` 或 `statsmodels`。角色仍负责验收该工具返回的结果；无法核对的结论标为待核。
 
 ## 参考
 

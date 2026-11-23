@@ -375,10 +375,13 @@ Check whether prerequisite materials for entering the specified stage are availa
 | Stage 2 | None (but Stage 1 output recommended) | RQ Brief, Methodology Blueprint, Bibliography, Synthesis |
 | Stage 2.5 | Paper Draft | -- |
 | Stage 3 | **Verified Paper Draft + Integrity Report (Pre)** — or, on a recorded Integrity Check FAIL Loop continuation, the Stage 2.5 draft + Integrity Report (Pre) carrying the partially-unverified warning | -- |
-| Stage 4 | Review Reports + Revision Roadmap | Paper Draft |
-| Stage 3' | Revised Draft + hard-required Original pre-revision Draft + Round-1 Revision Roadmap + exact author-adjudication sidecar + fully replayed Revision-Evidence Bundle (current contract re-review; not required for an explicitly requested fresh full review) | Response to Reviewers; Editorial Decision Letter; Round-1 findings; exact ordered apply report/patch pairs matching the bundle projection; Round-1 Reviewer Configuration Cards. Missing any current hard-required artifact or a mismatched pair is `manifest_incomplete`, not a warning-only degradation. |
+| Stage 4 | Checked draft + review findings or external feedback + Revision Roadmap (build during coaching if needed) | Editorial decision when available |
+| Stage 3' (default simulated re-review) | Original and revised drafts, first-round findings, revision roadmap, and reviewer cards as specified by [`review re-review`](../../review/panel/MODE.md#re-review) | Response to Reviewers |
+| Stage 3' (strict simulated re-review) | Original and revised drafts, Round-1 Revision Roadmap, exact author-adjudication sidecar, fully replayed Revision-Evidence Bundle, and its matching ordered apply report/patch pairs. Missing or mismatched required inputs produce `manifest_incomplete` | Response to Reviewers; Editorial Decision Letter; Round-1 findings and cards under the strict protocol's presence rules |
+| Stage 3' (external feedback) | Original and revised drafts and original external feedback for [point-by-point verification](../references/external_review_protocol.md#step-4-self-verification-completeness-check) | Response to Reviewers when available. Record any checks that require a missing reply |
+| Stage 3' (requested fresh review) | Revised draft and standard `review panel` inputs | Prior context supplied by the author |
 | Stage 4' | Re-Review Report (Decision: Major) | Revised Draft |
-| Stage 4.5 | Revised Draft or Re-Revised Draft | -- |
+| Stage 4.5 | Current final candidate (accepted draft, revised draft or formatting-only candidate) | -- |
 | Stage 5 | **Integrity Report (Final) — verdict: PASS, or FAIL with a recorded Integrity Check FAIL Loop resolution** | -- |
 | Stage 6 | None (Final Paper already delivered at Stage 5) | Pipeline state history + dialogue_log_ref ranges |
 

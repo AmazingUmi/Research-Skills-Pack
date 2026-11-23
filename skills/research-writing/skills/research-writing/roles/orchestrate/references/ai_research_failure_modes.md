@@ -2,7 +2,7 @@
 
 **Parent skill**: the orchestrate role
 **Used at**: Stage 2.5 INTEGRITY (blocking), Stage 4.5 FINAL INTEGRITY (blocking), Stage 6 PROCESS SUMMARY (reporting only)
-**Run by**: `integrity_verification_agent`, inside the Integrity Report; the MANDATORY integrity checkpoint shows each mode's outcome
+**Run by**: the [default evidence-matrix review](../agents/default_integrity_review.md) or the [strict integrity agent](../agents/integrity_verification_agent.md). The integrity checkpoint shows each mode's outcome.
 **Source**: Lu et al. (2026). Towards end-to-end automation of AI research. *Nature* 651, 914-919. doi:10.1038/s41586-026-10265-5 — Limitations section, Figure 2 (examples of failures in The AI Scientist's own accepted paper), Supplementary Information A.2.9 (debugging traces).
 
 ---
@@ -133,6 +133,8 @@ Run all 7 modes. For each mode, produce one of four outcomes:
 - **SUSPECTED**: one or more detection questions returned a concerning answer. Must be surfaced to the user.
 - **INSUFFICIENT EVIDENCE**: integrity reviewer cannot rule the mode in or out without user input (e.g., needs experiment logs the user hasn't provided).
 - **NOT APPLICABLE**: Modes 1, 3, 5, and 6 only, when the passport's `experiment_intake_declaration` has `status: no_experiments_declared`. These four modes check experiment and analysis logs, and the scholar has said there are none; the pre-filter keys on that declaration rather than a paper type because `field_analyst_agent` first runs at Stage 3, after the Stage 2.5 gate. Record the declaration as the evidence, quoting its `scholar_answer` (or stating that the original words are not on record). If the draft nevertheless presents experiments or data analyses as run by the author (their results, run settings, or Methods text describing them as done; a literature search and screening procedure does not count), the declaration and the draft disagree: none of the four is NOT APPLICABLE, Modes 3 and 6 are SUSPECTED, and the user sees both. Any other declaration status leaves the four modes as they are. NOT APPLICABLE never blocks.
+
+In default orchestration, record the equivalent explicit user declaration and their words in the task card. Apply the same applicability test to that declaration and the current draft.
 
 **Block condition**: pipeline blocks if **any** mode is SUSPECTED (except Mode 4, which is flag-only at Stage 2.5: it is shown to the user and re-checked at 4.5), or if Modes 1, 3, 5, or 6 are INSUFFICIENT EVIDENCE (these four require user-provided logs to rule out and should not be silently skipped). Modes 2, 4, 7 INSUFFICIENT EVIDENCE can proceed with a warning and will be re-checked at 4.5.
 

@@ -11,7 +11,7 @@
 | `guided` | `$research-writing review guided` | 全部 + 苏格拉底式对话 | 逐个问题引导作者自己发现 |
 | `re-review` | `$research-writing review re-review` | 沿用第一轮的审稿人卡片，不重跑 field_analyst | 逐项核对表、遗留问题、新决定 |
 
-只要一份意见、按 Nature 标准审稿时用 `nature` 模式。只核对回复信时用 `rebuttal-audit`。
+按 Nature 风格审稿时用 `nature`，报告数量可按用户明确提出的要求调整。只要一份通用审稿意见时由[审稿角色](../ROLE.md)直接处理。只核对回复信时用 `rebuttal-audit`。
 
 ## 输入
 
@@ -64,7 +64,7 @@ agent 文件中引用的 Iron Rule 或 Checkpoint Rule 编号都对应这里。
 
 ### `re-review`
 
-核对修订是否回应了第一轮意见。默认做法：
+核对修订是否回应了首轮模拟审稿意见。真实外审意见的改稿核对按[外审逐项自查](../../orchestrate/references/external_review_protocol.md#step-4-self-verification-completeness-check)处理，沿用真实意见与原始编号。模拟审稿后的做法如下。
 
 1. 沿用第一轮的审稿人卡片作为同一把尺子，不重新配置。
 2. **先看证据，再看说法。** 对返修路线图的每一项，先对照修订前稿件与修订稿，判断改动是否存在、是否解决了问题，给出 `FULLY_ADDRESSED`、`PARTIALLY_ADDRESSED`、`NOT_ADDRESSED` 或 `MADE_WORSE`，并给出位置。完成这一步之后才读回复信，再标出回复信的说法与实际改动不一致之处。

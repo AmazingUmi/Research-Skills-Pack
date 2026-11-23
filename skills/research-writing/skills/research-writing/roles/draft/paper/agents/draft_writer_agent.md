@@ -301,7 +301,8 @@ Quality gate not passed ->
 | `citation_compliance_agent` | Complete Draft (with all in-text citations) | This agent's Output Format |
 | `abstract_bilingual_agent` | Complete Draft (for abstract writing) | Full text Markdown |
 | `peer_reviewer_agent` | Complete Draft + Draft Metadata | Full text + Word Count table |
-| `formatter_agent` | Final Revised Draft (after passing peer review) | Markdown with citations |
+| `orchestrate` Stage 2.5 | Draft and evidence handoff after `draft full` was dispatched in Stage 2 | Markdown with citations, checked figure IDs and open items |
+| `formatter_agent` | Standalone `draft full` draft when requested in its internal formatting phase | Markdown with citations |
 
 ### Handoff Format Requirements
 

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="522" viewBox="0 0 1280 522" role="img" aria-labelledby="title desc">
+  <title id="title">Research Engineering 技能树</title>
+  <desc id="desc">Research Engineering 的九个独立技能按数值与测量、建模与优化、训练与工程三类展示。类别只用于导航，可按需分别导入任一技能。</desc>
+  <style>
+    text { font-family: "Helvetica Neue", Arial, "PingFang SC", "Noto Sans CJK SC", sans-serif }
+    .title { font-size: 38px; font-weight: 700; fill: #fff }
+    .subtitle { font-size: 18px; fill: #d5e9e8 }
+    .heading { font-size: 24px; font-weight: 700; fill: #143b40 }
+    .skill { font-family: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; font-size: 19px; font-weight: 700; fill: #143b40 }
+    .meaning { font-size: 16px; fill: #466267 }
+    .branch { fill: none; stroke: #78999b; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
+    .card { fill: #fff; stroke: #cddcdb; stroke-width: 1 }
+  </style>
+
+  <rect width="1280" height="522" rx="24" fill="#f3f7f6"/>
+  <rect x="36" y="28" width="1208" height="100" rx="16" fill="#143b40"/>
+  <text class="title" x="60" y="75">Research Engineering</text>
+  <text class="subtitle" x="62" y="105">9 个独立技能，按用途分组</text>
+
+  <path class="branch" d="M640 128V164 M229 164V146H1051V164"/>
+  <path class="branch" d="M56 226V453 M56 283H78 M56 368H78 M56 453H78"/>
+  <path class="branch" d="M467 226V453 M467 283H489 M467 368H489 M467 453H489"/>
+  <path class="branch" d="M878 226V453 M878 283H900 M878 368H900 M878 453H900"/>
+
+  <g aria-label="数值与测量">
+    <rect x="36" y="164" width="386" height="62" rx="12" fill="#dfefed"/>
+    <text class="heading" x="58" y="202">数值与测量</text>
+    <rect class="card" x="78" y="248" width="344" height="70" rx="10"/>
+    <text class="skill" x="98" y="277">matlab</text>
+    <text class="meaning" x="98" y="301">MATLAB / Octave 数值工作流</text>
+    <rect class="card" x="78" y="333" width="344" height="70" rx="10"/>
+    <text class="skill" x="98" y="362">sympy</text>
+    <text class="meaning" x="98" y="386">符号推导与精确计算</text>
+    <rect class="card" x="78" y="418" width="344" height="70" rx="10"/>
+    <text class="skill" x="98" y="447">uncertainty-and-units</text>
+    <text class="meaning" x="98" y="471">单位换算、量纲与不确定度</text>
+  </g>
+
+  <g aria-label="建模与优化">
+    <rect x="447" y="164" width="386" height="62" rx="12" fill="#dfefed"/>
+    <text class="heading" x="469" y="202">建模与优化</text>
+    <rect class="card" x="489" y="248" width="344" height="70" rx="10"/>
+    <text class="skill" x="509" y="277">pymoo</text>
+    <text class="meaning" x="509" y="301">多目标优化</text>
+    <rect class="card" x="489" y="333" width="344" height="70" rx="10"/>
+    <text class="skill" x="509" y="362">scikit-learn</text>
+    <text class="meaning" x="509" y="386">机器学习</text>
+    <rect class="card" x="489" y="418" width="344" height="70" rx="10"/>
+    <text class="skill" x="509" y="447">statsmodels</text>
+    <text class="meaning" x="509" y="471">统计建模与诊断</text>
+  </g>
+
+  <g aria-label="训练与工程">
+    <rect x="858" y="164" width="386" height="62" rx="12" fill="#dfefed"/>
+    <text class="heading" x="880" y="202">训练与工程</text>
+    <rect class="card" x="900" y="248" width="344" height="70" rx="10"/>
+    <text class="skill" x="920" y="277">pytorch-lightning</text>
+    <text class="meaning" x="920" y="301">深度学习训练工程</text>
+    <rect class="card" x="900" y="333" width="344" height="70" rx="10"/>
+    <text class="skill" x="920" y="362">optimize-for-gpu</text>
+    <text class="meaning" x="920" y="386">GPU 性能分析与优化</text>
+    <rect class="card" x="900" y="418" width="344" height="70" rx="10"/>
+    <text class="skill" x="920" y="447">gh-fix-ci</text>
+    <text class="meaning" x="920" y="471">GitHub Actions 失败诊断</text>
+  </g>
+</svg>

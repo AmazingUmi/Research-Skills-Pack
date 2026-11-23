@@ -1,5 +1,7 @@
 # Integrity Review Protocol (Added in v2.0)
 
+This protocol applies to strict orchestration. Default orchestration uses the [evidence-matrix review](../agents/default_integrity_review.md).
+
 ## Stage 2.5: First Integrity Check (Pre-Review Integrity)
 
 **Trigger**: After Stage 2 (WRITE) completion, before Stage 3 (REVIEW)

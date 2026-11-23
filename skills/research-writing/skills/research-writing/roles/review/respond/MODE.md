@@ -17,7 +17,7 @@ Read [manifest.yaml](manifest.yaml). Then read every file listed under `always_l
 
 Unlike `$research-writing draft section` or `$research-writing figures make`, this mode has no fragment axis. Its variation is identified at runtime, not by loading different content bodies:
 
-- **task mode** — `draft` / `audit` / `revise` / `triage-only` / `cover-letter` / `revision-package` / `latex-template` / `appeal-like`.
+- **correspondence task** — `draft` / `audit` / `revise` (revise an existing response) / `triage-only` / `cover-letter` / `revision-package` / `latex-template` / `appeal-like`.
 - **decision type** — minor revision, major revision, revise-and-resubmit, transfer after review, or unclear.
 - **user language** — if the user writes Chinese, also produce the 中文核对 block.
 
@@ -35,7 +35,9 @@ requested. Apply the package workflow below only to the parts needed for the req
 
 ### 3. Run the workflow
 
-Follow the workflow in `core/workflow.md`: if the user pasted a journal email, first parse manuscript metadata, decision type, editor instructions, reviewer reports, required files, deadlines, and reviewer-visibility rules from the email; identify mode and pass the decision-type gate; apply the Major- or Minor-Revision strategy without downgrading the severity of individual comments; extract editor instructions (IDs `E.1`) then reviewer comments (`R1.1`, `R2.1`) when present; classify each item by response action and independently verified work status; build an internal/editor master strategy and tracker; draft a standalone privacy-filtered response for each mutually blind reviewer; when a reviewer missed material already present in the manuscript, treat that as a clarity signal and revise the presentation instead of replying that the point was already stated; draft a revision cover letter when required; map every claimed change to a manuscript location or explicit placeholder; mark changed manuscript text in red on a backed-up copy when editing; format quoted revised manuscript text in the response letter in italics; flag missing author input; run QA; and derive package readiness from the per-item statuses and blocking state.
+In an orchestrated Stage 4, `review revise` writes the manuscript. Use its revised version and change record to write the response and, when requested, produce a marked copy against the baseline. Send further manuscript changes back to `review revise`. When called on its own, edit the manuscript alongside the response if the user requests both. Keep the baseline and use a single manuscript writer.
+
+Follow the workflow in `static/core/workflow.md`: if the user pasted a journal email, first parse manuscript metadata, decision type, editor instructions, reviewer reports, required files, deadlines, and reviewer-visibility rules from the email; identify mode and pass the decision-type gate; apply the Major- or Minor-Revision strategy without downgrading the severity of individual comments; extract editor instructions (IDs `E.1`) then reviewer comments (`R1.1`, `R2.1`) when present; classify each item by response action and independently verified work status; build an internal/editor master strategy and tracker; draft a standalone privacy-filtered response for each mutually blind reviewer; when a reviewer missed material already present in the manuscript, flag the clarity issue and suggest a targeted fix or apply it within the editing scope above; draft a revision cover letter when required; map every claimed change to a manuscript location or explicit placeholder; mark changed manuscript text in red on a backed-up copy when editing; format quoted revised manuscript text in the response letter in italics; flag missing author input; run QA; and derive package readiness from the per-item statuses and blocking state.
 
 Whenever a response proposes or performs a manuscript main-text edit, also load
 `@/references/nature-shared/core/main-text-discipline.md`. Answer the reviewer completely

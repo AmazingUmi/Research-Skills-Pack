@@ -6,7 +6,7 @@
 
 | 模式 | 调用 | 参与的 agent | 交付 |
 | --- | --- | --- | --- |
-| `full` | `$research-writing draft full` | intake、literature_strategist、structure_architect、argument_builder、draft_writer、citation_compliance、abstract_bilingual、peer_reviewer、formatter；有定量结果时加 visualization | 完整初稿（含图表时附绘图代码） |
+| `full` | `$research-writing draft full` | intake、按缺项启用的 literature_strategist/structure_architect/argument_builder、draft_writer、citation_compliance、abstract_bilingual、peer_reviewer；独立调用且需要格式交付时启用 formatter | 完整初稿及其引用与图件交接记录 |
 | `abstract` | `$research-writing draft abstract` | intake、abstract_bilingual | 摘要与关键词（可双语） |
 | `disclosure` | `$research-writing draft disclosure` | formatter（披露分支） | 按目标期刊政策生成的 AI 使用声明 |
 | `format-convert` | `$research-writing draft format-convert` | formatter | LaTeX、DOCX（通过 Pandoc）、PDF 或 Markdown 稿件；可转换引用样式 |
@@ -14,6 +14,8 @@
 只写或重写某一节时用 `section`；只改语言用 `polish`。规划论文结构用大纲角色的 `plan` 或 `outline-only`；按审稿意见改稿用审稿角色的 `revise`。
 
 ## `full` 的流程
+
+在 `orchestrate full` 的阶段 2，优先复用已验收的大纲、主张与证据表、文献和图件。现有材料够用时跳过对应的内部准备步骤。缺图且写作范围包含制图时，给 `figures make` 一张任务卡，验收后再整合图件。初稿与自查结果交回编排进入阶段 2.5，投稿格式与声明在编排阶段 5 处理。下表的编号属于 `draft full` 的内部步骤。
 
 | 阶段 | agent | 产出 |
 | --- | --- | --- |
@@ -25,14 +27,14 @@
 | 5a 引文 | `@/roles/literature/citation-check/agents/citation_compliance_agent.md` | 引文审核报告 |
 | 5b 摘要 | [`agents/abstract_bilingual_agent.md`](agents/abstract_bilingual_agent.md) | 摘要与关键词（与 5a 并行） |
 | 6 内部审阅 | [`agents/peer_reviewer_agent.md`](agents/peer_reviewer_agent.md) | 审阅报告，最多两轮修改 |
-| 7 格式 | [`agents/formatter_agent.md`](agents/formatter_agent.md) | 最终输出 |
+| 7 独立初稿的格式交付 | [`agents/formatter_agent.md`](agents/formatter_agent.md) | 独立调用时按请求输出初稿格式 |
 
 检查点：
 
 1. 配置记录（阶段 0）须由用户确认后再继续。
 2. 大纲（阶段 2）须由用户认可，可以要求调整结构。
 3. 修改最多两轮，仍未解决的问题写进“已知局限”。
-4. 内部审阅中的 Critical 问题未解决前不进入阶段 7。
+4. 内部审阅中的 Critical 问题未解决前，将问题和可用草稿交回调用者处理。独立调用时，先解决问题再进入内部步骤 7。
 5. 用户提供了自己的文献时，可以跳过阶段 1。
 
 阶段 6 是写作内部的自查，不代替审稿角色的 `panel`。需要外部视角的模拟审稿时，成稿后再交给审稿角色。

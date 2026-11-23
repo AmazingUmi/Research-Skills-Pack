@@ -9,7 +9,7 @@
 | `revision-coach` | `$research-writing review revision-coach` | 审稿意见（任意格式），可附稿件 | 不排序的返修路线图、作者逐项取舍记录、可选的跟踪表和回复骨架 |
 | `rebuttal-audit` | `$research-writing review rebuttal-audit` | 审稿意见 **和** 已写好的回复稿 | 逐条覆盖表、遗漏清单、风险提示和改进建议 |
 
-只有意见、还没有回复稿时用 `revision-coach`；要写完整的回复信用 `respond`；要核对修订稿是否真的改了用 `re-review`。
+只有意见、需要梳理返修路线时用 `revision-coach`。要写完整的回复信用 `respond`。核对修订稿时，首轮模拟审稿用 `re-review`，真实外审用[外审逐项自查](../../orchestrate/references/external_review_protocol.md#step-4-self-verification-completeness-check)。
 
 ## `revision-coach`
 

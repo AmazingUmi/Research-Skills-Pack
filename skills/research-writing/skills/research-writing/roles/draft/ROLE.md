@@ -4,7 +4,7 @@
 
 # 写作科研正文
 
-本角色负责稿件的唯一写入：确定写作范围，整合证据、引文和图件，核对数字与引用后写入稿件。具体写作交给下表的模式，交回的文字由本角色核对后写入。
+本角色负责初稿的写入与定稿材料的制作。写初稿时整合证据、引文和图件，核对数字与引用后由一个写入者汇入主稿。整稿流程进入授权返修后，`review revise` 负责写入修订候选。它调用 `draft section` 或 `draft polish` 时，正文角色交回稿件片段供它整合。
 
 ## 模式
 
@@ -20,7 +20,7 @@
 | `disclosure` | 按目标期刊政策写 AI 使用声明 | [paper](paper/MODE.md#disclosure) | AI 使用声明 |
 | `format-convert` | 在 LaTeX、DOCX、PDF、Markdown 之间转换，或转换引用样式 | [paper](paper/MODE.md) | 转换后的稿件 |
 
-带单位和不确定度的数字可用 Research Engineering 的 `uncertainty-and-units` 核算（另行导入）。研究计划、开题报告和项目申请书不属于本角色，使用独立技能 `nature-proposal-writer`。
+带单位和不确定度的数字可用 Research Engineering 的 `uncertainty-and-units` 核算。`analysis` 的专门统计建模可用同包的 `statsmodels`。使用这些技能需要另行导入。研究计划、开题报告和项目申请书使用独立技能 `nature-proposal-writer`。
 
 ## 输入与边界
 

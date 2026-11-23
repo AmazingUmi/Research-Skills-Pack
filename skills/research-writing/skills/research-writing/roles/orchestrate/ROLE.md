@@ -9,48 +9,57 @@
 | 模式 | 什么时候用 | 交付 |
 | --- | --- | --- |
 | `full` | 从研究材料或想法出发，走完整篇论文 | 终稿、完整性核查报告、过程记录 |
-| `resume` | 接着上次停下的阶段继续 | 从断点继续，沿用已有产物 |
+| `resume` | 恢复同一次流程已记录的断点 | 从已验证的阶段和检查点继续，沿用经过核对的产物 |
 
 用户只要一个阶段的产物时，不进入本角色，直接调用对应角色。详细的阶段状态机、交接内容和异常处理见 [`references/workflow_detail.md`](references/workflow_detail.md) 与 [`references/pipeline_state_machine.md`](references/pipeline_state_machine.md)。
 
 ## 1. 先按手头材料选择入口
 
-| 手上有 | 从哪个阶段进入 |
+| 手上有 | 新开 `full` 时的阶段顺序 |
 | --- | --- |
 | 只有想法或宽泛题目 | 阶段 1，先 `outline socratic` |
 | 研究问题明确，需要文献与研究基础 | 阶段 1，用 `literature deep`、`brief` 或 `lit-review` |
 | 研究问题与核心材料齐备，暂无稿件 | 阶段 2 |
-| 已有稿件 | 阶段 2.5，先做完整性核查再审稿 |
-| 已有稿件和审稿意见 | 阶段 4 |
-| 已有修订稿 | 阶段 3′ |
-| 只差排版与投稿材料 | 阶段 2.5 核查后进入阶段 5 |
+| 已有稿件，需要首轮审稿 | 阶段 2.5 → 3 |
+| 已有稿件和审稿意见，需要返修 | 阶段 2.5 → 4，沿用已有审稿意见 |
+| 已有修订稿，需要复审 | 阶段 2.5 → 3′，按复审模式核对所需材料 |
+| 已有定稿候选，只差排版与投稿材料 | 阶段 2.5 → 4.5 → 5，保留定稿前的强制检查点 |
 
-判断入口后，向用户确认入口、各阶段准备使用的模式，以及大致的工作量和交互轮数，再开始。已经有稿件的情况不能跳过阶段 2.5；以前的核查报告只作参考，稿件仍要重新核查。
+新开 `full` 带入已有稿件时，先对当前版本运行阶段 2.5。以前的核查报告可供本次核查参考。开始前向用户确认通过核查后的目标阶段、各阶段使用的模式和预计交互轮数。目标阶段缺少必要材料时，先补齐材料或确认适用的走法。
 
-## 2. 阶段
+`resume` 先核对同一次流程的已记录阶段、稿件版本和未决检查点，再从该点恢复。已经完成且仍有效的阶段 2.5 可以沿用。若当前稿件与记录不符，重新核查受影响的阶段。仅提供旧报告或稿件时按上表开始新流程。严格模式的跨会话恢复见[断点重置协议](strict/passport_as_reset_boundary.md)。
 
-| 阶段 | 内容 | 调用 | 交付 |
+## 2. 阶段与角色调用
+
+`orchestrate` 管整条流程的分派、交接和检查点。下表列出各阶段实际执行工作的角色、模式和交付物，适用于默认和严格流程。严格模式在相应交接处增加校验。
+
+| 阶段 | 执行角色 | 调用与选择条件 | 交付 |
 | --- | --- | --- | --- |
-| 1 研究 | 研究问题、方法、文献与综合 | `outline socratic`、`literature deep` / `brief` / `lit-review` / `systematic-review`，需要时 `outline experiment` | 研究问题、方法蓝图、文献与综合 |
-| 2 写作 | 大纲 → 文献与图表分支 → 正文 | 见下方“阶段 2 的组稿方式” | 初稿 |
-| 2.5 完整性核查 | 写完后、审稿前 | [`agents/integrity_verification_agent.md`](agents/integrity_verification_agent.md) | 核查报告与修正后的稿件 |
-| 3 审稿 | 模拟同行评审 | `review panel` | 审稿报告、编辑决定、返修路线图 |
-| 4 返修 | 按路线图修改并回复 | `review revision-coach`、`review revise`、`review respond` | 修订稿与回复信 |
-| 3′ 复审 | 核对修订是否回应意见 | `review re-review` | 逐项核对表与新决定 |
-| 4′ 再返修 | 复审仍为大修时，最多一轮 | `review revise` | 第二版修订稿 |
-| 4.5 终稿核查 | 从头重新核查，不只复查已知问题 | integrity_verification_agent | 终稿核查报告 |
-| 5 定稿 | 格式与投稿材料 | `draft format-convert`、`draft disclosure`、`draft data-availability` | 终稿（Markdown，按需 DOCX、PDF、LaTeX） |
-| 6 过程记录 | 写作过程、协作情况与 AI 的自我检讨 | 按 [`references/process_summary_protocol.md`](references/process_summary_protocol.md) | 过程记录（用户可以不要） |
+| 1 研究 | `outline`、`literature` | 按[阶段 1](#阶段-1-的研究任务)选择研究问题、设计和文献模式 | 研究问题、方法蓝图、文献依据或综述，按实际任务交付 |
+| 2 写作 | `outline` → `literature`、`figures` → `draft` | 先用 `outline` 制定章节及证据任务，分派文献与图表，再用 `draft section` 或 `draft full` 汇稿。见[阶段 2](#阶段-2-的组稿方式) | 初稿及其引文、图件和证据记录 |
+| 2.5 完整性核查 | `orchestrate` | 用[内部核查流程](#4-完整性核查阶段-25-与-45)检查初稿或带入的已有稿件 | 核查报告及对应稿件版本 |
+| 3 模拟审稿 | `review` | `review panel`，先请作者确认审稿人卡片 | 审稿报告、模拟编辑决定、返修路线图 |
+| 4 返修 | `review` | 需要梳理意见或收集作者取舍时用 `review revision-coach`。按授权用 `review revise` 改稿，需要回复信用 `review respond` | 作者取舍与变更记录、修订稿，按需附回复信 |
+| 3′ 复审 | `review` | 模拟审稿用 `review re-review`。真实外审按[外审核对流程](references/external_review_protocol.md#step-4-self-verification-completeness-check)核对，已有回复可用 `review rebuttal-audit` 检查覆盖 | 逐项核对表。模拟复审另给模拟编辑决定 |
+| 4′ 再返修 | `review` | 模拟复审仍为大修时，按新一轮作者授权用 `review revise` 修改一次 | 第二版修订稿与变更记录 |
+| 4.5 终稿核查 | `orchestrate` | 用[内部核查流程](#4-完整性核查阶段-25-与-45)检查当前完整终稿，在进入阶段 5 前呈交作者确认 | 终稿核查报告及对应稿件版本 |
+| 5 定稿 | `draft` | `draft format-convert` 按确认的格式交付。按需调用 `draft disclosure` 和 `draft data-availability` | Markdown 终稿或用户指定格式，按需附投稿声明 |
+| 6 过程记录 | `orchestrate` | 用户接受时按[过程记录流程](references/process_summary_protocol.md)汇总已完成阶段与决策 | 写作过程、协作记录及未决事项 |
 
 返修次数：阶段 4 和 4′ 各一轮，4′ 之后直接进入 4.5，不再回到审稿。仍未解决的问题写进“已知局限”。
+
+### 阶段 1 的研究任务
+
+- 研究问题尚未成形时用 `outline socratic`。问题已明确但需要设计研究时用 `outline design`。要判断证据强度时用 `outline appraise`，需要详细实验方案时可用 `outline experiment plan`。实验执行按单独授权和实验模式的要求处理。
+- 按文献交付物选择模式。完整研究报告用 `literature deep`，简报用 `literature brief`，叙述性综述用 `literature lit-review`，明确要求系统综述时用 `literature systematic-review`。用户要求单独筛选已有记录时用 `literature screen`，筛选前先由作者确认协议。
 
 ### 阶段 2 的组稿方式
 
 沿用 Paper Orchestra 的分工：
 
-1. **立大纲。** `outline` 为主要主张建立 ID，写明哪些证据能证明、哪些待验证，给出各节任务、检索单和图件任务卡。需要逐章讨论时用 `outline plan`。
-2. **跑分支。** `literature` 按检索单查背景、前作和定向出处；`figures` 按任务卡出图或复核已有图。两个分支输入独立时可以并行。若比较图要用文献中的数值，先核实这些数值再画图。
-3. **汇合与写作。** 把同一主张对应的文献、原始材料、分析和图件汇合，决定可以采用的论断。由 `draft` 作为唯一写入者整合章节、引用和编号：需要一次写出整篇初稿时用 `draft full`，按节推进时用 `draft section`。
+1. **立大纲。** `outline` 默认直接执行大纲角色的工作步骤，为主要主张建 ID，交付主张证据表、章节计划、检索单和图件任务卡。逐章讨论选 `outline plan`，需要详细大纲和证据地图时选 `outline outline-only`。
+2. **按任务查文献、做图表。** 按具体主张找出处或核对来源，用 `literature verify`。需要多源检索候选资料时用 `literature search`，需要进一步读原文时按权限补充全文。出图用 `figures make`，已有图的证据与表现评估用 `figures audit`。文献和图表分支输入独立时可以并行。依赖文献数值的图先等数值核验完成。
+3. **汇合与写作。** 把同一主张对应的文献、原始材料、分析和图件汇合，由 `draft` 作为唯一写入者整合章节、引用和编号。整篇初稿用 `draft full`，按节推进用 `draft section`。已有证据和图件随任务交接，核对后复用。
 
 各分支交接按[交接约定](../../references/handoff.md)。汇合前核对各分支覆盖了哪些主张、用了哪个版本、哪些仍待核。缺失或冲突只限制受影响的论断，其余照常推进。
 
@@ -72,13 +81,11 @@
 
 ## 4. 完整性核查（阶段 2.5 与 4.5）
 
-按 [`references/integrity_review_protocol.md`](references/integrity_review_protocol.md) 分五步：参考文献、引用语境、统计数据、原创性、主张。主张核验见 [`references/claim_verification_protocol.md`](references/claim_verification_protocol.md)：高影响主张（核心结论、数值、因果、方法关键、有争议的）全部核验，其余抽样。
+默认按[证据矩阵核查](agents/default_integrity_review.md)检查参考文献、引用语境、统计数据、原创性和主张。严格模式由[严格核查 Agent](agents/integrity_verification_agent.md)执行[完整性协议](references/integrity_review_protocol.md)与机器校验，适用时再调用[合规 Agent](agents/compliance_agent.md)生成 Schema 12 报告。
 
-- 同时运行 [`references/ai_research_failure_modes.md`](references/ai_research_failure_modes.md) 的 7 类 AI 研究失败检查（实现错误、虚构结果、走捷径、把错误当发现、方法造假、框架锁定等）。任何一类被判定为“疑似”就阻断，用户说明理由后才能继续，理由要记录并写进过程记录。
-- 系统综述等适用的情况下，由 [`agents/compliance_agent.md`](agents/compliance_agent.md) 做 PRISMA-trAIce 与 RAISE 合规检查，见 `@/references/compliance_checkpoint_protocol.md`。
-- 未通过时修正后重新核查，最多三轮；三轮后仍有问题，列出未解决项，由用户决定是否继续，决定要记录。未解决项不能悄悄去掉。
-- 阶段 4.5 必须从头重新核查，因为修订可能带来新问题。
-- 抄袭与重复检查见 [`references/plagiarism_detection_protocol.md`](references/plagiarism_detection_protocol.md)。
+- 两种模式都按 [AI 研究失败检查](references/ai_research_failure_modes.md)和适用的合规规则处理阻断项。
+- 核查未通过时，按当前模式交回修正清单并复核，最多三轮。三轮后仍有一般核查问题时，列出未解决项，由用户明确决定是否带着这些标记继续，决定写入过程记录。失败模式和合规项遵循各自的阻断及解除规则。
+- 阶段 4.5 以当前稿件为基线，从头执行适用的核查范围。
 
 ## 5. 缺材料、改中间件和失败时怎么办
 

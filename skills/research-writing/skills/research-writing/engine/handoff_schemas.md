@@ -612,9 +612,9 @@ equal the carried post draft; matching reported hashes alone are insufficient.
 
 ---
 
-## Schema 8: Response to Reviewers (the draft role revision -> reviewer re-review)
+## Schema 8: Response to Reviewers (`review revise` → `review re-review`)
 
-**Producer**: `the draft role/draft_writer_agent` (revision mode)
+**Producer**: the patch writer dispatched by `review revise`
 **Consumer**: `the review panel/editorial_synthesizer_agent` (re-review)
 
 ### Required Fields
@@ -995,10 +995,10 @@ See `@/references/style_calibration_protocol.md` for full consumption rules and 
 **Producer (multi-stage, Kong A1 / )**:
 - `concern_id` / `obligation_class` / `original_comment` / `reviewer_source`: the review panel (first-round review)
 - `commitment_extracted`: revision_coach_agent (Step 3.5 Commitment Extraction Pass)
-- `authors_claim` / `revision_location` / `fulfillment_status` / `unfulfilled_rationale` / `residual_action`: the draft role revision execution (authored), then independently confirmed by re-review
+- `authors_claim` / `revision_location` / `fulfillment_status` / `unfulfilled_rationale` / `residual_action`: `review revise` (authored), then independently confirmed by re-review
 - `verified` / `status` / `quality_assessment`: the review panel (re-review mode)
 
-**Consumer**: the draft role (revision mode, if further revision needed), pipeline orchestrator. Schema 11 is carried forward via Material Passport (Schema 9) for cross-stage audit.
+**Consumer**: `review revise` (if further revision is needed), pipeline orchestrator. Schema 11 is carried forward via Material Passport (Schema 9) for cross-stage audit.
 
 **Purpose**: Maps every reviewer concern through the full revision cycle — what was raised, what the author claims to have done, where the change is, and whether it was independently verified.
 

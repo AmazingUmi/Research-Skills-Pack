@@ -418,14 +418,14 @@ Quality gate not passed ->
 
 | Target Agent | Output Content | Data Format |
 |-----------|---------|---------|
-| `formatter_agent` | Corrected Draft + Corrected Reference List | Markdown with all citations fixed |
+| Calling writer or `orchestrate` stage | Citation Audit Report and proposed or authorized corrections | Markdown with contextual findings and a reference list |
 | `peer_reviewer_agent` | Citation Audit Report (for review reference) | This agent's Output Format |
 | User | Flagged items for review | Items Flagged for Review table |
 
 ### Handoff Format Requirements
 
 - **Receiving draft_writer_agent's Draft**: Reference List must exist as an independent section (`## References`)
-- **Output to formatter_agent**: Corrected Reference List must already be sorted by target format (APA = the venue/locale ordering rule above; MLA = alphabetical; IEEE/Vancouver = order of appearance)
+- **Reference-list handoff**: Sort approved corrections by target format (APA uses the venue or locale ordering rule above, MLA is alphabetical, IEEE and Vancouver use order of appearance). The calling writer or orchestrator decides when to hand the accepted version to the formatter.
 - **Cross-verification with literature_strategist_agent**: Each source in the Annotated Bibliography is the ground truth. If citation information in the Draft differs from the Bibliography -> correct using Bibliography as authoritative source
 
 ## Quality Criteria

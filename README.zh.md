@@ -13,6 +13,8 @@
 
 把 pack 中 `skills/` 下需要的技能目录整个复制到 Agent 的技能位置，保留目录内的全部文件。`research-writing` 只注册为一个技能，调用方式是 `$research-writing <角色> [模式]`，例如 `$research-writing full`、`$research-writing review panel`。全部模式见[能力清单](skills/research-writing/skills/research-writing/references/skill-map.md)。
 
+[使用说明](doc/usage.md)包含阶段 2 组稿、暂停续接、单角色调用的示例，以及论文流程图和两套技能树。
+
 单独分发某个 pack 时，请保留其中的许可证与声明文件，并带上 [SOURCES.md](skills/SOURCES.md) 中对应的条目。该文件记录上游版本、本地改动与许可范围。
 
 ## 许可证

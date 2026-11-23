@@ -13,6 +13,8 @@ Distributable agent skills for research, organised into two packs.
 
 Copy the skill directories you need from a pack's `skills/` into your agent's skill location, keeping every file inside each directory. `research-writing` registers as a single skill; call it as `$research-writing <role> [mode]`, for example `$research-writing full` or `$research-writing review panel`. Its [skill map](skills/research-writing/skills/research-writing/references/skill-map.md) lists every mode.
 
+The [usage guide (Chinese)](doc/usage.md) includes prompts for entering a writing stage, resuming a run, and using individual roles, along with the workflow and skill trees.
+
 If you share a pack, keep its license and notice files together with the matching entries in [SOURCES.md](skills/SOURCES.md), which records upstream revisions, local changes and license scope.
 
 ## License

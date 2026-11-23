@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1402" viewBox="0 0 1000 1402" role="img" aria-labelledby="title desc">
+  <title id="title">Research Writing 论文写作流程</title>
+  <desc id="desc">编排角色按已有材料选择研究、组稿或完整性核查。组稿时由大纲分派文献与图表，正文汇成初稿。经作者确认后按稿件状态进入首审、返修、复审或终稿核查。定稿前必须由作者确认，过程记录可选。</desc>
+  <style>
+    text { font-family: "Helvetica Neue", Arial, "PingFang SC", "Noto Sans CJK SC", sans-serif }
+    .title { font-size: 44px; font-weight: 700; fill: #143b40 }
+    .step { font-size: 29px; font-weight: 700; fill: #143b40 }
+    .role { font-size: 23px; font-weight: 700; fill: #175c56 }
+    .label { font-size: 22px; fill: #294b4c }
+    .choice { font-size: 22px; font-weight: 700; fill: #0e514a }
+    .accent { fill: #795420 }
+    .code { font-family: Menlo, Consolas, "Liberation Mono", monospace }
+    .center { text-anchor: middle }
+    .end { text-anchor: end }
+    .stage { fill: #fff; stroke: #c5d7d5; stroke-width: 1.5 }
+    .branch { fill: #f4f8f7; stroke: #c5d7d5; stroke-width: 1.5 }
+    .check { fill: #e1efec; stroke: #bddbd4; stroke-width: 1.5 }
+    .approval { fill: #fbf0d9; stroke: #e5c992; stroke-width: 1.5 }
+    .edge { fill: none; stroke: #437e75; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round }
+    .optional { stroke-dasharray: 6 5 }
+    .heads { fill: #437e75 }
+  </style>
+
+  <rect width="1000" height="1402" rx="24" fill="#f4f8f7"/>
+  <text class="title" x="32" y="68">论文写作流程</text>
+  <text class="label code end" x="968" y="63">$research-writing full</text>
+  <text class="label" x="34" y="104">orchestrate 分派任务 · 各阶段完成后由作者确认</text>
+
+  <g aria-label="阶段推进与分支箭头">
+    <path class="edge" d="M181 175H204 M181 325H204 M181 484H204 M469 212V241 M469 407V446 M469 519V566 M469 639V684 M469 757V802 M469 875V1016 M469 1089V1127 M469 1187V1224"/>
+    <path class="edge" d="M730 484H774 M730 621H774 M730 840H873V898 M873 969V1054H733"/>
+    <path class="edge optional" d="M207 604H189V1054H204 M730 1262H770"/>
+    <path class="heads" d="M201 170v10l8-5Z M201 320v10l8-5Z M201 479v10l8-5Z M464 236h10l-5 8Z M464 441h10l-5 8Z M464 561h10l-5 8Z M464 679h10l-5 8Z M464 797h10l-5 8Z M464 1011h10l-5 8Z M464 1122h10l-5 8Z M464 1219h10l-5 8Z M769 479v10l8-5Z M769 616v10l8-5Z M868 893h10l-5 8Z M738 1049v10l-8-5Z M201 1049v10l8-5Z M765 1257v10l8-5Z"/>
+  </g>
+
+  <g aria-label="按已有材料进入流程">
+    <rect class="check" x="27" y="149" width="154" height="52" rx="10"/>
+    <text class="choice center" x="104" y="182">需补研究</text>
+    <rect class="check" x="27" y="299" width="154" height="52" rx="10"/>
+    <text class="choice center" x="104" y="332">核心材料齐备</text>
+    <rect class="check" x="27" y="458" width="154" height="52" rx="10"/>
+    <text class="choice center" x="104" y="491">已有稿件</text>
+  </g>
+
+  <g aria-label="阶段 1 研究">
+    <rect class="stage" x="207" y="139" width="523" height="73" rx="12"/>
+    <text class="step" x="229" y="185">1 研究</text>
+    <text class="role end" x="709" y="184">outline · literature</text>
+  </g>
+
+  <g aria-label="阶段 2 组稿">
+    <rect class="stage" x="207" y="244" width="523" height="163" rx="12"/>
+    <text class="step" x="229" y="280">2 组稿</text>
+    <text class="label end" x="709" y="279">文献与图表输入独立时可并行</text>
+    <path class="edge" d="M351 342H371V318H396 M371 342V374H396 M532 318H552V342H568 M532 374H552V342"/>
+    <path class="heads" d="M391 313v10l8-5Z M391 369v10l8-5Z M563 337v10l8-5Z"/>
+    <rect class="branch" x="223" y="311" width="128" height="62" rx="9"/>
+    <text class="label center" x="287" y="338">立大纲</text>
+    <text class="role center" x="287" y="362">outline</text>
+    <rect class="branch" x="399" y="294" width="133" height="48" rx="9"/>
+    <text class="role center" x="465" y="325">literature</text>
+    <rect class="branch" x="399" y="350" width="133" height="48" rx="9"/>
+    <text class="role center" x="465" y="381">figures</text>
+    <rect class="check" x="571" y="311" width="141" height="62" rx="9"/>
+    <text class="label center" x="641" y="338">汇成初稿</text>
+    <text class="role center" x="641" y="362">draft</text>
+  </g>
+
+  <g aria-label="阶段 2.5 完整性核查">
+    <rect class="check" x="207" y="449" width="523" height="70" rx="12"/>
+    <text class="step" x="229" y="494">2.5 稿件核查</text>
+    <text class="role end" x="709" y="493">orchestrate</text>
+  </g>
+  <g aria-label="2.5 核查后的目标分流">
+    <rect class="branch" x="777" y="426" width="196" height="165" rx="10"/>
+    <text class="choice" x="793" y="456">按目标选一路</text>
+    <text class="label" x="793" y="486">首轮审稿 → 3</text>
+    <text class="label" x="793" y="514">已有意见 → 4</text>
+    <text class="label" x="793" y="542">已有修订 → 3′</text>
+    <text class="label" x="793" y="570">只需定稿 → 4.5</text>
+  </g>
+  <text class="choice" x="488" y="550">需首审</text>
+
+  <g aria-label="阶段 3 模拟审稿">
+    <rect class="stage" x="207" y="569" width="523" height="70" rx="12"/>
+    <text class="step" x="229" y="614">3 模拟审稿</text>
+    <text class="role end" x="709" y="613">review</text>
+  </g>
+  <text class="choice end" x="171" y="610">接收</text>
+  <g aria-label="拒稿分支">
+    <rect class="branch" x="777" y="602" width="196" height="68" rx="10"/>
+    <text class="choice" x="793" y="631">拒稿</text>
+    <text class="label" x="793" y="657">回到 2 或结束</text>
+  </g>
+  <text class="choice" x="488" y="669">小修或大修</text>
+
+  <g aria-label="阶段 4 返修">
+    <rect class="stage" x="207" y="687" width="523" height="70" rx="12"/>
+    <text class="step" x="229" y="732">4 返修与回复</text>
+    <text class="role end" x="709" y="731">review</text>
+  </g>
+
+  <g aria-label="阶段 3′ 复审或外审核对">
+    <rect class="stage" x="207" y="805" width="523" height="70" rx="12"/>
+    <text class="step" x="229" y="838">3′ 核对修订</text>
+    <text class="role end" x="709" y="837">review</text>
+    <text class="label" x="229" y="863">模拟复审或真实外审核对</text>
+  </g>
+  <text class="choice center" x="873" y="888">模拟复审仍为大修</text>
+  <text class="choice" x="488" y="931">接收、小修</text>
+  <text class="label" x="488" y="959">或外审结果已确认</text>
+  <g aria-label="阶段 4′ 再返修">
+    <rect class="branch" x="773" y="901" width="200" height="68" rx="10"/>
+    <text class="step center" x="873" y="934">4′ 再返修</text>
+    <text class="role center" x="873" y="958">review · 一轮</text>
+  </g>
+
+  <g aria-label="阶段 4.5 终稿核查">
+    <rect class="check" x="207" y="1019" width="523" height="70" rx="12"/>
+    <text class="step" x="229" y="1064">4.5 终稿核查</text>
+    <text class="role end" x="709" y="1063">orchestrate</text>
+  </g>
+  <g aria-label="定稿前强制检查点">
+    <rect class="approval" x="207" y="1130" width="523" height="57" rx="11"/>
+    <text class="step accent" x="229" y="1167">作者确认定稿</text>
+    <text class="role end" x="709" y="1166">orchestrate</text>
+  </g>
+  <g aria-label="阶段 5 定稿交付">
+    <rect class="stage" x="207" y="1227" width="523" height="70" rx="12"/>
+    <text class="step" x="229" y="1272">5 定稿交付</text>
+    <text class="role end" x="709" y="1271">draft</text>
+  </g>
+  <g aria-label="阶段 6 可选过程记录">
+    <rect class="branch optional" x="773" y="1227" width="200" height="70" rx="10"/>
+    <text class="choice center" x="873" y="1213">可选</text>
+    <text class="step center" x="873" y="1260">6 过程记录</text>
+    <text class="role center" x="873" y="1285">orchestrate</text>
+  </g>
+  <g aria-label="两次核查的修正与复核规则">
+    <rect class="check" x="207" y="1331" width="766" height="43" rx="10"/>
+    <text class="label" x="225" y="1359">核查未通过 → review 按授权修正 → orchestrate 回原阶段复核</text>
+  </g>
+</svg>

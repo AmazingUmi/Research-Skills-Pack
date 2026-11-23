@@ -2,6 +2,8 @@
 
 科研论文写作技能包。核心是 [`research-writing`](skills/research-writing/SKILL.md)：一个按角色组织的写作技能，整合了 Paper Orchestra、ARS、Nature Skills 和 K-Dense 的写作能力。另附 7 个论文稿件之外的独立技能。
 
+[论文写作流程](#论文写作流程) · [角色技能树](#角色技能树)
+
 ## research-writing
 
 由六个角色组成：编排、大纲、文献、图表、正文、审稿。调用方式是 `$research-writing <角色> [模式]`，例如：
@@ -11,7 +13,19 @@
 - `$research-writing review panel`：五席位模拟审稿，并给出编辑决定。
 - `$research-writing draft section`：写指定章节。
 
-全部模式见[能力清单](skills/research-writing/references/skill-map.md)。默认模式只依靠提示和证据矩阵，不需要额外环境。严格模式使用 `engine/` 下的合约与校验脚本，需要 Python 3 和 [`engine/requirements.txt`](skills/research-writing/engine/requirements.txt) 中的依赖。部分模式另有自己的依赖，例如 `literature search` 的可选 MCP server、`literature fulltext` 的 Node.js、`figures make` 的绘图库，详见各模式目录。
+全部模式见[能力清单](skills/research-writing/references/skill-map.md)。[默认完整性核查](skills/research-writing/roles/orchestrate/agents/default_integrity_review.md)用证据矩阵交付核查报告，无需安装 Python 引擎。严格模式使用 `engine/` 下的合约与校验脚本，需要 Python 3 和 [`engine/requirements.txt`](skills/research-writing/engine/requirements.txt) 中的依赖。部分模式另有自己的依赖，例如 `literature search` 的可选 MCP server、`literature fulltext` 的 Node.js、`figures make` 的绘图库，详见各模式目录。
+
+## 论文写作流程
+
+![论文写作的执行顺序、分支条件和每步调用的角色](../../doc/figures/paper-workflow.svg)
+
+[整稿编排](skills/research-writing/roles/orchestrate/ROLE.md#2-阶段与角色调用)说明每步由谁执行、何时调用和交付什么。
+
+## 角色技能树
+
+![六个角色的职责、各角色的可用模式和按需导入的技能](../../doc/figures/writing-skill-tree.svg)
+
+[能力清单](skills/research-writing/references/skill-map.md)列出各角色的模式、用途和可另行导入的配套技能。
 
 ## 独立技能
 

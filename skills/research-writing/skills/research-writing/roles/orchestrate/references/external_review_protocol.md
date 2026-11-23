@@ -11,7 +11,7 @@
 | Source of review comments | Pipeline's AI reviewers | Journal's human reviewers |
 | Comment format | Structured (Revision Roadmap) | Unstructured (free text, PDF, email) |
 | Comment quality | Consistent, predictable | Variable quality, may be vague or contradictory |
-| Revision strategy | Can accept wholesale | Need to judge which to accept/reject/negotiate |
+| Revision strategy | Author records the disposition of each item | Author records the disposition of each item |
 | Acceptance criteria | AI re-review suffices | Ultimately decided by human reviewers |
 
 ## Step 1: Intake and Structuring
@@ -74,8 +74,8 @@ For each Major comment, guide the user to think through:
 **Key principles**:
 - **Do not default to "accept all"**: Real reviewer comments are not always correct — some may be based on misunderstanding or school-of-thought bias
 - **Encourage user to inject context**: "What school of thought do you think this reviewer might come from? What context might they not be aware of?"
-- **User can say "just fix it for me" to skip**: But when skipping strategic discussion, AI defaults to accepting all comments (conservative strategy)
-- **Maximum 8 rounds of dialogue**, but at least 1 round per Major comment
+- **The author may skip strategic discussion**. Use the author's existing explicit choices and ask for any missing dispositions before revising. `review revise` acts on the items the author marked `will_address`.
+- **Coaching**: Discuss outstanding Major comments within the existing 8-round maximum.
 
 ## Step 3: Revision and Response to Reviewers
 
@@ -105,6 +105,8 @@ Produce two documents:
 ```
 
 ## Step 4: Self-Verification (Completeness Check)
+
+For external feedback, `orchestrate` dispatches `review` to perform this Stage 3' check, including when the user brings an existing revision and reply. The review role keeps the original comment labels and compares the original draft, revised draft and response. Use `review rebuttal-audit` for response coverage when a reply is available. The review role reports discrepancies to `orchestrate`, which records the checkpoint and carries unresolved findings into Stage 4.5.
 
 ```
 Stage 3' behavior adjustments in external review mode:

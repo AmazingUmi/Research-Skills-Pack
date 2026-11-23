@@ -1,4 +1,4 @@
-# Example: Full Pipeline Conversation Log
+# Example: Default Full Pipeline Conversation Log
 
 ## Scenario Description
 
@@ -6,6 +6,8 @@
 **Topic**: The impact of declining birthrate on enrollment strategies of private universities in Taiwan
 **Goal**: Complete a submission-ready IMRaD paper
 **Language**: Traditional Chinese (bilingual abstract)
+
+This illustrative run starts with `$research-writing full` and uses the default evidence matrix.
 
 ---
 
@@ -28,15 +30,18 @@ Detection results:
 - Materials: None (starting from scratch)
 - Goal: Full workflow
 - Entry point: Stage 1 (RESEARCH)
-- User preference: First time writing a paper --> recommend guided mode
+- User preference: First time writing a paper --> start with Socratic research planning
 
 Recommended Pipeline Configuration:
 
-  Stage 1 RESEARCH: socratic -- First time doing research, Socratic guidance to help you think through
-  Stage 2 WRITE:    plan     -- Chapter-by-chapter guidance to plan your paper structure
-  Stage 3 REVIEW:   full     -- Complete 5-person review (Journal-Fit Reviewer + R1/R2/R3 + Devil's Advocate), simulating real submission experience
-  Stage 4 REVISE:   revision -- Item-by-item revision based on review comments
-  Stage 5 FINALIZE: format   -- Convert to your desired format (LaTeX/DOCX via Pandoc/PDF)
+  Stage 1 RESEARCH: outline socratic and literature deep
+  Stage 2 WRITE:    outline plan, then draft full
+  Stage 2.5:       Default integrity review of the draft
+  Stage 3 REVIEW:  review panel
+  Stage 4 REVISE:  review revise and review respond
+  Stage 3':        review re-review
+  Stage 4.5:       Default integrity review of the final candidate
+  Stage 5 FINALIZE: draft format-convert
 
 You can adjust any stage's mode at any time. Ready to begin?
 ```
@@ -48,9 +53,9 @@ You can adjust any stage's mode at any time. Ready to begin?
 ### Stage 1: RESEARCH (socratic mode)
 
 ```
-Entering Stage 1 (RESEARCH) -- using literature socratic mode
+Entering Stage 1 (RESEARCH) -- using outline socratic
 
-Loading literature MODE.md...
+Loading outline/socratic/MODE.md...
 Launching socratic_mentor_agent...
 ```
 
@@ -108,7 +113,7 @@ Extracted INSIGHTs (8):
   [INSIGHT 8] Research contribution: provide evidence-based strategy recommendations for resource-limited private universities
 ```
 
-Then bibliography_agent executes literature search, source_verification_agent verifies sources...
+Then `literature deep` searches for related work and verifies the sources used in the synthesis.
 
 **Stage 1 Deliverables:**
 - RQ Brief (with FINER scoring)
@@ -140,14 +145,16 @@ Progress: [v]Research -> [..]Writing -> [ ]Review -> [ ]Revision -> [ ]Finalizat
 
 **User**: Continue!
 
+The author supplies the completed analyses and interview results before drafting. The outline records the version and source location for each result used in the paper.
+
 ---
 
 ### Stage 2: WRITE (plan --> full mode)
 
 ```
-Entering Stage 2 (WRITE) -- using draft plan mode
+Entering Stage 2 (WRITE) -- using outline plan
 
-Loading draft MODE.md...
+Loading outline/plan/MODE.md...
 handoff materials: RQ Brief + Bibliography + Synthesis
 intake_agent auto-detected literature output, skipping redundant Phase 0 questions
 Launching socratic_mentor_agent (plan mode)...
@@ -166,7 +173,7 @@ What sense of urgency do you want the reader to feel? In other words, why should
 **Plan Mode Complete --> Switch to full mode**
 
 ```
-Chapter Plan complete. Switching to full mode to write the complete draft.
+Chapter Plan complete. Switching to draft full to write the complete draft.
 
 draft draft_writer_agent writing based on Chapter Plan...
 citation_compliance_agent verifying citations...
@@ -178,7 +185,7 @@ abstract_bilingual_agent writing bilingual abstract...
 
 ---
 
-### Orchestrator: Stage 2 --> 3 Transition
+### Orchestrator: Stage 2 --> 2.5 Transition
 
 ```
 Stage 2 (WRITE) Complete!
@@ -193,25 +200,29 @@ Deliverables:
   - Discussion: Strategy effectiveness comparison + policy recommendations
   - References: 22 entries (APA 7.0)
 
-Next step is Stage 3 (REVIEW).
-Using full mode, simulating a complete five-seat review process: four configured scoring identities plus the fixed Devil's Advocate.
-After review, an Editorial Decision and Revision Roadmap will be produced.
+Next step is Stage 2.5, the default pre-review integrity check.
 
 Continue?
 
-Progress: [v]Research -> [v]Writing -> [..]Review -> [ ]Revision -> [ ]Finalization
+Progress: [v]Research -> [v]Writing -> [..]Integrity -> [ ]Review -> [ ]Revision -> [ ]Finalization
 ```
 
-**User**: OK, review it for me.
+**User**: Continue to the integrity check.
+
+### Stage 2.5: Pre-Review Integrity Check
+
+Following the [default integrity procedure](../agents/default_integrity_review.md), the orchestrator checks the draft's references, citation context, data, originality, and claims. It records evidence locations and verification states against the draft version, including every high-impact claim. The check passes for this draft, and the orchestrator shows the report and waits for confirmation before dispatching `review panel`.
+
+**User**: Continue to the panel review.
 
 ---
 
-### Stage 3: REVIEW (full mode)
+### Stage 3: REVIEW (panel mode)
 
 ```
-Entering Stage 3 (REVIEW) -- using review full mode
+Entering Stage 3 (REVIEW) -- using review panel
 
-Loading review MODE.md...
+Loading review/panel/MODE.md...
 Passing Paper Draft to reviewer...
 field_analyst_agent analyzing paper domain...
 ```
@@ -230,6 +241,8 @@ Reviewer Configuration:
   Reviewer 3: Demographer, specializing in declining birthrate and labor market, interdisciplinary perspective
   Fixed seat: Devil's Advocate, challenging the core argument and strongest counter-explanations
 ```
+
+**User**: I confirm the reviewer cards.
 
 *(All 5 role-separated seats review without peer-output access before commitment... editorial_synthesizer_agent compiles...)*
 
@@ -251,7 +264,6 @@ R5: [Introduction] Research gap argumentation not sharp enough, needs more speci
 
 **Stage 3 Deliverables:**
 - 5 role-separated review reports (Journal-Fit Reviewer + R1/R2/R3 + Devil's Advocate)
-- Typed six-axis Review Panel Provenance receipt; no binary independence claim
 - Editorial Decision Letter: Major Revision
 - Revision Roadmap (5 required items + 3 suggested modifications)
 
@@ -268,8 +280,7 @@ Review result: Major Revision
   - Most critical issues: control variables in quantitative analysis + literature update
 
 Next step is Stage 4 (REVISE).
-I'll pass the Revision Roadmap to draft revision mode,
-guiding you through item-by-item revision.
+I'll pass the Revision Roadmap to review revise for item-by-item revision.
 
 After revision, we'll enter Stage 3' (RE-REVIEW) to confirm quality.
 Maximum 2 revision cycles.
@@ -279,18 +290,17 @@ Ready to start revision?
 Progress: [v]Research -> [v]Writing -> [v]Review -> [..]Revision -> [ ]Finalization
 ```
 
-**User**: Start revision.
+**User**: Address R1–R5. I have supplied the updated analysis and approval to revise the affected passages.
 
 ---
 
-### Stage 4: REVISE (revision mode, Round 1)
+### Stage 4: REVISE (review revise, Round 1)
 
 ```
-Entering Stage 4 (REVISE) -- using draft revision mode
+Entering Stage 4 (REVISE) -- using review revise
 
-Loading draft SKILL.md (revision mode)...
-Passing Paper Draft + Revision Roadmap...
-peer_reviewer_agent monitoring revision quality...
+Loading review/revise/MODE.md...
+Passing the draft baseline, Revision Roadmap, and author decisions...
 ```
 
 **Revision Progress Tracking:**
@@ -304,8 +314,8 @@ R5: [v] Rewrote Introduction paragraphs 2-3, added school closure data
 
 **Stage 4 Deliverables:**
 - Revised Draft (6,800 words, 1,600 words more than original)
-- Response to Reviewers (R-A-C format, point-by-point response)
-- Apply report sidecar (`<output>.apply-report.json`, — retained beside the Revised Draft; transferred to Stage 3' as untouched-block evidence)
+- Change record tied to the original draft and issue IDs
+- Response to Reviewers (point-by-point response prepared with `review respond`)
 
 ---
 
@@ -339,8 +349,8 @@ Progress: [v]Research -> [v]Writing -> [v]Review -> [v]Revision -> [..]Re-review
 ```
 Entering Stage 3' (RE-REVIEW) -- Loop 1/2
 
-Loading review SKILL.md (re-review mode)...
-Passing Revised Draft + Response to Reviewers + Editorial Decision Letter (Judge Record input) + Round-1 Revision Roadmap + apply report(s) + Round-1 Reviewer Configuration Cards (yardstick continuity)...
+Loading review/panel/MODE.md (re-review mode)...
+Passing the original draft, revised draft, Round-1 Revision Roadmap, reviewer cards, and Response to Reviewers...
 Journal-Fit Reviewer verifying each roadmap item (Round-1 reviewer configuration reused — field_analyst not re-run)...
 ```
 
@@ -362,7 +372,7 @@ S2: Recommend moving sampling limitation statement to Methodology Limitations se
 
 ---
 
-### Orchestrator: Stage 3' --> 5 Transition
+### Orchestrator: Stage 3' --> 4.5 Transition
 
 ```
 Stage 3' (RE-REVIEW) Complete!
@@ -371,8 +381,18 @@ Review result: Minor Revision (Accept direction)
   - All required items passed
   - 2 remaining small suggested modifications (non-blocking)
 
-Since this is Minor Revision (not Major), we can proceed directly to Stage 5 (FINALIZE).
-Minor changes will be handled during the formatting process.
+The two remaining suggestions are optional. Confirm which manuscript version
+to check at Stage 4.5.
+```
+
+**User**: Leave both suggestions for later. Check the current revised draft.
+
+### Stage 4.5: Final Integrity Check
+
+The orchestrator runs the [default integrity procedure](../agents/default_integrity_review.md) again on the full revised draft and records a passing final report. It presents the checked version and waits for the author's decision before finalization.
+
+```
+Stage 4.5 passed for the revised draft. Confirm the format for Stage 5.
 
 What format do you need for the final version?
   a) LaTeX (.tex + .bib) -- suitable for TSSCI journal submission
@@ -392,8 +412,8 @@ Progress: [v]Research -> [v]Writing -> [v]Review -> [v]Revision -> [v]Re-review 
 ```
 Entering Stage 5 (FINALIZE) -- using draft format-convert mode
 
-Loading draft SKILL.md (format-convert mode)...
-Simultaneously handling 2 minor revision items...
+Loading draft/paper/MODE.md (format-convert mode)...
+Formatting the version checked at Stage 4.5...
 formatter_agent executing format conversion...
 ```
 
@@ -427,8 +447,10 @@ formatter_agent executing format conversion...
     Outputs: Paper Draft
              (5,200 words, IMRaD)
 
+  Stage 2.5 INTEGRITY [v] Passed
+
   Stage 3 REVIEW      [v] Completed
-    Mode: full
+    Mode: panel
     Decision: Major Revision
     Required Revisions: 5 items
 
@@ -440,6 +462,8 @@ formatter_agent executing format conversion...
     Loop: 1/2
     Decision: Minor Revision (Accept)
 
+  Stage 4.5 INTEGRITY [v] Passed
+
   Stage 5 FINALIZE    [v] Completed
     Formats: LaTeX, DOCX, PDF, Markdown
 
@@ -450,7 +474,7 @@ formatter_agent executing format conversion...
 |   [v] Bibliography (30 sources)         |
 |   [v] Synthesis Report                  |
 |   [v] Paper Draft                       |
-|   [v] Review Reports (4)               |
+|   [v] Review Reports (5)               |
 |   [v] Revision Roadmap                  |
 |   [v] Revised Draft                     |
 |   [v] Response to Reviewers             |
@@ -475,8 +499,6 @@ Final deliverables:
 3. PDF version: declining_birthrate_private_university.pdf
 4. Original: declining_birthrate_private_university.md
 
-If you later need to:
-- Revise again --> just say "revise the paper" (triggers draft revision mode)
-- Create a presentation --> say "make slides" (triggers notebooklm-slides-generator)
-- Convert to a website --> say "make an interactive webpage" (triggers report-to-website)
+For a later revision, use $research-writing review revise.
+For a research presentation, use the separately imported nature-paper2ppt skill.
 ```

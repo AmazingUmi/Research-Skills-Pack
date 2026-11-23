@@ -1,8 +1,8 @@
 <!-- Mode file: figures/audit. Ported from K-Dense `scientific-visualization`; loaded by the research-writing router, not registered as a skill. -->
 
-# Scientific Visualization
+# Scientific Figure Audit
 
-Build figures that preserve scientific meaning before optimizing appearance. Separate universal principles from dated publisher rules, preserve raw data and transformations, use color redundantly, and inspect delivered files rather than trusting plotting defaults.
+Audit existing figures for scientific fidelity, readable encoding, and delivery requirements. Use the implementation and export examples below to diagnose issues and suggest specific fixes. Use `$research-writing figures make` for requested production or revision of a figure.
 
 ## Non-negotiable guardrails
 
@@ -28,7 +28,7 @@ Record:
 - transformations: filtering, aggregation, normalization, smoothing, bins, image processing;
 - source-data paths/identifiers and output provenance.
 
-If requirements are not known, create a provisional general figure and label all publisher choices as pending verification.
+If requirements are not known, audit against general principles and mark publisher-specific checks as pending.
 
 ### 2. Choose an honest encoding
 
@@ -57,9 +57,9 @@ Prefer position on a common scale. Before coding, check:
 
 See `references/color_palettes.md`. A grayscale screen is useful but is not a complete color-vision or accessibility test.
 
-### 4. Implement with scoped styles
+### 4. Check implementation and recommend scoped styles
 
-Run shell examples from this skill directory. For your own figure script, add `scripts/` and `assets/` to the import path (see the bootstrap in `references/matplotlib_examples.md`) and create the output directory. Use Matplotlib's object-oriented API and temporary style contexts:
+Run audit commands from this mode directory. Use the following implementation example to explain a reproducible style fix. Figure scripts can load the helpers in `scripts/` and `assets/` as shown in `references/matplotlib_examples.md`.
 
 ```python
 import matplotlib.pyplot as plt
@@ -128,7 +128,9 @@ Axes-level functions fit custom Matplotlib layouts; figure-level functions creat
 - WebGL traces embed raster content in PDF/SVG. Plotly Express may select WebGL above 1,000 rows; use `render_mode="svg"` when vector markers are required.
 - Fully offline exports need local external assets when a figure references MathJax/topojson/tiles.
 
-### 5. Export explicitly and record provenance
+### 5. Check exports and provenance
+
+The following example shows the output settings and provenance fields to look for when reviewing a figure's export.
 
 ```python
 from figure_export import export_figure
@@ -189,6 +191,8 @@ This is a dated direct-dependency snapshot, not a transitive lock. Create a lock
 
 Bundled CLIs make no network calls and apply input byte/pixel limits; these are not general parser-memory or CPU limits. They reject final-path symlinks and refuse overwrite unless `--force` is explicit. Matplotlib file timestamps and backend versions can vary, so identical inputs do not guarantee byte-identical output.
 
+Write diagnostic previews or export smoke tests to a temporary audit directory.
+
 ### Inspect raster/vector metadata
 
 ```bash
@@ -238,7 +242,7 @@ uv run --isolated --no-project --python 3.13 \
   --formats png,svg
 ```
 
-### Inspect/write styles and smoke-test export
+### Inspect styles and smoke-test export
 
 ```bash
 uv run --isolated --no-project --python 3.13 \

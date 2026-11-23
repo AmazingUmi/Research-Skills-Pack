@@ -1,17 +1,17 @@
 ---
 scenario: Stage 2.5 integrity check fails, corrections made, re-verification passes
-mode: full pipeline (mid-entry at Stage 2.5)
+mode: strict full pipeline (mid-entry at Stage 2.5)
 stages_shown: Stage 2.5 (FAIL -> corrections -> PASS)
 demonstrates: How the pipeline handles integrity failures and guides recovery
 ---
 
-# Integrity Failure Recovery Example
+# Strict Integrity Failure Recovery Example
 
-This example shows what happens when Stage 2.5 (Pre-Review Integrity Check) finds serious issues, how they are corrected, and how re-verification works. It demonstrates the pipeline's zero-tolerance integrity gate and the systematic correction workflow defined in `agents/integrity_verification_agent.md`.
+In this illustrative run, the author requests `$research-writing full` in strict mode and provides a completed draft. Stage 2.5 uses the [strict orchestrator](../strict/pipeline_orchestrator_agent.md) and the [integrity verification agent](../agents/integrity_verification_agent.md). The example follows a failed check through authorized corrections and re-verification.
 
 ## Scenario
 
-A researcher submits a paper titled "Digital Transformation in European Higher Education: A Mixed-Methods Analysis of Institutional Readiness and Student Outcomes" for integrity verification. The paper has 45 references, makes 18 quantitative claims, and is entering the pipeline at Stage 2.5 after completing Stage 2 (WRITE).
+A researcher provides a paper titled "Digital Transformation in European Higher Education: A Mixed-Methods Analysis of Institutional Readiness and Student Outcomes" for integrity verification. The paper has 45 references and makes 18 quantitative claims. The researcher confirms the new run will start at Stage 2.5 with the provided draft.
 
 **Paper details:**
 - Word count: 7,200
@@ -24,7 +24,7 @@ A researcher submits a paper titled "Digital Transformation in European Higher E
 ## Orchestrator: Stage 2 --> 2.5 Transition
 
 ```
-━━━ Stage 2 (WRITE) Complete ━━━
+━━━ Existing Draft Accepted as Run Input ━━━
 
 Metrics:
 - Word count: 7,200 (target: 7,000 +/-10%)    [OK]
@@ -39,8 +39,8 @@ Deliverables:
 Flagged: None
 
 Next: Stage 2.5 (INTEGRITY) — Mandatory checkpoint.
-This stage cannot be skipped. All references and data claims
-will be verified before the paper proceeds to peer review.
+Check references and data claims against the available evidence before
+the paper enters peer review.
 
 Proceeding to Stage 2.5...
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -58,6 +58,8 @@ Executing: Phase A (Reference Verification) + Phase B (Citation Context, 31% spo
          + Phase C (Data Verification) + Phase D (Originality, 33% spot-check)
          + Phase E (Claim Verification, risk-stratified: 100% HIGH-IMPACT + 10% random sentinel, min(10, total))
 ```
+
+The agent registers claims against the exact draft bytes, runs `@/engine/scripts/claim_registry_coverage.py`, and records and replays the report binding in Schema 5. The evidence rows for selected claims are generated and validated with `@/engine/scripts/evidence_rows.py`.
 
 ### integrity_verification_agent Output
 
@@ -164,8 +166,8 @@ All 18 registry claims are quantitative, so every one classifies `HIGH-IMPACT` u
 Verdict: ❌ FAIL
 
 Issues found:
-  SERIOUS:  2 (must fix to proceed)
-  MEDIUM:   2 (must fix to proceed)
+  SERIOUS:  2 (block a passing verdict)
+  MEDIUM:   2 (block a passing verdict)
   MINOR:    5 (recommended fix)
 
 SERIOUS issues:
@@ -176,8 +178,7 @@ MEDIUM issues:
   3. Ref 28 — wrong publication year (2020, not 2022)
   4. Ref 33 — wrong author initials, year, and pagination
 
-The pipeline CANNOT proceed to Stage 3 (REVIEW) until
-all SERIOUS and MEDIUM issues are resolved.
+Stage 3 is paused while the correction loop is open.
 
 Options:
   a) "Fix all issues" — I will correct all 9 issues
@@ -189,7 +190,7 @@ Options:
 
 ### User Response
 
-"Fix all issues."
+The author reviews the ordered correction list and authorizes each of the nine proposed corrections. The orchestrator routes them to [`review revise`](../../review/revise/MODE.md) in strict mode. It validates the author decisions, applies the bounded patch, and sends the candidate back to Stage 2.5 for verification.
 
 ---
 
@@ -380,9 +381,9 @@ Each correction includes a verification trail: DOI resolution, page numbers, tab
 
 Round 2 only re-checks the 9 corrected items, not the entire paper. The 41 references that passed in Round 1 are not re-verified. This keeps the re-verification efficient while ensuring that corrections actually resolve the original issues (and do not introduce new ones).
 
-### 5. The Integrity Gate Is Non-Negotiable
+### 5. Integrity Failure Requires a Recorded Decision
 
-The pipeline cannot proceed to Stage 3 (REVIEW) until the integrity check returns PASS. This is a MANDATORY checkpoint — the user cannot skip it, override it, or request an exception. The maximum retry is 3 rounds; after that, unverifiable items are listed and the user must make an explicit decision about whether to proceed with acknowledged limitations.
+Stage 2.5 is mandatory. This run advances on a passing re-verification. After three unsuccessful correction rounds, the orchestrator lists unresolved items and records the author's explicit decision. If the author chooses to proceed under the documented [FAIL loop](../references/pipeline_state_machine.md#integrity-check-fail-loop), carry the `partially unverified` warning and retain any separate blocking conditions that still apply.
 
 ### 6. MINOR Issues Are Worth Fixing Too
 

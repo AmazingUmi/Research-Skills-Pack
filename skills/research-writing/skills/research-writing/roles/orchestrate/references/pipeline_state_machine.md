@@ -32,156 +32,71 @@ This document defines all legal states, transition conditions, transition action
 ## State Transition Diagram (ASCII)
 
 ```
-                        +-------------+
-                        | INITIALIZING|
-                        +------+------+
-                               |
-                    [Detect entry point & materials]
-                               |
-         +----------+----------+----------+----------+
-         |          |          |          |          |
-         v          v          v          v          v
-    +--------+ +--------+ +--------+ +--------+ +--------+
-    |Stage 1 | |Stage 2 | |Stg 2.5 | |Stage 3 | |Stage 4 |
-    |RESEARCH| | WRITE  | |INTEGRIT| | REVIEW | | REVISE |
-    +---+----+ +---+----+ +---+----+ +---+----+ +---+----+
-        |          |          |          |          |
-   [checkpoint]   [checkpoint]   |     [checkpoint]  |
-        |          |          |          |          |
-        v          v          v          v          v
-   +--------+ +--------+ +---+----+    |          |
-   |Stage 2 | |Stg 2.5 | |PASS?   |    |          |
-   | WRITE  | |INTEGRIT| +---+----+    |          |
-   +---+----+ +---+----+     |         |          |
-                         +----+----+    |          |
-                         |         |    |          |
-                        Yes       No    |          |
-                         |     [Fix]    |          |
-                         |   [Re-verify]|          |
-                    [checkpoint]   |    |          |
-                         |         |    |          |
-                         v         |    |          |
-                    +--------+     |    |          |
-                    |Stage 3 | <---+    |          |
-                    | REVIEW |          |          |
-                    +---+----+          |          |
-                        |               |          |
-                   [DECISION]           |          |
-                        |               |          |
-              +---------+---------+     |          |
-              |         |         |     |          |
-            Accept    Minor     Major   |          |
-              |       Revision  Revision|          |
-              |         |         |     |          |
-              |    [checkpoint]  [checkpoint]      |
-              |         |         |     |          |
-              |         v         v     |          |
-              |    +--------+ +--------+|          |
-              |    |Stage 4 | |Stage 4 ||          |
-              |    | REVISE | | REVISE ||          |
-              |    +---+----+ +---+----+|          |
-              |        |          |     |          |
-              |   [checkpoint]   [checkpoint]      |
-              |        |          |     |          |
-              |        v          v     |          |
-              |    +--------+ +--------+           |
-              |    |Stg 3'  | |Stg 3'  |           |
-              |    |RE-REV. | |RE-REV. |           |
-              |    +---+----+ +---+----+           |
-              |        |          |                 |
-              |   [DECISION]  [DECISION]            |
-              |        |          |                 |
-              |     Accept      Major               |
-              |     /Minor        |                 |
-              |        |     [checkpoint]           |
-              |        |          |                 |
-              |        |          v                 |
-              |        |     +--------+             |
-              |        |     |Stg 4'  |             |
-              |        |     |RE-REVIS|             |
-              |        |     +---+----+             |
-              |        |          |                 |
-              |   [checkpoint]  [checkpoint]        |
-              |        |          |                 |
-              v        v          v                 |
-         +----+--------+----------+-----+           |
-         |     Stage 4.5                |           |
-         |   FINAL INTEGRITY            |           |
-         +----------+------------------+           |
-                    |                               |
-               [PASS? Zero issues]                  |
-                    |                               |
-              +-----+-----+                         |
-              |           |                         |
-             Yes         No                         |
-              |        [Fix]                         |
-              |      [Re-verify]                     |
-         [checkpoint]     |                         |
-              |           |                         |
-              v           |                         |
-         +--------+       |                         |
-         |Stage 5 | <-----+                         |
-         |FINALIZE|                                 |
-         +---+----+                                 |
-             |                                      |
-        [checkpoint]---[decline Stage 6]---+        |
-             |                             |        |
-             v                             |        |
-         +--------+                        |        |
-         |Stage 6 |                        |        |
-         |PROCESS |                        |        |
-         |SUMMARY |                        |        |
-         +---+----+                        |        |
-             |                             |        |
-   [terminal acknowledgement]              |        |
-             |                             |        |
-             v                             |        |
-        +---------+                        |        |
-        |COMPLETED| <----------------------+        |
-        +---------+                                 |
+New full run
+  Research needed → 1 Research → 2 Write → 2.5 Integrity
+  Materials ready → 2 Write → 2.5 Integrity
+  Manuscript ready → 2.5 Integrity
+
+After 2.5 and its checkpoint, route to the confirmed target:
+  First review → 3 Review
+  Review feedback available → 4 Revise
+  Revisions ready for review → 3' Re-review
+  Formatting and submission only → 4.5 Final integrity
+
+3 Review: Accept → 4.5 | Minor or Major → 4 | Reject → 2 or end
+4 Revise → 3' Re-review: Accept or Minor → 4.5 | Major → 4' → 4.5
+4.5 Final integrity → mandatory finalization checkpoint → 5 Finalize
+5 Finalize → 6 Process summary → completion, or decline 6 → completion
+
+Integrity failure at 2.5 or 4.5 → correction and re-verification at that gate
+Validated resume → recorded stage and any pending checkpoint of the same run
 ```
 
 ---
 
 ## Legal State Transitions
 
+Use [the stage-to-role table](../ROLE.md#2-阶段与角色调用) for role and mode dispatch. Select the integrity procedure for Stages 2.5 and 4.5 via [the role's integrity section](../ROLE.md#4-完整性核查阶段-25-与-45). Default runs use the [evidence-matrix procedure](../agents/default_integrity_review.md). Material Passport and replay requirements apply when running the strict procedure.
+
 ### Normal Flow Transitions
 
 | From | To | Precondition | Action |
 |------|----|-------------|--------|
-| INIT | Stage 1 | User confirms starting from Stage 1 | Detect mode preference, launch the literature role |
-| INIT | Stage 2 | User has research materials, confirms skipping Stage 1 | Detect materials, launch the draft role |
-| INIT | Stage 2.5 | User has complete paper | Launch integrity_verification_agent |
-| INIT | Stage 3 | User has verified paper + integrity report | Confirm paper language/domain, launch reviewer |
-| INIT | Stage 4 | User has review comments | Confirm paper + review comments, launch revision |
-| INIT | Stage 5 | User has final draft for format conversion | Confirm format requirements, launch format-convert |
+| INIT | Stage 1 | User confirms starting from Stage 1 | Dispatch `outline` and `literature` as needed for the research tasks |
+| INIT | Stage 2 | User has research materials and confirms Stage 2 entry | Give the materials to `outline`, then route the selected literature, figures and draft tasks |
+| INIT | Stage 2.5 | User brings a complete manuscript into a new full run | Confirm target stage and run the integrity procedure on that version. Use any older report as context |
 | Stage 1 | **checkpoint** | Stage 1 completed | Wait for user confirmation |
-| checkpoint | Stage 2 | User confirms | handoff RQ Brief + Methodology Blueprint + Bibliography + Synthesis |
+| checkpoint | Stage 2 | User confirms | Give the available research question, methodology and sources to `outline` to start assembly |
 | Stage 2 | **checkpoint** | Stage 2 completed, Paper Draft produced | Wait for user confirmation |
-| checkpoint | Stage 2.5 | User confirms | Pass Paper Draft to integrity agent |
+| checkpoint | Stage 2.5 | User confirms | Pass Paper Draft to the selected integrity procedure |
 | Stage 2.5 | **checkpoint** | PASS, or recorded Integrity Check FAIL Loop resolution (§ below) | Wait for user confirmation |
 | Stage 2.5 | Stage 2.5 (retry) | FAIL | Fix issues, re-verify (max 3 rounds) |
-| checkpoint | Stage 3 | User confirms | Pass verified paper to reviewer |
+| checkpoint (after 2.5) | Stage 3 | User confirms first review | Pass the checked draft and recorded findings to `review panel` |
+| checkpoint (after 2.5) | Stage 4 | User confirms revision and supplies review feedback | Pass the checked draft and feedback to the review role |
+| checkpoint (after 2.5) | Stage 3' | User confirms re-review of an existing revision and the selected mode's inputs are available | Pass the checked revision and prior review materials to the applicable re-review branch |
+| checkpoint (after 2.5) | Stage 4.5 | User confirms formatting and submission only | Pass the checked final candidate to final integrity. Enter Stage 5 through its mandatory checkpoint |
 | Stage 3 | **checkpoint** | Decision produced | Wait for user confirmation (MANDATORY — review decision) |
 | checkpoint | Stage 4 | Decision = Minor/Major, user confirms | Pass Revision Roadmap |
 | checkpoint | Stage 4.5 | Decision = Accept, user confirms | Skip revision, go directly to final verification |
 | Stage 4 | **checkpoint** | Stage 4 completed | Wait for user confirmation |
-| checkpoint | Stage 3' | User confirms | Pass Revised Draft + Original (pre-revision) Draft (§3.1 Phase 2A comparison base) + Response to Reviewers + Editorial Decision Letter (Judge Record input) + Round-1 review findings (Schema 6 reports — §4 level-3 layer) + Round-1 Revision Roadmap + apply report(s) with their paired revision patch/diff files (/§11 — the two travel together) + Round-1 Reviewer Configuration Cards (yardstick continuity). Re-review-mode transfer (default); a user-requested fresh full review at 3' passes Revised Draft + available context only (no Roadmap/cards; full mode runs field_analyst) |
+| checkpoint (after 4) | Stage 3' | User confirms | Dispatch `review`. Simulated review uses `review re-review`, with [a replay-bound handoff](../strict/pipeline_orchestrator_agent.md#stage-3-re-review-contract-dispatch) in strict mode. Real feedback uses [external self-verification](external_review_protocol.md#step-4-self-verification-completeness-check) against the comments, drafts and response |
 | Stage 3' | **checkpoint** | Decision produced | Wait for user confirmation (MANDATORY — review decision) |
+| Stage 3' (external) | **checkpoint** | Response and draft consistency check completed | Present discrepancies and wait for user confirmation before final integrity |
+| checkpoint (external 3') | Stage 4.5 | User confirms after reviewing the reconciliation | Pass the checked draft, response and unresolved findings |
 | checkpoint | Stage 4.5 | Decision = Accept/Minor, user confirms | Pass final draft to final verification |
 | checkpoint | Stage 4' | Decision = Major, user confirms | Pass new Revision Roadmap (limitations-only when the user chooses it for a Major that rests only on items they declined; `../agents/the orchestrate role § Declined Items at Stage 3' and Stage 4') |
 | Stage 4' | **checkpoint** | Stage 4' completed | Wait for user confirmation |
 | checkpoint | Stage 4.5 | User confirms | Pass revised draft to final verification |
 | Stage 4.5 | **checkpoint** | PASS (zero issues, counting the final-output pre-check items; notes such as UNVERIFIABLE_ACCESS are not issues), or recorded Integrity Check FAIL Loop resolution (§ below) | Wait for user confirmation |
 | Stage 4.5 | Stage 4.5 (retry) | FAIL | Fix issues, re-verify (max 3 rounds) |
-| checkpoint | Stage 5 | User confirms (MANDATORY — the Stage 5 entry gate; see § Stage 5 boundary semantics) | Pass final accepted draft; record the finalization-format decision (citation style) |
+| checkpoint | Stage 5 | User confirms (MANDATORY — the Stage 5 entry gate; see § Stage 5 boundary semantics) | Record the finalization decisions and pass the accepted draft to `draft` for formatting and applicable submission materials |
 | Stage 5 | **checkpoint** | Stage 5 completed, Final Paper delivered | Wait for user confirmation (FULL — never SLIM; see § Stage 5 boundary semantics) |
-| checkpoint | Stage 6 | User confirms | Dispatch Process Summary per `process_summary_protocol.md` |
+| checkpoint | Stage 6 | User confirms | `orchestrate` produces the process record per `process_summary_protocol.md` |
 | checkpoint | completed | User declines Stage 6 | Mark Stage 6 `skipped` (non-mandatory stage); set pipeline global state `completed` |
 | Stage 6 | **terminal checkpoint** | Process Record delivered | Wait for terminal acknowledgement (see § Stage 6 terminal semantics) |
 | terminal checkpoint | completed | User acknowledges (`finish` / `end` / `done` / `confirm`, or an unambiguous natural-language equivalent) | Mark Stage 6 `completed`; set pipeline global state `completed` |
 
-**Experiment intake.** A run through Stage 1 asks the experiment intake question at the Stage 1 checkpoint; a run that enters or resumes after Stage 1 asks it at entry. No Stage 2 writer or integrity gate is dispatched before the declaration is recorded. When the question is skipped, its wording, and how the answer is recorded: `../agents/the orchestrate role § Experiment Intake Question.
+**Strict experiment intake.** Follow the [experiment intake protocol](../strict/pipeline_orchestrator_agent.md#experiment-intake-question) to record the declaration before the strict Stage 2 writer or integrity gate dispatches.
 
 ### Special Flow Transitions
 
@@ -192,13 +107,13 @@ This document defines all legal states, transition conditions, transition action
 | Stage 3' (Major) | Stage 4' | User confirms | Last revision opportunity |
 | Stage 4' | Stage 4.5 | Revision complete | Go directly to final verification (no return to review) |
 | Any stage | PAUSED | User says "pause" or "stop here" | Save pipeline state |
-| PAUSED | Previous stage | User returns to continue | Restore pipeline state, display Dashboard |
+| PAUSED | Recorded stage or next stage | User resumes a validated run | Restore state, confirm the tracked manuscript and report still apply, and resolve any pending checkpoint before dispatch. Re-run invalidated gates |
 
 ### Prohibited Transitions (Illegal)
 
 | From | To | Reason |
 |------|----|--------|
-| Stage 1 | Stage 3 | Cannot skip Stage 2 and 2.5 (unless mid-entry + has paper) |
+| INIT / Stage 1 | Stage 3, 4, 3' or 5 | A new full run with a manuscript must pass through Stage 2.5 and its checkpoint before dispatching a downstream stage |
 | Stage 2 | Stage 3 | **Cannot skip Stage 2.5 (integrity check is mandatory)** |
 | Stage 4 | Stage 5 | Cannot skip RE-REVIEW (revision must be re-reviewed) |
 | Stage 3' | Stage 5 | **Cannot skip Stage 4.5 (final integrity check is mandatory)** |
@@ -221,7 +136,7 @@ The two boundaries below were under-specified before (different runtimes could r
 
 Transition state: `awaiting_confirmation` → on user confirmation → Stage 5 `in_progress`.
 
-and surface inside this same one checkpoint, after the same exact
+In strict mode, surface the advisories inside this same checkpoint, after the exact
 Stage 4.5 PASS and before the confirmation. The orchestrator runs first and
 second against the identical accepted-draft artifact ID/SHA-256. They do
 not create a second checkpoint or transition state. A schema-valid degraded
@@ -265,17 +180,16 @@ Every checkpoint decision, terminal acknowledgement, override, consent grant, an
 | Methodology Blueprint | Stage 1 | Stage 2 (Phase 0) | Recommended |
 | Bibliography | Stage 1 | Stage 2 (Phase 1) | Recommended |
 | Synthesis Report | Stage 1 | Stage 2 (Phase 3) | Recommended |
-| `preregistration-artifact/1.0` sidecar + provided named companion | Stage 1 shell-capable dispatch | Academic-paper intake, every handoff, Stage 4.5/checkpoint | **Receipt required** (content may be unavailable); validate and carry exact bytes, never infer/rebuild/template-substitute |
-| Paper Draft | Stage 2 | Stage 2.5 (input) | **Required** |
-| **Integrity Report (Pre)** | **Stage 2.5** | **Stage 3 (prerequisite)** | **Required** |
-| **Verified Paper Draft** | **Stage 2.5** | **Stage 3 (Phase 0) + Stage 3' (re-review mode — the original pre-revision manuscript, 1.1 §3.1 Phase 2A comparison base)** | **Required, including Stage 3' consumption; current manifest and bundle fail closed if absent** |
-| Review Reports (x5) | Stage 3 | Stage 4 (input) + Stage 3' (re-review mode — the §4 level-3 driving-finding criterion layer; absent → transported Schema 7 fields alone, `[ROUND1-FINDINGS-ABSENT]`) | Required (Stage 3' consumption Recommended — §11 presence policy) |
-| Editorial Decision | Stage 3 | Stage 4 (input) | Required |
-| Revision Roadmap | Stage 3 | Stage 4 (input) + Stage 3' (re-review mode — verification checklist basis; the fresh-full-review branch consumes none) | Required (Stage 3' consumption re-review-mode-only) |
-| Revised Draft | Stage 4 | Stage 3' (Phase 0) | Required |
+| `preregistration-artifact/1.0` sidecar + provided named companion | Stage 1 shell-capable dispatch | Academic-paper intake, every handoff, Stage 4.5/checkpoint | Strict procedure only. **Receipt required when this dispatch runs**; validate and carry exact bytes |
+| Paper Draft | Stage 2 or user-provided | Stage 2.5 (input) | **Required** |
+| **Integrity Report (Pre) and checked draft** | **Stage 2.5** | **Confirmed target (3, 4, 3' or 4.5)** | **Required**. Preserve the warning and open issues on a recorded FAIL-loop continuation |
+| Review reports or external review comments | Stage 3 or user-provided | Stage 4 and Stage 3' | In strict Stage 3', apply the Round-1 finding presence policy from the strict handoff |
+| Editorial Decision | Stage 3 or user-provided | Stage 4 | Carry when produced or supplied |
+| Revision Roadmap | Stage 3, Stage 4 coaching or user-provided | Stage 4 and Stage 3' | Required to revise or verify a round. Use the existing feedback to build it when needed |
+| Revised Draft | Stage 4 or user-provided | Stage 3' | Required. Include the original draft when required by the selected re-review procedure |
 | Response to Reviewers | Stage 4 | Stage 3' (input) | Recommended |
 | Editorial Decision Letter (Schema 6) | Stage 3 | Stage 3' (input) | Recommended (— its Review Panel Provenance block feeds the Judge Record; absent → "unknown (provenance block absent)") |
-| Apply report(s) + paired revision patch/diff files (sidecar + patch JSON) | Stage 4 | Stage 3' (input) + Stage 4.5 (input) | Recommended (patch-apply rounds only; the two travel TOGETHER — reports without their paired patches is `manifest_incomplete` at Stage 3' dispatch; chain verified by the §11 ordered-chain rule — first report's `base_draft_hash` = original draft, each subsequent = predecessor's `output_draft_hash`, last = Revised Draft; see `re_review_mode_protocol.md` § Input Manifest) |
+| Apply report(s) + paired revision patch/diff files (sidecar + patch JSON) | Stage 4 | Stage 3' (input) + Stage 4.5 (input) | Strict patch rounds only. Keep the pairs together and validate the ordered chain under `re_review_mode_protocol.md` § Input Manifest |
 | Traceability sidecar (`@/engine/contracts/re_review/traceability.schema.json`) | Stage 3' | Stage 4.5 (input — frozen `previously_missed`/`indeterminate` records, §8; direct on Accept/Minor, through 4' on Major) | Recommended (contract-mode Stage 3' only; a `[LEGACY-NO-CONTRACT]` run produces none — visible degradation at 4.5, not a block) |
 | Reviewer Configuration Cards | Stage 3 (field_analyst) | Stage 3' (re-review mode — yardstick continuity; field_analyst NOT re-run) | Recommended (absent → visible regeneration fallback, `re_review_mode_protocol.md` § Yardstick Continuity; a fresh full review at 3' regenerates by definition) |
 | **Re-Review Report** | **Stage 3'** | **Stage 4' (input)** | **Required (if Major)** |
@@ -301,7 +215,7 @@ If a stage shows no progress for an extended period (e.g., Socratic mode exceeds
 
 If materials are found missing during transition (gap types per `../agents/state_tracker_agent.md`):
 1. state_tracker reports the material gap
-2. Missing required material: the transition is blocked with `HANDOFF_INCOMPLETE` (`@/engine/handoff_schemas.md` Validation Rules, rule 5); orchestrator suggests returning to the stage that produces that material, and the user backfills it before the next stage runs
+2. Missing required material blocks that transition. The orchestrator identifies what to supply or the stage that produces it. Strict runs also record `HANDOFF_INCOMPLETE` under `@/engine/handoff_schemas.md` Validation Rules, rule 5.
 3. Missing recommended material: the transition is not blocked; the user is told it may affect quality and can backfill or continue
 4. Integrity checks cannot be skipped in either case
 

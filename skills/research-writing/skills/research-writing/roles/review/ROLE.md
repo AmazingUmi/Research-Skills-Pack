@@ -13,14 +13,14 @@
 | `panel`（默认） | 投稿前的完整模拟审稿，需要多位审稿人和编辑决定 | [panel](panel/MODE.md) | 5 份审稿报告、编辑决定信、返修路线图 |
 | `methodology` | 只审方法与统计 | [panel](panel/MODE.md#methodology) | 方法学审稿报告与决定 |
 | `guided` | 希望在引导下自己发现问题 | [panel](panel/MODE.md#guided) | 逐个问题的引导式审阅 |
-| `re-review` | 核对修订稿是否回应了第一轮意见 | [panel](panel/MODE.md#re-review) | 逐项核对表、遗留问题、新决定 |
-| `nature` | 按 Nature 期刊标准出三份互相不可见的审稿报告和一份综合 | [nature](nature/MODE.md) | 审稿报告、阻断项、综合意见 |
+| `re-review` | 按原审稿人卡片核对修订稿是否回应了首轮模拟评审 | [panel](panel/MODE.md#re-review) | 逐项核对表、遗留问题、新决定 |
+| `nature` | 按 Nature 风格评估，默认出三份互相不可见的审稿报告和一份综合 | [nature](nature/MODE.md) | 审稿报告、阻断项、综合意见 |
 | `respond` | 起草或修改逐条回复、返修信、标记稿 | [respond](respond/MODE.md) | 按原编号的回复稿与返修材料 |
 | `revision-coach` | 收到审稿意见，要整理成返修路线 | [revision-coach](revision-coach/MODE.md) | 返修路线图、作者取舍、跟踪表或回复骨架 |
 | `rebuttal-audit` | 已有回复稿，检查是否答全、答准 | [revision-coach](revision-coach/MODE.md#rebuttal-audit) | 覆盖表、遗漏与风险提示 |
 | `revise` | 在授权范围内按意见改稿 | [revise](revise/MODE.md) | 采纳的修订稿、变更记录、未解决问题 |
 
-用户没有指定模式时，按请求选：要“审一遍”默认 `panel`；只要一份意见或指定 Nature 系列期刊时用 `nature`；只审一节、只看某个问题时，不进入审稿团，由本角色按下文“模拟审稿与证据核对”直接处理。
+用户没有指定模式时，整稿模拟审稿默认用 `panel`。只要一份通用意见、只审一节或一个问题时，由本角色按下文“模拟审稿与证据核对”直接处理。要求 Nature 风格评估时用 `nature`，并按用户明确指定的报告数量交付。收到真实外审意见时，按请求进入 `revision-coach`、`revise`、`respond` 或 `rebuttal-audit`。如需核对真实外审意见和实际修订，使用[外审逐项自查](../orchestrate/references/external_review_protocol.md#step-4-self-verification-completeness-check)。
 
 按需使用其他角色：统计报告的专项审查用 `$research-writing draft stats-report`，参考文献逐条核对用 `$research-writing literature ref-verify`，定稿语言润色用 `$research-writing draft polish`。核验理论推导中的符号计算可用 Research Engineering 的 `sympy`（另行导入）。
 
@@ -53,6 +53,8 @@
 | R-001 | 重大 | 讨论第 2 段，`C-01` | 假设示例。正文以一项地区性访谈研究支持普遍结论，现有材料只覆盖受访对象与所讨论的情境 | 将结论限定在该访谈材料。若保留跨地区主张，标明还需补充可比较的证据 |
 
 ## 逐条起草返修回复
+
+在编排的阶段 4，`revise` 写入修订稿，`respond` 读取已交回的稿件版本和变更记录，编写回复信及所需的标记副本。单独调用 `respond` 时，可按用户请求同时编辑稿件，沿用下文的基线和单写入者约定。
 
 沿用审稿人、原意见编号和顺序。同一证据可在对应意见间交叉引用。每条依次写清以下信息。
 

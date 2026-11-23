@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="928" viewBox="0 0 1280 928" role="img" aria-labelledby="title desc">
+  <title id="title">Research Writing 角色技能树</title>
+  <desc id="desc">research-writing 的六个角色及其 43 个公开模式，按用途分组。右侧列出 Writing 的配套技能，底部列出可按需导入的 Research Engineering 技能及对应角色。</desc>
+  <style>
+    text { font-family: "Helvetica Neue", Arial, "PingFang SC", "Noto Sans CJK SC", sans-serif }
+    .title { font-size: 38px; font-weight: 700; fill: #fff }
+    .subtitle { font-size: 18px; fill: #d5e9e8 }
+    .heading { font-size: 24px; font-weight: 700; fill: #143b40 }
+    .heading-note { font-size: 16px; fill: #365d61 }
+    .role, .mode, .skill, .command { font-family: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace }
+    .role, .skill { font-size: 17px; font-weight: 700; fill: #143b40 }
+    .mode { font-size: 14px; fill: #233f43 }
+    .command { font-size: 14px; fill: #233f43 }
+    .meaning { font-size: 14px; fill: #466267 }
+    .kind { font-size: 13px; font-weight: 600; fill: #365d61 }
+    .tool-title { font-size: 17px; font-weight: 700; fill: #143b40 }
+    .branch { fill: none; stroke: #78999b; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
+    .card { fill: #fff; stroke: #cddcdb; stroke-width: 1 }
+    .divider { stroke: #dce7e6; stroke-width: 1 }
+  </style>
+
+  <rect width="1280" height="928" rx="24" fill="#f3f7f6"/>
+  <rect x="36" y="28" width="1208" height="100" rx="16" fill="#143b40"/>
+  <text class="title" x="60" y="75">Research Writing</text>
+  <text class="subtitle" x="62" y="105">角色技能树</text>
+
+  <path class="branch" d="M640 128V146 M430 164V146H1050V164"/>
+  <path class="branch" d="M56 228V729 M56 278H78 M56 354H78 M56 453H78 M56 550H78 M56 634H78 M56 729H78"/>
+  <path class="branch" d="M877 228V741 M877 279H898 M877 356H898 M877 433H898 M877 510H898 M877 587H898 M877 664H898 M877 741H898"/>
+
+  <rect x="36" y="164" width="788" height="64" rx="12" fill="#dfefed"/>
+  <text class="heading" x="57" y="202">research-writing</text>
+  <text class="command" x="802" y="202" text-anchor="end">$research-writing &lt;role&gt; [mode]</text>
+
+  <g aria-label="orchestrate">
+    <rect class="card" x="78" y="248" width="746" height="60" rx="10"/>
+    <path class="divider" d="M312 260V296"/>
+    <text class="role" x="100" y="274">orchestrate</text>
+    <text class="meaning" x="100" y="294">整稿调度、核查与检查点</text>
+    <text class="kind" x="335" y="283">编排</text>
+    <text class="mode" x="420" y="283">full · resume</text>
+  </g>
+  <g aria-label="outline">
+    <rect class="card" x="78" y="320" width="746" height="67" rx="10"/>
+    <path class="divider" d="M312 332V375"/>
+    <text class="role" x="100" y="349">outline</text>
+    <text class="meaning" x="100" y="370">界定问题、设计研究、列任务卡</text>
+    <text class="kind" x="335" y="347">问题与大纲</text>
+    <text class="mode" x="420" y="347">socratic · plan · outline-only</text>
+    <text class="kind" x="335" y="370">设计与实验</text>
+    <text class="mode" x="420" y="370">design · appraise · experiment</text>
+  </g>
+  <g aria-label="literature">
+    <rect class="card" x="78" y="399" width="746" height="108" rx="10"/>
+    <path class="divider" d="M312 411V495"/>
+    <text class="role" x="100" y="447">literature</text>
+    <text class="meaning" x="100" y="469">交付可定位的文献证据</text>
+    <text class="kind" x="335" y="424">检索与精读</text>
+    <text class="mode" x="420" y="424">search · fulltext · paper-card · read</text>
+    <text class="kind" x="335" y="446">引文核验</text>
+    <text class="mode" x="420" y="446">verify · ref-verify · citation-check · cns-cite</text>
+    <text class="kind" x="335" y="468">研究与综述</text>
+    <text class="mode" x="420" y="468">deep · brief · lit-review · systematic-review</text>
+    <text class="kind" x="335" y="490">核查与筛选</text>
+    <text class="mode" x="420" y="490">fact-check · three-way-scan · screen</text>
+  </g>
+  <g aria-label="figures">
+    <rect class="card" x="78" y="519" width="746" height="62" rx="10"/>
+    <path class="divider" d="M312 531V569"/>
+    <text class="role" x="100" y="546">figures</text>
+    <text class="meaning" x="100" y="566">交付图表、图注与核查结果</text>
+    <text class="kind" x="335" y="555">制图与审图</text>
+    <text class="mode" x="420" y="555">make · audit</text>
+  </g>
+  <g aria-label="draft">
+    <rect class="card" x="78" y="593" width="746" height="83" rx="10"/>
+    <path class="divider" d="M312 605V664"/>
+    <text class="role" x="100" y="630">draft</text>
+    <text class="meaning" x="100" y="652">汇成初稿、准备定稿材料</text>
+    <text class="kind" x="335" y="616">起草与编修</text>
+    <text class="mode" x="420" y="616">section · full · abstract · polish</text>
+    <text class="kind" x="335" y="638">统计</text>
+    <text class="mode" x="420" y="638">stats-report · analysis</text>
+    <text class="kind" x="335" y="660">定稿材料</text>
+    <text class="mode" x="420" y="660">format-convert · disclosure · data-availability</text>
+  </g>
+  <g aria-label="review">
+    <rect class="card" x="78" y="688" width="746" height="84" rx="10"/>
+    <path class="divider" d="M312 700V760"/>
+    <text class="role" x="100" y="726">review</text>
+    <text class="meaning" x="100" y="748">审阅稿件、按授权修订与回复</text>
+    <text class="kind" x="335" y="711">模拟审稿</text>
+    <text class="mode" x="420" y="711">panel · methodology · guided · nature</text>
+    <text class="kind" x="335" y="733">模拟复审</text>
+    <text class="mode" x="420" y="733">re-review</text>
+    <text class="kind" x="335" y="755">返修与回复</text>
+    <text class="mode" x="420" y="755">revision-coach · revise · respond · rebuttal-audit</text>
+  </g>
+
+  <rect x="856" y="164" width="388" height="64" rx="12" fill="#dfefed"/>
+  <text class="heading" x="878" y="202">Writing 配套技能</text>
+  <text class="heading-note" x="1222" y="201" text-anchor="end">按需导入</text>
+
+  <g aria-label="nature-proposal-writer">
+    <rect class="card" x="898" y="248" width="346" height="62" rx="10"/>
+    <text class="skill" x="918" y="274">nature-proposal-writer</text>
+    <text class="meaning" x="918" y="295">开题与项目申请</text>
+  </g>
+  <g aria-label="nature-paper2ppt">
+    <rect class="card" x="898" y="325" width="346" height="62" rx="10"/>
+    <text class="skill" x="918" y="351">nature-paper2ppt</text>
+    <text class="meaning" x="918" y="372">论文转学术汇报 PPT</text>
+  </g>
+  <g aria-label="nature-image2ppt">
+    <rect class="card" x="898" y="402" width="346" height="62" rx="10"/>
+    <text class="skill" x="918" y="428">nature-image2ppt</text>
+    <text class="meaning" x="918" y="449">截图转可编辑 PPT</text>
+  </g>
+  <g aria-label="nature-paper-to-patent">
+    <rect class="card" x="898" y="479" width="346" height="62" rx="10"/>
+    <text class="skill" x="918" y="505">nature-paper-to-patent</text>
+    <text class="meaning" x="918" y="526">专利与技术交底</text>
+  </g>
+  <g aria-label="nature-literature-pipeline">
+    <rect class="card" x="898" y="556" width="346" height="62" rx="10"/>
+    <text class="skill" x="918" y="582">nature-literature-pipeline</text>
+    <text class="meaning" x="918" y="603">定时文献推送</text>
+  </g>
+  <g aria-label="nature-experiment-log">
+    <rect class="card" x="898" y="633" width="346" height="62" rx="10"/>
+    <text class="skill" x="918" y="659">nature-experiment-log</text>
+    <text class="meaning" x="918" y="680">实验日志</text>
+  </g>
+  <g aria-label="nature-shared">
+    <rect x="898" y="710" width="346" height="62" rx="10" fill="#eaf3f2" stroke="#91b3b2" stroke-dasharray="5 4"/>
+    <text class="skill" x="918" y="736">nature-shared</text>
+    <text class="meaning" x="918" y="757">共享参考与工具</text>
+  </g>
+
+  <g aria-label="按需导入的工程技能">
+    <rect class="card" x="36" y="792" width="1208" height="102" rx="12"/>
+    <text class="tool-title" x="58" y="819">Research Engineering · 按需另行导入</text>
+    <text class="meaning" x="58" y="848">大纲</text>
+    <text class="command" x="111" y="848">outline → matlab / statsmodels</text>
+    <text class="meaning" x="643" y="848">正文</text>
+    <text class="command" x="696" y="848">draft → uncertainty-and-units / statsmodels</text>
+    <text class="meaning" x="58" y="873">审稿</text>
+    <text class="command" x="111" y="873">review → sympy</text>
+  </g>
+</svg>

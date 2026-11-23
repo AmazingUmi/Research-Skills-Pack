@@ -1,6 +1,6 @@
 # Orchestration Workflow — Phase Details
 
-Detailed per-phase agent behavior and output descriptions for the 8-phase orchestration workflow.
+These are the internal phases of `draft full`. On an orchestrated Stage 2 dispatch, reuse the accepted configuration, outline, evidence and figures. Return the initial draft and internal review findings to `orchestrate` for Stage 2.5. Phase 7 formats the draft when `draft full` is requested independently with a format deliverable.
 
 ---
 

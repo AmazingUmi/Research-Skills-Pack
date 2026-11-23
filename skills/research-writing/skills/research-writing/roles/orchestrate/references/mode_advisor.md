@@ -22,7 +22,7 @@ Helps users (and the pipeline orchestrator) select the right skill and mode for 
 | Review a paper | Have paper to evaluate | 1 hr | `review panel` (or `review nature`) |
 | Check revision quality | Have revised draft | 30 min | `review re-review` |
 | Full pipeline (zero to publication) | Starting fresh | 5+ hr | `orchestrate full` (or `$research-writing full`) |
-| Handle real reviewer feedback | Have review comments | 1+ hr | `orchestrate full` (Stage 4 entry) or `review revision-coach` / `review respond` |
+| Handle real reviewer feedback | Have review comments | 1+ hr | `orchestrate full` (Stage 2.5 → 4) or `review revision-coach` / `review respond` |
 
 ---
 
@@ -36,7 +36,7 @@ Helps users (and the pipeline orchestrator) select the right skill and mode for 
 | "I need a systematic review" | `literature systematic-review` | NOT a narrative `literature lit-review` (different methodology: PRISMA vs narrative) |
 | "Just give me a quick paper" | `literature brief` + `draft full` | Brief research is fine, but paper writing still needs `draft full` for quality |
 | "Format my paper as APA" | `draft format-convert` | Not a rewrite; purely formatting transformation |
-| "I got reviewer comments" | `orchestrate` Stage 4 entry (or `review revision-coach` → `review revise` → `review respond`) | Needs structured intake + strategic coaching, not just "fix what they said" |
+| "I got reviewer comments" | `orchestrate full` (Stage 2.5 → 4) or `review revision-coach` → `review revise` → `review respond` | Use structured intake and coaching |
 
 ---
 
@@ -48,7 +48,7 @@ Helps users (and the pipeline orchestrator) select the right skill and mode for 
 | Experienced researcher (submission prep) | `orchestrate full` (from Stage 1 or mid-entry) | Knows what they want; benefits from the automated quality assurance and integrity checks |
 | Advisor reviewing student work | `review panel` | Provides structured multi-perspective feedback the advisor can use in mentoring |
 | Quick literature scan | `literature brief` or `literature lit-review` | Fast turnaround; no need for full pipeline overhead |
-| Journal revision response | `orchestrate` (Stage 4 entry) or `review revision-coach` + `review respond` | External Review Protocol handles real reviewer feedback with strategic coaching |
+| Journal revision response | `orchestrate full` (Stage 2.5 → 4) or `review revision-coach` + `review respond` | External Review Protocol handles real reviewer feedback with strategic coaching |
 | Conference paper (short deadline) | `literature brief` -> `draft full` (conference type) | Compressed timeline; brief research + full writing with conference structure |
 | Thesis chapter | `literature deep` -> `draft full` | Each chapter treated as a standalone paper; full depth needed |
 | Policy brief | `literature brief` -> `draft full` (policy_brief type) | Evidence-based but concise; brief research sufficient for policy scope |
@@ -67,7 +67,7 @@ Understanding what each role can and cannot do prevents misrouting:
 | `draft` | Draft sections/full manuscripts, polish, statistical reporting/analysis, data availability, AI disclosure, format conversion | Conduct original peer review, verify end-to-end integrity independently |
 | `review` | Multi-seat peer review (`panel`, `methodology`, `guided`, `re-review`, `nature`), revision roadmaps (`revision-coach`), rebuttal audit (`rebuttal-audit`), responses (`respond`), authorized edits (`revise`) | Conduct initial literature research from scratch |
 | `orchestrate` | Orchestrate all stages, manage checkpoints and handoffs, track state | Perform any substantive writing or review work (purely dispatching and coordinating) |
-| `integrity_verification_agent` | Verify references, citations, data, originality, claims | Fix issues (only identifies them), replace peer review |
+| Integrity procedure ([default](../agents/default_integrity_review.md) or [strict](../agents/integrity_verification_agent.md)) | Verify references, citations, data, originality and claims | Fix issues or replace peer review |
 
 ---
 
@@ -100,7 +100,7 @@ START: What does the user want?
   +--> "I need to revise based on feedback"
   |      |
   |      +--> From AI reviewers (pipeline)? --> Continue pipeline (Stage 4: review revise)
-  |      +--> From real journal reviewers? --> orchestrate Stage 4 entry (or review revision-coach / review respond)
+  |      +--> From real journal reviewers? --> orchestrate full (Stage 2.5 → 4) or review revision-coach / review respond
   |
   +--> "I want the full treatment (research to publication)"
          |
@@ -119,8 +119,9 @@ For users entering the pipeline mid-stream, this table clarifies what materials 
 | Stage 2 (WRITE) | RQ Brief + Bibliography | Stage 1 | Full pipeline from Stage 2 |
 | Stage 2.5 (INTEGRITY) | Paper draft | Stages 1-2 | Integrity check runs on provided draft |
 | Stage 3 (REVIEW) | Paper draft (a prior integrity report is optional context) | Stages 1-2 | Stage 2.5 runs first on the provided paper; a prior report informs it but does not replace it |
-| Stage 4 (REVISE) | Paper + review comments | Stages 1-3 | Pipeline runs Stage 4 -> 3' -> 4.5 -> 5; Stage 4' runs between 3' and 4.5 only after a Major decision |
-| Stage 5 (FINALIZE) | Revised paper (a prior integrity report is optional context) | Stages 1-4 | Stage 4.5 runs first on the provided paper; a prior report informs it but does not replace it |
+| Stage 4 (REVISE) | Paper + review comments | Stages 1, 2 and 3 | Stage 2.5 → 4 → 3' → 4.5 → 5. Use Stage 4' only after a Major re-review decision |
+| Stage 3' (RE-REVIEW) | Revised paper and required comparison materials for the chosen re-review procedure | Stages 1, 2, 3 and 4 | Stage 2.5 → 3', then route by the decision |
+| Stage 5 (FINALIZE) | Final candidate | Stages 1, 2, 3 and 4 | Stage 2.5 → 4.5 → mandatory finalization checkpoint → 5 |
 
 ---
 

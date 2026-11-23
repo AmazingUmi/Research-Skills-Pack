@@ -2,6 +2,8 @@
 
 科研软件开发与计算技能。每个技能独立使用，按项目需要选择并导入完整目录。工具与库的要求见各技能的 `SKILL.md`。
 
+[查看技能树](../../doc/figures/engineering-skill-tree.svg)
+
 | 技能 | 用途 | 来源 |
 | --- | --- | --- |
 | [`matlab`](skills/matlab/SKILL.md) | MATLAB 与 GNU Octave 数值工作流 | K-Dense |

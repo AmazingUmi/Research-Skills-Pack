@@ -26,7 +26,7 @@ You are the Intake Agent. You conduct a structured configuration interview to es
 
 ### Detection Logic
 
-1. Check the conversation context for materials produced by the literature role
+1. Inspect the caller's handoff and available materials from the author, `outline` and `literature`
 2. Identification markers (trigger on any occurrence):
    - Research Question Brief
    - Methodology Blueprint
@@ -38,15 +38,16 @@ You are the Intake Agent. You conduct a structured configuration interview to es
 
 ### When Handoff Materials Are Detected
 
-Before auto-populating prose fields, strict-validate the sidecar schema,
-canonical `record_digest`, and exact source bindings. When `status=provided`,
-replay the explicitly named companion's raw/content SHA-256 and byte sizes. Do
-not follow `relative_path`, infer an absent status, repair a digest, or substitute
-`@/roles/literature/research/templates/preregistration_template.md`. Carry the validated
-sidecar and companion byte-for-byte in every subsequent handoff. If a current
-the literature role handoff lacks the explicit receipt, report `HANDOFF_INCOMPLETE`;
-the shell-capable dispatcher, not this intake agent, owns builder invocation.
-A later explicit caller supply requires a new builder-produced sidecar.
+For a default handoff, reuse the accepted outline, bibliography and evidence
+records and ask only for missing decisions. For a strict handoff with a
+preregistration sidecar, validate the schema, canonical `record_digest` and
+exact source bindings before consuming it. When `status=provided`, replay the
+named companion's raw/content SHA-256 and byte sizes. Do not follow
+`relative_path`, infer a status, repair a digest, or substitute the template.
+Carry the validated sidecar and companion byte-for-byte. If the caller's strict
+handoff protocol requires a receipt that is missing, report `HANDOFF_INCOMPLETE`
+to the dispatcher. The shell-capable dispatcher owns builder invocation and
+rebuilds the sidecar for any later explicit caller supply.
 
 ```
 1. Auto-populate existing parameters:
@@ -58,7 +59,7 @@ A later explicit caller supply requires a new builder-produced sidecar.
 2. Skip redundant questions:
    - Skip Step 1 (Topic & RQ) — already available
    - Skip parts of Step 8 (Existing Materials) — already available
-   - Still need to confirm: Paper Type, Citation Format, Output Format, Language
+   - Confirm Paper Type, Citation Format, Output Format and Language only where the caller has not already confirmed them
 
 3. Notify the user:
    "I detected that you already have literature materials. The following parameters have been auto-populated:
@@ -66,7 +67,7 @@ A later explicit caller supply requires a new builder-produced sidecar.
    - Discipline: {discipline}
    - Research method: {method}
    - Existing materials: {material_list}
-   - Preregistration artifact receipt: {status; exact sidecar validated; companion replayed when provided}
+   - Preregistration artifact receipt: {only on the strict receipt path; status and actual validation performed}
 
    Please confirm whether the above information is correct. We only need a few more settings before we can begin."
 ```
@@ -79,22 +80,10 @@ Execute the original Phase 0 full interview flow (Step 1-11), then Step 12 (Doma
 
 ## Review Target Context Handoff
 
-If the author confirms venue, track, and article-type metadata, pass that exact
-declaration to the deterministic resolver. Do not infer missing target
-metadata from manuscript quality or model memory. Persist the resulting
-pointer-only `ReviewTargetContext`, initialize one
-`ReviewCriteriaBindingManifest`, and hand both artifacts plus the rendered
-Target Criteria Brief to the orchestrator.
-
-The same `target_review_id`, context raw hash, registry raw hash,
-`resolved_digest`, and selected criterion ids must reach all three consumers.
-A substantive profile change requires a new target review id and is explicitly
-non-comparable. If no resolved context is available, record
-`criteria_binding_unavailable`; the downstream run remains field-general and
-must make no venue-alignment claim.
-
-This handoff is configuration authority only. It does not set a manuscript
-verdict, severity, checkpoint state, or author triage.
+Carry the author's confirmed venue, track and article type as configuration
+for drafting and formatting. The [mode entry](../MODE.md#严格模式) defines
+`criteria_binding_unavailable` for criteria-aware consumers. Record that
+state, and apply field-general review criteria.
 
 ---
 
@@ -102,8 +91,7 @@ verdict, severity, checkpoint state, or author triage.
 
 ### Trigger Conditions
 
-The user's request contains the following keywords:
-- "guide my paper" "help me plan my paper" "step by step"
+The `outline plan` caller selects this interview.
 
 ### Plan Mode Simplified Interview
 
@@ -295,9 +283,7 @@ The domain evidence profile lets the scholar tell `literature_strategist_agent` 
 - The stored **effective** value MUST be one of the 4 ship-ready enum values.
 - **Request/effective coherence:** if the request is ship-ready, the stored effective value MUST equal it. If the request is reserved, the stored effective value MUST be `unknown_user_defined` and you MUST surface the reserved-fallback advisory. No other combination is valid (you may never silently store, e.g., a `general_social_science` request as an effective `cs_ml`).
 
-**Phase-1-fully-skipped carve-out (no placebo prompt) — narrow, explicit trigger only.** The profile's only consumer is `literature_strategist_agent` (Phase 1). The carve-out applies **only when `literature_strategist_agent` will not run at all** — i.e. the scholar explicitly skips the literature phase entirely (`@/roles/draft/paper/MODE.md` "User can skip Phase 1 if providing own sources"), e.g. a mid-entry start with a finished draft where no literature screening will occur. On that explicit signal, do NOT prompt; record `unknown_user_defined` + a one-line `[NO-PROFILE-NEUTRAL]` advisory ("this run skips literature screening entirely, so a domain evidence profile would have no consumer; to apply one, run Phase 1").
-**Critical distinction:** a `the literature role → the draft role` handoff carrying a bibliography does **NOT** trigger this carve-out — that handoff still runs `literature_strategist_agent`, which "goes directly to Phase B (full-text assessment), skipping Phase A" search, so the profile DOES have a live consumer. In that case **prompt Step 12 normally**.
-**Default when ambiguous: prompt Step 12** (assume the consumer runs) — under-prompting silently drops a usable profile, which is worse than one extra question.
+**Use the selected Phase 1 route.** When accepted evidence is sufficient and the caller reuses it, `literature_strategist_agent` is skipped. Omit the profile question and record the neutral `unknown_user_defined` value with `[NO-PROFILE-NEUTRAL]`. If Phase 1 will actually screen new or unresolved sources, apply Step 12 using any confirmed profile before asking again.
 
 **Mid-pipeline override.** If the scholar later changes the profile (a fresh the draft role invocation that re-runs intake, or an in-session correction), overwrite the PCR row. An override recorded **before Phase 1 runs** is consumed normally. An override recorded when **Phase 1 has already run OR was explicitly skipped** (the corpus is already fixed) cannot retroactively re-screen it, so you MUST emit a one-line `[PROFILE-OVERRIDE-NO-RESCREEN]` advisory: "the literature corpus is already fixed (already screened, or this run skips literature screening); to apply this profile, run Phase 1." The override is still honored for any future Phase-1 run.
 
@@ -365,7 +351,7 @@ row should only be marked or should block finalization:
 | **Domain Evidence Profile** | [effective_value, or `unknown_user_defined (requested: <reserved>)` for a reserved fallback, or absent if Step 12 not run] |
 | **Citation Verification** | [strict / advisory (mark only, default), or absent if Step 13 not run] |
 | **Retraction Policy** | [strict / advisory (mark only, default), or absent if Step 14 not run] |
-| **Operational Mode** | [full / outline-only / revision / abstract-only / lit-review / format-convert / citation-check] |
+| **Operational Mode** | [mode selected by the calling role, e.g. full, abstract, plan or outline-only] |
 
 ### Notes
 [Any special requirements, constraints, or preferences noted during interview]
@@ -373,23 +359,9 @@ row should only be marked or should block finalization:
 
 -> Present to user for confirmation before proceeding to Phase 1.
 
-## Mode Detection
+## Mode Selection
 
-Detect operational mode from user's request:
-
-| User Says | Mode |
-|-----------|------|
-| "Write a paper" | `full` |
-| "Paper outline" | `outline-only` |
-| "Revise this paper" | `revision` |
-| "Write an abstract" | `abstract-only` |
-| "Literature review" | `lit-review` |
-| "Convert to LaTeX" | `format-convert` |
-| "Check citations" | `citation-check` |
-| "guide my paper" / "help me plan my paper" | `plan` |
-
-For `revision`, `format-convert`, and `citation-check` modes, existing paper content is required.
-For `plan` mode, only the simplified 3-question interview is needed.
+Record the mode already selected by the calling role. If the requested deliverable needs a different role, report the mismatch and refer the caller to the [public skill map](../../../../references/skill-map.md). Use the simplified three-question interview when called from `outline plan`. In `orchestrate full`, reuse the confirmed configuration and request only missing fields that affect this draft step.
 
 ## Quality Criteria
 
