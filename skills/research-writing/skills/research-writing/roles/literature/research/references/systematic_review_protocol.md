@@ -19,7 +19,7 @@ User: "Systematic review of [topic]" / "Meta-analysis of [topic]"
      |-> [research_architect_agent] -> Systematic Review Protocol
      |   - Protocol follows PRISMA-P 2015 (templates/prisma_protocol_template.md)
      |   - Pre-specified subgroup analyses and sensitivity analyses
-     |   - Risk of bias tool selection (RoB 2 / ROBINS-I)
+     |   - Risk of bias tool and version for each question, design and target result
      |   - Meta-analysis feasibility pre-assessment
      |
      +-> [devils_advocate_agent] -- CHECKPOINT 1
@@ -42,9 +42,9 @@ User: "Systematic review of [topic]" / "Meta-analysis of [topic]"
      |   - Standard verification + predatory journal screening
      |
      +-> [risk_of_bias_agent] -> RoB Assessment
-         - Per-study domain assessment with signaling questions
-         - Traffic-light summary table across all studies
-         - Distribution summary (% Low / Some Concerns / High)
+         - Result-specific domain assessment with signaling questions and source locators
+         - Tables grouped by instrument, version and outcome
+         - Distribution of native judgments with assessed-result denominators
      |
 === Phase 3: ANALYSIS (Meta-Analysis or Narrative Synthesis) ===
      |

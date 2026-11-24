@@ -22,7 +22,7 @@
   python scripts/disclosure/mermaid_render.py -i draft.md -o out/disclosure.md --docx out/custom.docx
   python scripts/disclosure/mermaid_render.py -i draft.md -o disclosure.md --no-docx   # 仅 Markdown
 
-写出 .md 后**默认**调用 ``md_to_docx.py``；Word 失败不导致进程失败（退出码 0），并提示手动转换。
+写出 .md 后**默认**调用 ``md_to_docx.py``；Word 导出失败时保留 Markdown，返回非零退出码并提示如何重试。
 """
 from __future__ import annotations
 
@@ -33,6 +33,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import zipfile
 from pathlib import Path
 
 
@@ -273,44 +274,34 @@ def try_write_docx(out_md: Path, docx_out: Path) -> bool:
     tools_dir = Path(__file__).resolve().parent
     md_script = tools_dir / "md_to_docx.py"
     base_dir = out_md.parent
-    docx_out.parent.mkdir(parents=True, exist_ok=True)
 
     if not md_script.is_file():
         print("警告：未找到 md_to_docx.py，跳过 Word。", file=sys.stderr)
         _print_manual_docx_hint(out_md, docx_out, base_dir, md_script)
         return False
 
-    cmd = [
-        sys.executable,
-        str(md_script),
-        "-i",
-        str(out_md),
-        "-o",
-        str(docx_out),
-        "--base-dir",
-        str(base_dir),
-    ]
+    # Stage in the destination directory so retries cannot replace a good file with a partial export.
     try:
-        r = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=300,
-        )
-    except subprocess.TimeoutExpired:
-        print("警告：生成 Word 超时（300s）。", file=sys.stderr)
+        docx_out.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=docx_out.parent) as staging_dir:
+            candidate = Path(staging_dir) / "disclosure.docx"
+            subprocess.run(
+                [sys.executable, str(md_script), "-i", str(out_md), "-o", str(candidate),
+                 "--base-dir", str(base_dir)],
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=300,
+            )
+            with zipfile.ZipFile(candidate) as package:
+                package.getinfo("word/document.xml")
+            candidate.replace(docx_out)
+    except subprocess.CalledProcessError as exc:
+        print(f"Word 转换失败（退出码 {exc.returncode}）：{(exc.stderr or exc.stdout or '').strip()[:2000]}", file=sys.stderr)
         _print_manual_docx_hint(out_md, docx_out, base_dir, md_script)
         return False
-    except OSError as e:
-        print(f"警告：无法启动 md_to_docx：{e}", file=sys.stderr)
-        _print_manual_docx_hint(out_md, docx_out, base_dir, md_script)
-        return False
-
-    if r.returncode != 0:
-        print(f"警告：md_to_docx 失败（退出码 {r.returncode}）。", file=sys.stderr)
-        err = (r.stderr or r.stdout or "").strip()
-        if err:
-            print(err[:2000], file=sys.stderr)
+    except (subprocess.TimeoutExpired, OSError, zipfile.BadZipFile, KeyError) as exc:
+        print(f"无法交付 Word：{exc}", file=sys.stderr)
         _print_manual_docx_hint(out_md, docx_out, base_dir, md_script)
         return False
 
@@ -386,6 +377,9 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     out_path = args.output.resolve()
+    docx_path = args.docx.resolve() if args.docx is not None else out_path.with_suffix(".docx")
+    if not args.no_docx and docx_path in (in_path, out_path):
+        p.error("Word 文件需要独立的输出路径")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
@@ -440,14 +434,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.no_docx:
         return 0
 
-    docx_path = (
-        args.docx.resolve()
-        if args.docx is not None
-        else out_path.with_suffix(".docx")
-    )
-    try_write_docx(out_path, docx_path)
-
-    return 0
+    return 0 if try_write_docx(out_path, docx_path) else 1
 
 
 if __name__ == "__main__":

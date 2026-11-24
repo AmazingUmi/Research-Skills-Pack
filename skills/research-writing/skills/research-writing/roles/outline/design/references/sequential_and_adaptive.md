@@ -62,8 +62,7 @@ allocation/DOE layouts, not interim boundaries. Official current options are:
   not ship or runtime-test an R boundary calculation.
 - For custom rules, **simulate** the whole sequential procedure (generate data, apply
   the boundaries look by look, repeat) to confirm the realized Type I error and to
-  estimate expected sample size and power. This mirrors the simulation approach in the
-  **statistical-power** skill and is the most flexible route.
+  estimate expected sample size and power.
 
 ## Adaptive designs
 

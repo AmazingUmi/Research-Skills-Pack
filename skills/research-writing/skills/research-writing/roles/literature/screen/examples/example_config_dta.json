@@ -29,9 +29,13 @@
   },
   "seeds": [],
   "languages_allowed": ["English"],
-  "models": {"A": "sonnet", "B": "sonnet", "ADJ": "sonnet", "QC": "sonnet", "FTA": "sonnet", "FTB": "sonnet", "FTADJ": "sonnet"},
+  "models": {"A": "", "B": "", "ADJ": "", "QC": "", "FTA": "", "FTB": "", "FTADJ": ""},
   "model_labels": {},
-  "agent_type": "academic-research-skills:screening-reviewer-agent",
+  "reporting": {
+    "ta": {"host": "", "human_verification": ""},
+    "ft": {"host": "", "human_verification": ""}
+  },
+  "agent_type": "",
   "batching": {"max_records": 50, "max_chars": 90000, "wrap": 150},
   "dedup": {"doi_title_guard": true}
 }

@@ -19,8 +19,8 @@ Chinese. In ARS material, product names, paths, version and issue
 annotations were rewritten or removed, contract-specific sections were moved
 into strict-mode files, environment variables were renamed from ARS_* to
 RW_*, and only the scripts the retained documents use were kept. Nature
-Skills and K-Dense mode files keep their upstream text apart from renamed
-cross-references and paths. SOURCES.md in the repository lists the pinned
+Skills and K-Dense modes have been adapted for language selection, evidence
+scope, role handoffs and figure review. SOURCES.md in the repository lists the pinned
 upstream revisions and the changes.
 
 1. PaperOrchestra

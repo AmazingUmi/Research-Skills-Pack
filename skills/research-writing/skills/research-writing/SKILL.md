@@ -1,6 +1,6 @@
 ---
 name: research-writing
-description: 科研论文写作的统一入口，整合了 Paper Orchestra、ARS、Nature 与 K-Dense 的写作能力。用于确定研究问题与大纲、检索与核验文献、系统综述与文献筛选、科研图表与图注、起草润色章节、统计报告、模拟审稿、审稿回复与返修，以及从研究材料到成稿的整稿流程。Use for paper outlines, literature or systematic reviews, citation checks, figures, drafting, polishing, peer review, rebuttals, revisions, and research-to-paper workflows.
+description: 科研论文写作的统一入口，整合了 Paper Orchestra、ARS、Nature 与 K-Dense 的写作能力。用于研究问题与大纲、实验设计、证据评估、统计检验选择与功效分析、检索与核验文献、系统综述与文献筛选、科研图表与图注、起草润色章节、统计报告、模拟审稿、审稿回复与返修，以及从研究材料到成稿的整稿流程。Use for study design, statistical test selection, power analysis, paper outlines, literature or systematic reviews, citation checks, figures, drafting, polishing, peer review, rebuttals, revisions, and research-to-paper workflows.
 ---
 
 # Research Writing · 科研论文写作

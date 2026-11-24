@@ -1,8 +1,10 @@
 # Code Experiment Plan
 
+Include the following Material Passport block for a strict handoff.
+
 ## Material Passport
 
-- Origin Skill: the outline role's experiment mode
+- Origin Skill: outline experiment
 - Origin Mode: plan
 - Origin Date: [ISO 8601]
 - Verification Status: UNVERIFIED

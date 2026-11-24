@@ -4,7 +4,7 @@
 
 按事先确认的纳入排除标准，对已有的检索记录做标题摘要筛选和全文筛选：两名互相不可见的 AI 审阅者各自判断，分歧交给第三名裁决，再做质量控制并生成 PRISMA 计数。AI 的判断只作参考，最终筛选结果由研究团队确认。详细流程见 [`references/workflow_detail.md`](references/workflow_detail.md) 和 [`references/orchestration.md`](references/orchestration.md)。
 
-只有用户明确要求筛选时才进入本模式。写综述、做系统综述本身不会自动触发筛选。
+用户可以单独委托下表中的任何筛选任务。仅拟协议用 `protocol`，裁决分歧用 `adjudicate`，复核排除用 `audit`，用已有判定汇总计数与方法段用 `report`。根据委托范围执行相应步骤。
 
 | 子模式 | 适用情况 | 交付 |
 | --- | --- | --- |

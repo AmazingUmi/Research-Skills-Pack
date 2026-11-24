@@ -172,7 +172,7 @@ The Cochrane Handbook for Systematic Reviews of Interventions is the gold standa
 ### Overall Judgment Algorithm
 
 - All domains Low → Overall **Low**
-- Some Concerns in ≥ 1 domain, no High → Overall **Some Concerns**
+- Some concerns in one or more domains → **Some Concerns**, or **High** if concerns across domains substantially lower confidence
 - High in ≥ 1 domain → Overall **High**
 
 ---
@@ -339,7 +339,7 @@ Starting a systematic review?
 │   └── Dual screening, predefined criteria
 │
 ├── 5. Assess risk of bias
-│   └── RCTs → RoB 2 | Non-randomized → ROBINS-I
+│   └── Intervention effects: RoB 2 (randomized) or applicable ROBINS-I (non-randomized); select tools for other targets by question and design
 │
 ├── 6. Synthesize evidence
 │   ├── Quantitative data + comparable studies → Meta-analysis

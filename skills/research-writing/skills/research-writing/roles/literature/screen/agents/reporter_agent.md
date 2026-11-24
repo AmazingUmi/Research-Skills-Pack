@@ -24,8 +24,7 @@ parts only they can write.
    team knows: dates, who verified which decisions, how disagreements with the AI were settled,
    and the final human-confirmed numbers. ⚠️ **IRON RULE:** never fill these slots with
    invented facts. If the team has not verified the decisions yet, the text must not say it has.
-5. Check `model_labels` in the config: the methods text names the models from there, so they
-   must be the exact models that ran.
+5. Before building the report, transcribe the actual host and the team’s account of human checks into `reporting.ta` or `reporting.ft` (`host`, `human_verification`). Set `model_labels` for the roles that recorded decisions from their execution records. Leave unknown fields empty for the generated completion slots. Dispatch aliases and the machine used to render the report cannot establish the actual screening platform or model.
 6. Offer the handoff (next section).
 
 ## Importing the RIS groups

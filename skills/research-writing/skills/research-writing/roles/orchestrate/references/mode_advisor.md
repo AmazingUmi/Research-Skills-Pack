@@ -32,7 +32,7 @@ Helps users (and the pipeline orchestrator) select the right skill and mode for 
 |-----------|-------------------|-----|
 | "Write me a paper on X" | `literature` first, THEN `draft` | Writing without research produces shallow papers with unsupported claims |
 | "Review my paper" (but no draft exists) | `outline plan` | They need a structured plan and draft first, not review |
-| "Check my citations" (but paper isn't done) | `draft full` (or `draft section`) | Finish writing first, then check citations as a separate pass |
+| "Check my citations" (but paper isn't done) | `literature verify`, `ref-verify` or `citation-check` | Check the supplied text or reference list within its current scope |
 | "I need a systematic review" | `literature systematic-review` | NOT a narrative `literature lit-review` (different methodology: PRISMA vs narrative) |
 | "Just give me a quick paper" | `literature brief` + `draft full` | Brief research is fine, but paper writing still needs `draft full` for quality |
 | "Format my paper as APA" | `draft format-convert` | Not a rewrite; purely formatting transformation |
@@ -116,7 +116,7 @@ For users entering the pipeline mid-stream, this table clarifies what materials 
 | Entry Point | Required Materials | What Gets Skipped | Integrity Implications |
 |------------|-------------------|-------------------|----------------------|
 | Stage 1 (RESEARCH) | None | Nothing | Full pipeline |
-| Stage 2 (WRITE) | RQ Brief + Bibliography | Stage 1 | Full pipeline from Stage 2 |
+| Stage 2 (WRITE) | Research materials or a partial manuscript to complete | Stage 1 | Full pipeline from Stage 2 |
 | Stage 2.5 (INTEGRITY) | Paper draft | Stages 1-2 | Integrity check runs on provided draft |
 | Stage 3 (REVIEW) | Paper draft (a prior integrity report is optional context) | Stages 1-2 | Stage 2.5 runs first on the provided paper; a prior report informs it but does not replace it |
 | Stage 4 (REVISE) | Paper + review comments | Stages 1, 2 and 3 | Stage 2.5 → 4 → 3' → 4.5 → 5. Use Stage 4' only after a Major re-review decision |
@@ -131,9 +131,9 @@ These are common workflow mistakes to avoid:
 
 | Anti-Pattern | Problem | Correct Approach |
 |-------------|---------|-----------------|
-| Skipping research | Paper lacks evidence depth | Always do at least the literature role quick |
+| Skipping research | Paper lacks evidence depth | Identify missing evidence and use the literature role within the agreed source scope |
 | Writing then researching | Confirmation bias in source selection | Research first, write second |
 | Reviewing before integrity check | Wasted review effort on fabricated citations | Always Stage 2.5 before Stage 3 |
 | Accepting all reviewer comments blindly | May introduce inconsistencies or weaken valid arguments | Use External Review Protocol's strategic coaching |
-| Running pipeline for a 1-page abstract | Overhead far exceeds benefit | Use the draft role full directly |
-| Using fact-check mode for literature review | Different purpose and methodology | Use the literature role full or systematic-review |
+| Running pipeline for a 1-page abstract | Overhead far exceeds benefit | Use `draft abstract` |
+| Using fact-check mode for literature review | Different purpose and methodology | Use `literature lit-review` or `literature systematic-review` |

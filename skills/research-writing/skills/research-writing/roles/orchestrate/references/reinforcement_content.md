@@ -4,7 +4,7 @@ Stage-specific reinforcement content for the Mid-Conversation Reinforcement Prot
 
 | Transition | Reinforcement Focus |
 |-----------|-------------------|
-| Stage 1→2 | IRON RULE: Every claim must have a citation. Anti-Pattern: Fabricated citations. |
+| Stage 1→2 | IRON RULE: Every claim must trace to evidence appropriate to its type (cited sources for external claims, study data and analysis for original results, assumptions and derivations for theoretical results, and documented search scope for absence claims). Anti-Pattern: Fabricated citations or unsupported assertions. |
 | Stage 2→2.5 | IRON RULE: Gray zone = FAIL. Anti-Pattern: Treating "difficult to verify" as acceptable. |
 | Stage 2.5→3 | IRON RULE: Reviewers are READ-ONLY. Anti-Pattern: Fabricating review comments. |
 | Stage 3→4 | IRON RULE: Max 2 revision loops. Anti-Pattern: Sycophantic revision. |

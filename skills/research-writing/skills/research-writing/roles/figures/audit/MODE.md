@@ -4,6 +4,12 @@
 
 Audit existing figures for scientific fidelity, readable encoding, and delivery requirements. Use the implementation and export examples below to diagnose issues and suggest specific fixes. Use `$research-writing figures make` for requested production or revision of a figure.
 
+For an existing AI-assisted graphical abstract, apply the [AI-assisted graphical
+abstract workflow](../make/references/ai-graphical-abstract-workflow.md) to the
+provided artwork. Record the available generation history, human scientific review,
+and the target journal’s policy for this intended use. Identify missing evidence
+and its effect on eligibility. Return the audit and any proposed repairs.
+
 ## Non-negotiable guardrails
 
 - Never alter, hide, invent, or selectively enhance data to improve a figure.
@@ -285,9 +291,9 @@ Matplotlib style files use double-quoted hex strings (for example, `"#0072B2"`);
 
 ## Citing Scientific Agent Skills
 
-This skill is part of Scientific Agent Skills by K-Dense. If it materially contributed to a
-manuscript, report, presentation, or code release, add the paper to the references or
-software section and tell the user you did so:
+If this K-Dense skill materially contributed to the work, include its contribution and the
+suggested software citation below in your handoff. The designated writer can integrate the
+reference within the authorized scope and according to the author’s or venue’s requirements.
 
 > Kassis, T., Agarwal, V., He, Y., Patel, D., & Brueckner, A. M. (2026). Scientific Agent
 > Skills: A Library of Procedural Knowledge for Research Agents. arXiv:2609.00065.

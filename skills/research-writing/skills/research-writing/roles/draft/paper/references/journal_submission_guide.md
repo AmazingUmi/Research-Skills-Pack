@@ -26,7 +26,7 @@ Used by `formatter_agent` and `intake_agent`.
 ### 3. Required Components
 | Component | Usually Required | Notes |
 |-----------|:---------------:|-------|
-| Cover letter | ✓ | Addressed to Editor-in-Chief |
+| Cover letter | Venue-specific | Include when accepted and in the agreed package |
 | Title page | ✓ | Title, authors, affiliations, corresponding author |
 | Abstract | ✓ | Check word limit (often 150-250) |
 | Keywords | ✓ | Usually 5-7 |
@@ -88,58 +88,9 @@ Used by `formatter_agent` and `intake_agent`.
 | Journal of Educational Practice and Research | Jiao Yu Shi Jian Yu Yan Jiu | APA |
 | Higher Education Review | Gao Deng Jiao Yu | APA |
 
-## Cover Letter Template
+## Initial cover letter
 
-```markdown
-[Date]
-
-[Editor Name, if known]
-Editor-in-Chief
-[Journal Name]
-
-Dear [Editor Name / Editor-in-Chief],
-
-RE: Submission of Original Manuscript — "[Paper Title]"
-
-I am writing to submit our manuscript entitled "[Paper Title]" for
-consideration for publication in [Journal Name] as a [Research Article /
-Review Article / Brief Communication].
-
-**What the paper addresses:**
-[1-2 sentences describing the research problem and why it matters]
-
-**Key findings:**
-[1-2 sentences highlighting the most important results]
-
-**Why this journal:**
-[1 sentence explaining why this paper fits the journal's scope and readership]
-
-**Confirmations:**
-- This manuscript has not been published previously and is not under
-  consideration elsewhere.
-- All authors have read and approved the final manuscript.
-- [If applicable: This research was approved by [IRB/Ethics Committee]
-  (approval number: XXX).]
-- [If applicable: AI-assisted tools were used in the preparation of this
-  manuscript, as disclosed within.]
-
-**Suggested Reviewers** (optional):
-1. [Name, Affiliation, Email] — expert in [area]
-2. [Name, Affiliation, Email] — expert in [area]
-
-**Excluded Reviewers** (optional):
-1. [Name] — [brief reason, e.g., "recent collaborator"]
-
-Thank you for considering our submission. We look forward to hearing from you.
-
-Sincerely,
-
-[Corresponding Author Name]
-[Title, Department]
-[Institution]
-[Email]
-[ORCID: xxxx-xxxx-xxxx-xxxx]
-```
+Use the [first-submission workflow](../../section/references/submission-package.md#3-initial-cover-letter) to check whether the venue accepts or requires a letter and to draft it from confirmed author facts. The workflow includes the template and its treatment of missing declarations.
 
 ## CRediT Author Contributions
 

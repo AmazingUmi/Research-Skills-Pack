@@ -42,13 +42,12 @@ independently, how disagreements were resolved, and which automation tools were 
 completes:
 
 - the dates of the runs;
-- the human verification that actually happened (who checked what, how many exclusions were
+- the screening host and human verification that actually happened (who checked what, how many exclusions were
   sampled, what was changed);
 - the final human-confirmed numbers.
 
 Before submission, check the target journal's AI policy and current guidance on AI in evidence
-synthesis (for example the RAISE recommendations). Name the exact models (`model_labels` in the
-config), the tool and its version, and keep the screening log as a supplementary file.
+synthesis (for example the RAISE recommendations). Use execution records to populate `model_labels` for the roles used and `reporting.ta` / `reporting.ft` for the host and human verification for each stage. Blank fields produce author-confirmation slots. Preserve the screening log with the report.
 
 ## 3. Reference-manager import
 

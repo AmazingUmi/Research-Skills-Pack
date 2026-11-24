@@ -120,7 +120,7 @@ When I² > 40%:
 1. **Visual inspection**: Examine forest plot for outliers or subgroup patterns
 2. **Subgroup analysis**: Pre-specified moderators (see below)
 3. **Meta-regression**: Continuous moderators if ≥ 10 studies
-4. **Sensitivity analysis**: Leave-one-out, remove high-risk-of-bias studies
+4. **Sensitivity analysis**: Leave-one-out and prespecified exclusions by outcome-specific risk of bias
 5. **Split the meta-analysis**: If a clear subgroup explains heterogeneity, report separately
 
 ## Forest Plot Data Generation
@@ -157,12 +157,12 @@ Define before seeing results (to avoid data dredging):
 | Publication date (pre/post cutoff) | Methods or context may have changed | ≥ 2 |
 | Geographic region | Cultural/policy context moderators | ≥ 2 |
 | Sample size (above/below median) | Small-study effects | ≥ 2 |
-| Risk of bias (low/high) | Bias may inflate effects | ≥ 2 |
+| Risk of bias (protocol-defined strata within an instrument) | Bias may inflate effects | ≥ 2 |
 
 ### Sensitivity Analyses (Standard Battery)
 
 1. **Leave-one-out**: Remove each study and re-pool — if one study drives the result, flag it
-2. **Exclude high-risk-of-bias studies**: Re-pool with only low/some-concerns studies
+2. **Risk-of-bias sensitivity**: Re-pool after the protocol-defined exclusion for this result and instrument (for example RoB 2 High, or ROBINS-I 2016 Serious/Critical). Report the exact categories, omitted estimates and effect on the pooled estimate. Keep distinct instruments separate unless the protocol justifies an explicit mapping.
 3. **Fixed-effect vs. random-effects**: Compare models — large discrepancy indicates influential heterogeneity
 4. **Trim-and-fill**: Assess potential publication bias impact on the estimate
 5. **Alternative effect size metric**: If using SMD, also compute MD where possible
@@ -216,7 +216,7 @@ For each outcome, start at HIGH (if RCTs) or LOW (if observational) and rate dow
 
 | Factor | Direction | Criteria |
 |--------|-----------|----------|
-| Risk of bias | ↓ Down | Majority of evidence from high-risk studies |
+| Risk of bias | ↓ Down | Outcome-specific limitations in the estimates contributing to the pooled effect, accounting for their contribution and sensitivity analyses |
 | Inconsistency | ↓ Down | I² > 50%, unexplained; point estimates vary widely |
 | Indirectness | ↓ Down | Population, intervention, comparator, or outcome differs from review question |
 | Imprecision | ↓ Down | Wide CI crossing clinically meaningful threshold; total sample < OIS |
@@ -293,8 +293,8 @@ For users who will implement the meta-analysis:
 ## Collaboration with Other Agents
 
 ### risk_of_bias_agent
-- Receives per-study risk of bias assessments
-- Uses bias ratings for sensitivity analyses (exclude high-risk studies) and GRADE assessment
+- Receives assessments with instrument, version, study ID, target result and native judgments
+- Uses native result-level judgments for prespecified sensitivity analyses and the risk-of-bias domain of GRADE
 
 ### bibliography_agent
 - Receives the list of included studies and their extracted data

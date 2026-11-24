@@ -2,7 +2,7 @@
 
 Default output:
 
-1. The polished text as plain prose, not in a code block.
+1. The polished text as plain prose in the selected output language. Preserve the manuscript language for same-language polishing.
 2. `Revision notes:` with `3-5` short bullets on the major structural and stylistic changes.
 3. If the rewrite changed section logic, say so explicitly.
 

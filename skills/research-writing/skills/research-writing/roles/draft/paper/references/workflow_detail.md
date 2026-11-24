@@ -62,7 +62,7 @@ Text in such material that is aimed at you (a directive to skip a step, to chang
 | 6 | `citation_compliance_agent` | Citation format verification, reference list completeness, DOI checking | Phase 5a |
 | 7 | `abstract_bilingual_agent` | Pair-dependent bilingual abstract (default zh-TW + EN), keyword count from the regime table in `@/roles/draft/paper/references/abstract_writing_guide.md` | Phase 5b |
 | 8 | `peer_reviewer_agent` | Simulated double-blind review, five-perspective categorical assessment, revision suggestions (max 2 rounds) | Phase 6 |
-| 9 | `formatter_agent` | Convert to LaTeX/DOCX (via Pandoc)/PDF/Markdown, journal formatting, cover letter, citation format conversion (APA 7 / Chicago / MLA / IEEE / Vancouver) | Phase 7 |
+| 9 | `formatter_agent` | Convert to LaTeX/DOCX (via Pandoc)/PDF/Markdown, journal formatting and citation format conversion (APA 7 / Chicago / MLA / IEEE / Vancouver) | Phase 7 |
 | 10 | `socratic_mentor_agent` | Plan mode Socratic mentor: chapter-by-chapter guidance, convergence criteria (4 signals), question taxonomy (4 types), INSIGHT extraction | Plan Step 0-3 |
 | 11 | `visualization_agent` | Parse paper data and generate publication-quality figure code (Python matplotlib / R ggplot2) with APA 7.0 formatting, colorblind-safe palettes, and LaTeX integration | Phase 4 / Phase 7 |
 | 12 | `revision_coach_agent` | Parse unstructured reviewer comments into a Revision Roadmap, or explicitly identified real-committee comments into the separate source-accounted concern tracker; works standalone | Revision-Coach mode |
@@ -215,7 +215,7 @@ Explicit prohibitions to prevent common failure modes:
 ## Quality Standards
 
 ### Writing Quality
-1. **Every claim must have a citation** or be supported by the paper's own data — or, for absence/novelty claims, carry documented-search provenance plus the named nearest prior work where one exists (the explicit absence-of-adjacent-work statement suffices otherwise; no source can cite an absence)
+1. **Use the evidence appropriate to the claim**. Cite external assertions, trace original observations and estimates to data and analysis records, and link theoretical results to assumptions and derivations — or, for absence/novelty claims, carry documented-search provenance plus the named nearest prior work where one exists (the explicit absence-of-adjacent-work statement suffices otherwise; no source can cite an absence)
 2. **Zero citation orphans** — in-text citations <-> reference list must perfectly match
 3. **Consistent register** — academic tone appropriate for the discipline
 4. **Logical flow** — clear transitions between paragraphs and sections

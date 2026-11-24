@@ -182,7 +182,7 @@ The orchestrator inspects the user's inputs and goal:
 
 1. Determine whether the user wants the full workflow or a single-role deliverable.
 2. For `full`, choose the entrance and onward target from the role's entry table.
-3. Confirm the entrance and inputs with the user. When the user brings a manuscript into a new full run, Stage 2.5 precedes the target stage.
+3. Confirm the entrance and inputs with the user. A partial draft to complete enters Stage 2 with its existing sections. A complete manuscript for review, revision or finalization enters Stage 2.5.
 ```
 
 ### Step 2: MODE RECOMMENDATION
@@ -306,7 +306,7 @@ That re-review procedure is for simulated review. For real reviewer feedback use
 
 ## Mid-Entry Protocol
 
-For a new `full` run, confirm the target and check its inputs against [the role's entry table](../ROLE.md#1-先按手头材料选择入口). Start with Stage 2.5 whenever the user supplies a manuscript. After the checkpoint, route to Stage 3 (first review), Stage 4 (feedback already supplied), Stage 3' (existing revision), or Stage 4.5 (formatting or submission only, before Stage 5). Use earlier reports as context. In strict mode see [Mid-Entry Material Passport Check](../strict/pipeline_orchestrator_agent.md#mid-entry-material-passport-check).
+For a new `full` run, confirm the target and check its inputs against [the role's entry table](../ROLE.md#1-先按手头材料选择入口). Start at Stage 2 to complete a partial draft, preserving the supplied sections and computing any needed results before assembly. Start at Stage 2.5 when the supplied manuscript is complete and ready for review, revision or finalization. After the checkpoint, route to Stage 3 (first review), Stage 4 (feedback already supplied), Stage 3' (existing revision), or Stage 4.5 (formatting or submission only, before Stage 5). Use earlier reports as context. In strict mode see [Mid-Entry Material Passport Check](../strict/pipeline_orchestrator_agent.md#mid-entry-material-passport-check).
 
 For a validated continuation of this run, restore the recorded stage, draft version and pending checkpoint. Re-run affected checks if the tracked version or evidence has changed. A targeted single-role request uses that role's own inputs and entry.
 

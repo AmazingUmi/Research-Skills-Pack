@@ -357,11 +357,11 @@ def main():
     print(f"jobs: {size}")
     print(f"planned agent calls: about {n_calls} (+ retries for missing decisions"
           + (", + one adjudication call per batch with conflicts)" if a.stage == "ta" and jobs["screen"] else ")"))
-    shown_models = {r: m or "session model (explicit override)" for r, m in cfg["models"].items()}
+    shown_models = {r: m or "session model" for r, m in cfg["models"].items()}
     print(f"models: {json.dumps(shown_models)}  agentType: {conf['agentType'] or '(default workflow subagent)'}")
     over = srlib.model_overrides(cfg)
     if over:
-        print(f"model overrides from screening_config.json (shipped default is sonnet): {json.dumps(over)}")
+        print(f"model overrides from screening_config.json (relative to legacy sonnet defaults): {json.dumps(over)}")
     print(f'next: Workflow({{scriptPath: "{out.replace(chr(92), "/")}"}})  - only after the user approves the cost')
     if a.emit_prompts:
         n = emit_prompts(a, conf, prompts, os.path.abspath(a.emit_prompts))

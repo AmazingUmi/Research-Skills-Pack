@@ -5,7 +5,7 @@ description: 核查整稿流程阶段 2.5 或 4.5 的稿件，以证据矩阵和
 
 # 默认完整性核查
 
-接收当前稿件及其版本、参考文献、可用的原文和研究材料。有实验结果时使用提供的实验记录和数据表。有前一轮核查或审稿时，附遗留问题和稿件差异。使用[交接约定](../../../references/handoff.md)中的证据矩阵。默认核查可在会话中完成，无需 Python 引擎、Material Passport 或机器校验报告。严格核查使用[严格核查 Agent](integrity_verification_agent.md)。
+接收当前稿件及其版本、参考文献、可用的原文和研究材料。有实验结果时使用提供的实验记录和数据表。有前一轮核查或审稿时，附遗留问题和稿件差异。沿用任务卡的 `integrity_mode: default`，在报告中记录稿件版本与此次核查模式，随稿交给下一阶段。使用[交接约定](../../../references/handoff.md)中的证据矩阵。默认核查可在会话中完成，无需 Python 引擎、Material Passport 或机器校验报告。严格核查使用[严格核查 Agent](integrity_verification_agent.md)。
 
 ## 核查范围
 

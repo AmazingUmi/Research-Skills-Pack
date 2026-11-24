@@ -115,6 +115,7 @@ Stage 3' behavior adjustments in external review mode:
    - Does every comment have a response? (completeness)
    - Is each response consistent with actual changes? (consistency)
    - Were the places claimed as "modified" actually changed? (truthfulness)
+   - If a claimed result depends on missing data or a supplement, report CANNOT_VERIFY under the original comment number. Say what is visible, what evidence is missing, and whether the response needs qualification. Keep verified items and revisit the affected item after evidence arrives.
 
 2. New citation verification:
    - New references added during revision enter Stage 4.5 integrity verification

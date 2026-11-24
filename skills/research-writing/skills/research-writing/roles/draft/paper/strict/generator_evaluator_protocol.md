@@ -18,23 +18,23 @@ The load-bearing mechanism is the **physical separation of calls**: writer Phase
 For each `draft full` strict-mode invocation, Phase 4 + Phase 6 expand from two single calls into four separate model calls. Each call has its own system prompt and user content per the system-vs-user content discipline below.
 
 1. **Phase 4a — writer paper-blind pre-commitment.**
-   - System prompt: `### Phase 4a — Writer paper-blind pre-commitment` sub-section in `@/roles/draft/paper/agents/draft_writer_agent.md` § "Generator-Evaluator Contract Protocol".
+   - System prompt: `### Phase 4a — Writer paper-blind pre-commitment` sub-section in [the writer contract](draft_writer_contract.md).
    - User content: `writer_full` contract JSON + paper metadata only (`title`, `field`, `word_count`).
    - Output: `## Acceptance Criteria Paraphrase` section + terminal `[PRE-COMMITMENT-ACKNOWLEDGED]` tag.
    - Lint: 3 structural checks (see § "Phase 4a / 6a output lint" below).
 2. **Phase 4b — writer paper-visible drafting + self-scoring.**
-   - System prompt: `### Phase 4b — Writer paper-visible drafting + self-scoring` sub-section in the same agent file.
-   - User content: `writer_full` contract JSON (re-injected) + Phase 4a output wrapped in `<phase4a_output>...</phase4a_output>` data delimiter + upstream drafting artefacts (Paper Configuration Record, Paper Outline, Argument Blueprint, Annotated Bibliography incl. its Search Strategy / Schema 2 `search_strategy` (— the bound the writer fills into search-bounded novelty claims), optional Style Profile, optional Knowledge Isolation Directive) + in a later Phase 4b call, the latest acronym report when it has findings (advisory, not a scoring input).
+   - System prompt: `### Phase 4b — Writer paper-visible drafting + self-scoring` sub-section in the same contract file.
+   - User content: `writer_full` contract JSON (re-injected) + Phase 4a output wrapped in `<phase4a_output>...</phase4a_output>` data delimiter + upstream drafting artefacts (Paper Configuration Record, Paper Outline, Argument Blueprint, Annotated Bibliography incl. its Search Strategy / Schema 2 `search_strategy` (— the bound the writer fills into search-bounded novelty claims), the source locations for original data, analysis and derivations, the strict Passport handoff, optional Style Profile, optional Knowledge Isolation Directive) + in a later Phase 4b call, the latest acronym report when it has findings (advisory, not a scoring input).
    - Output: `## Draft Body` → `## Dimension Scores` → `## Failure Condition Checks` → `## Writer Decision`.
    - Lint: 4 structural checks (see § "Phase 4b / 6b output lint" below).
    - Acronym report: the writer also saves the Draft Body as `draft.md` in its `phase4_*/` folder. Once the output passes lint, the orchestrator runs `@/engine/scripts/check_acronyms.py --scopes body` on that file. The report never enters Phase 6a or 6b user content; when it has findings, the next Phase 4b call receives it. After the last round, the orchestrator shows the user the report on the final draft (`@/roles/draft/paper/references/writing_quality_check.md` § F).
 3. **Phase 6a — evaluator paper-blind pre-commitment.**
-   - System prompt: `### Phase 6a — Evaluator paper-blind pre-commitment` sub-section in `@/roles/draft/paper/agents/peer_reviewer_agent.md` § "Generator-Evaluator Contract Protocol".
+   - System prompt: `### Phase 6a — Evaluator paper-blind pre-commitment` sub-section in [the evaluator contract](peer_reviewer_contract.md).
    - User content: `evaluator_full` contract JSON + paper metadata + the writer's most recent `<phase4a_output>` (the writer artefact the evaluator must verify per `disagreement_handling.pre_commitment_check_protocol.check_writer_artifact`) +, when active, the pointer-only manifest/Target Criteria Brief/`INTERNAL` marker.
    - Output: `## Contract Paraphrase` + `## Scoring Plan` (per-dimension `dimension_id` / `what_to_look_for` / `what_triggers_block` / `what_triggers_warn`) + pointer-only binding commitment (or `criteria_binding_unavailable`) + terminal `[PRE-COMMITMENT-ACKNOWLEDGED]` tag. No additional H2 is introduced.
    - Lint: 5 structural checks.
 4. **Phase 6b — evaluator paper-visible scoring + decision.**
-   - System prompt: `### Phase 6b — Evaluator paper-visible scoring + decision` sub-section in the same agent file.
+   - System prompt: `### Phase 6b — Evaluator paper-visible scoring + decision` sub-section in the same contract file.
    - User content: `evaluator_full` contract JSON (re-injected) + Phase 6a output wrapped in `<phase6a_output>...</phase6a_output>` + the writer's `<phase4a_output>` (unconditional per `pre_commitment_check_protocol.check_writer_artifact`) + the writer Phase 4b draft (the artefact under review) + the unchanged authority when it was supplied in Phase 6a.
    - Output: `## Dimension Scores` → `## Failure Condition Checks` → `## Review Body` → `## Evaluator Decision`, plus the role marker/unavailable disclosure and a separately validated constructive sidecar when applicable.
    - Lint: 5 structural checks.
@@ -43,7 +43,7 @@ For each `draft full` strict-mode invocation, Phase 4 + Phase 6 expand from two 
 
 Mirrors `sprint_contract_protocol.md` §2 reviewer pattern verbatim:
 
-- **System prompt carries invariant policy text only**: the phase sub-section instructions from the agent file's `## Generator-Evaluator Contract Protocol` block, the lint description, and the phase-boundary tag conventions.
+- **System prompt carries invariant policy text only**: the phase instructions from the corresponding writer or evaluator contract file, the lint description, and the phase-boundary tag conventions.
 - **User content carries the contract JSON (re-injected per call) plus the runtime inputs allowed at that phase**: paper metadata, `<phase4a_output>` / `<phase6a_output>` delimiter blocks, upstream drafting artefacts, the paper draft.
 
 All dynamic LLM output (Phase Na runtime emissions, paper content) lives in user content via data delimiters, never in the system prompt. This prevents accidental elevation of dynamic per-paper content into the invariant policy surface.

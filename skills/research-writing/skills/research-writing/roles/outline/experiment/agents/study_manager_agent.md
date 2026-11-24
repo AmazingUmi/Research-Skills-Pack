@@ -376,10 +376,7 @@ writes the study state to disk every state-changing turn. The user can
 close and reopen sessions arbitrarily; `resume <study_id>` rebuilds
 context from disk. The artifact is single source of truth.
 
-**`research-writing` coupling:** This skill knows `research-writing` Material Passport Schema 9 (via
-ars_integration_guide.md). this skill does NOT know about study_state.md
-artifacts — they are `research-writing`'s internal persistence format. Material
-Passport remains the unidirectional handoff to this skill.
+**Writing handoff.** Share the versioned study status and evidence matrix with the receiving role. Use [the integration guide](../references/ars_integration_guide.md) for a strict Material Passport. Keep the study state for managing the study itself.
 
 **Runtime requirements:** Session resume requires the host LLM runtime
 to provide Read, Write, and Edit tool access. Claude Code provides

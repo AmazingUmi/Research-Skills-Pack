@@ -88,7 +88,7 @@ A config template is provided in `templates/literature-push-template.md`.
 ## Related Skills
 
 - `$research-writing literature search` — ad-hoc literature search (complementary; this skill adds structured daily automation)
-- `$research-writing literature cns-cite` — CNS citation export (for importing pipeline discoveries into manuscripts)
+- `$research-writing literature verify` — verify a proposed manuscript claim against the discovered source. For a review, pass the candidate list to `literature lit-review` or the agreed systematic-review workflow. Use `literature cns-cite` only for an explicit CNS/Nature source restriction.
 - `zotero` — library management (for long-term organization of pipeline outputs)
 - `arxiv` — arXiv API (used as a search source)
 
@@ -101,7 +101,7 @@ A config template is provided in `templates/literature-push-template.md`.
 | `references/note-template.md` | Standardized literature note format with YAML frontmatter |
 | `references/push-format.md` | Daily digest message template with field guidelines and example |
 | `references/cron-setup.md` | Cron job creation, verification, and manual fallback procedures |
-| `references/review-compilation-workflow.md` | End-to-end workflow for concentrated literature review writing |
+| `references/review-compilation-workflow.md` | Prepare candidate sources and search records for a manuscript review or a reader-specific brief |
 
 ## Pitfalls
 

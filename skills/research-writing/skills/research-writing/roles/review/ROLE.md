@@ -11,9 +11,9 @@
 | 模式 | 什么时候用 | 文件 | 交付 |
 | --- | --- | --- | --- |
 | `panel`（默认） | 投稿前的完整模拟审稿，需要多位审稿人和编辑决定 | [panel](panel/MODE.md) | 5 份审稿报告、编辑决定信、返修路线图 |
-| `methodology` | 只审方法与统计 | [panel](panel/MODE.md#methodology) | 方法学审稿报告与决定 |
+| `methodology` | 只审方法与统计 | [panel](panel/MODE.md#methodology) | 两席的方法学意见及限定在该范围内的模拟决定 |
 | `guided` | 希望在引导下自己发现问题 | [panel](panel/MODE.md#guided) | 逐个问题的引导式审阅 |
-| `re-review` | 按原审稿人卡片核对修订稿是否回应了首轮模拟评审 | [panel](panel/MODE.md#re-review) | 逐项核对表、遗留问题、新决定 |
+| `re-review` | 按原审稿人卡片核对修订稿是否回应了首轮模拟评审 | [panel](panel/MODE.md#re-review) | 逐项核对表、遗留问题、复审决定或待补证据 |
 | `nature` | 按 Nature 风格评估，默认出三份互相不可见的审稿报告和一份综合 | [nature](nature/MODE.md) | 审稿报告、阻断项、综合意见 |
 | `respond` | 起草或修改逐条回复、返修信、标记稿 | [respond](respond/MODE.md) | 按原编号的回复稿与返修材料 |
 | `revision-coach` | 收到审稿意见，要整理成返修路线 | [revision-coach](revision-coach/MODE.md) | 返修路线图、作者取舍、跟踪表或回复骨架 |

@@ -14,8 +14,8 @@ These are the internal phases of `draft full`. On an orchestrated Stage 2 dispat
 - Target journal (optional)
 - Citation format (APA 7 / Chicago / MLA / IEEE / Vancouver)
 - Output format (LaTeX / DOCX / PDF / Markdown / Combined)
-- Language (EN / zh-TW / bilingual sections)
-- Bilingual abstract (Yes / EN-only / zh-TW-only) — cardinality only; it does not select which languages
+- Body language (requested manuscript language(s) and script)
+- Abstract cardinality (Bilingual / EN-only / manuscript-language-only) — cardinality only; it does not select which languages
 - Output language pair (`output_language_pair`) — the two abstract languages, from the registry in `@/references/output_language_pair.md`; default `zh-tw-en`, per-run override; the PCR row is omitted when the run declares none
 - Word count target
 - Existing materials (RQ, data, drafts, lit)
@@ -135,6 +135,6 @@ These are the internal phases of `draft full`. On an orchestrated Stage 2 dispat
 
 - Target format conversion (LaTeX + .bib / DOCX / PDF / Markdown)
 - Journal-specific formatting (if target journal specified)
-- Cover letter (if journal submission)
+- First-submission documents returned by `draft section` when they belong to the agreed package
 - AI disclosure statement
 - Final quality checklist

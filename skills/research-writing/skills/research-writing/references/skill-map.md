@@ -17,12 +17,12 @@
 | | `paper-card`、`read` | 拆解单篇论文的方法和证据，或按实际阅读范围做对照精读 | Nature paper-card、reader |
 | | `ref-verify`、`citation-check`、`cns-cite` | 依次检查书目字段、正文和文末格式对应、按用户指定的 Nature/CNS 范围找引文 | Nature ref-verifier、ARS academic-paper、Nature citation |
 | | `deep`、`brief`、`lit-review` | 完整研究报告、研究简报或文献综述，按阶段 1 的研究目标选择 | ARS deep-research |
-| | `systematic-review`、`screen` | 处理明示的系统综述或文献筛选任务。`screen` 有 8 个子模式，按已确认标准交付判定 | ARS deep-research、sr-screener |
+| | `systematic-review`、`screen` | 处理明示的系统综述或文献筛选任务。`screen` 有 8 个子模式，可独立拟协议、筛选、裁决和复核，也可从既有判定生成计数 | ARS deep-research、sr-screener |
 | | `fact-check`、`three-way-scan` | 逐条核查事实，或按研究问题、方法与结论比较候选论文 | ARS deep-research |
 | [图表 `figures`](../roles/figures/ROLE.md) | `make`、`audit` | `make` 生成图表、图注和可复核材料。`audit` 检查现有图件并给出问题与修法 | Nature figure（含 ARS academic-paper 的可视化后端）、K-Dense scientific-visualization |
 | [正文 `draft`](../roles/draft/ROLE.md) | `section`、`full` | 写指定章节或汇成完整初稿，整合已交回的证据、引文和图件 | Nature writing、ARS academic-paper |
 | | `abstract`、`polish` | 写摘要和关键词，或润色、翻译和压缩已有文字 | ARS academic-paper、Nature polishing |
-| | `stats-report`、`analysis` | 写或审查统计报告，或开展新的计算并交付分析结果 | Nature statistics、K-Dense statistical-analysis |
+| | `stats-report`、`analysis` | 写或审查统计报告，或在设计阶段估算样本量、对已收集数据开展计算并交付分析结果 | Nature statistics、K-Dense statistical-analysis |
 | | `data-availability`、`disclosure`、`format-convert` | 生成数据和代码声明、AI 使用声明，或按交付要求转换格式和引用样式 | Nature data、ARS academic-paper |
 | [审稿 `review`](../roles/review/ROLE.md) | `panel`、`methodology`、`guided`、`nature` | 完整模拟审稿、方法学专项审查、引导式审阅或 Nature 期刊视角 | ARS academic-paper-reviewer、Nature reviewer |
 | | `re-review` | 对照模拟首轮意见和新旧稿，交回逐项核对结果与新决定 | ARS academic-paper-reviewer |

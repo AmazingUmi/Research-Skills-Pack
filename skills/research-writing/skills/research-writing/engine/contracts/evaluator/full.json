@@ -19,7 +19,7 @@
     {
       "id": "D3",
       "name": "evidence_sufficiency",
-      "description": "Every claim is supported by adequate citations or data; no unsupported assertions; no cherry-picking. Exception: a search-bounded absence/novelty claim is supported by documented-search provenance plus the named nearest prior work (or its explicit absence within the search) — do not penalize it for lacking a citation to the absence itself.",
+      "description": "Each claim has traceable evidence appropriate to its type, including sources, study data and analysis, or a derivation under stated assumptions. Evaluate counter-evidence and material gaps. Exception: a search-bounded absence/novelty claim is supported by documented-search provenance plus the named nearest prior work (or its explicit absence within the search) — do not penalize it for lacking a citation to the absence itself.",
       "priority": "mandatory"
     },
     {
@@ -53,9 +53,9 @@
         },
         {
           "dimension_id": "D3",
-          "what_to_look_for": "Every factual claim carries a citation; cited sources are appropriate quality for the field; inferences in Discussion stay within what the data supports.",
+          "what_to_look_for": "External assertions cite suitable sources. Original results trace to the study data and analysis. Theoretical results trace to their assumptions and derivations. Interpretations stay within the evidence.",
           "what_triggers_block": "Multiple core claims lack evidence; over-reliance on a single source; Discussion inferences exceed what the data supports; cherry-picking of favorable evidence.",
-          "what_triggers_warn": "Core claims have evidence but some secondary claims lack support; citation density is uneven across sections."
+          "what_triggers_warn": "Core claims have appropriate evidence but supporting records for some secondary claims are missing or incomplete."
         },
         {
           "dimension_id": "D4",

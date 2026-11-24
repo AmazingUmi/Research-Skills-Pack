@@ -10,8 +10,9 @@ This document defines the explicit criteria for Accept / Minor Revision / Major 
 |------|-----------------|---------------|--------|
 | `full` (sprint contract) | Mechanical synthesizer over reviewer contract v2; the matrix below never overrides it | `block/warn/pass` + `block_class` | Accept / Minor Revision / Major Revision / Reject |
 | `methodology-focus` (sprint contract) | Same mechanical engine, scoped to methods + presentation; no venue-fit dimension | same | four-value enum |
-| `full` / `methodology-focus` without a contract | Synthesis Protocol + the qualitative criteria and recommendation matrix in this file | reviewer recommendations | four-value enum |
-| `re-review` | default: `../MODE.md` § re-review; strict: `../strict/re_review_mode_protocol.md` § Decision Derivation, recomputed by `@/engine/scripts/check_re_review_synthesis.py` | item verdicts (FULLY/PARTIALLY/NOT_ADDRESSED/MADE_WORSE/CANNOT_VERIFY) | Accept / Minor Revision / Major Revision / user_review_required (Reject is not a the re-review stage decision) |
+| `panel` without a contract | Full-panel criteria and four-recommendation matrix below | reviewer recommendations | four-value enum |
+| `methodology` without a contract | [Two-seat methodology review](#two-seat-methodology-review) | methodology and methods presentation | four-value enum, scoped to methods |
+| `re-review` | default: `../MODE.md` § re-review; strict: `../strict/re_review_mode_protocol.md` § Decision Derivation, recomputed by `@/engine/scripts/check_re_review_synthesis.py` | item verdicts (FULLY/PARTIALLY/NOT_ADDRESSED/MADE_WORSE/CANNOT_VERIFY) | Accept / Minor Revision / Major Revision / user_review_required |
 | `quick` | Journal-Fit Reviewer assessment only; advisory, not an editorial decision | — | signal |
 | `guided` | Issue-list dialogue; no editorial decision letter | — | — |
 
@@ -19,7 +20,26 @@ Under a sprint contract, the mechanical synthesizer governs. This file's recomme
 
 ---
 
-## 1. Decision Categories
+### Two-seat methodology review
+
+Collect the two actual recommendations with manuscript locations. The methodology
+reviewer evaluates design, analysis and reproducibility. The Journal-Fit Reviewer
+evaluates whether the methods are presented clearly enough to assess. The
+synthesizer resolves disagreements by checking the evidence for the disputed
+criterion, records both positions, and states which issue determined the outcome.
+
+| Findings within the requested scope | Simulated decision |
+| --- | --- |
+| Both seats verify the applicable criteria and no substantive correction remains | Accept |
+| The method is adequately supported and only local reporting or clarification is needed | Minor Revision |
+| A repairable design, analysis or reporting problem requires substantial work | Major Revision |
+| Anchored evidence establishes a fatal methodological flaw for the central claim | Reject |
+
+A missing report leaves the review incomplete. Return the available work and identify
+the missing report. The decision categories and vote thresholds below describe the
+full panel; the two-seat procedure above supplies its own criteria.
+
+## 1. Full Panel Decision Categories
 
 ### Decision Symmetry and Register Independence
 

@@ -91,7 +91,7 @@ Two capabilities: **statistical interpretation** and **reproducibility verificat
 
 4. **REPRODUCE** (optional, code experiments only) — If user provides executable command + original results, delegate to code_runner_agent for re-run, then compare. See `@/roles/outline/experiment/references/reproducibility_protocol.md`. Not applicable to human studies or non-rerunnable external systems.
 
-5. **REPORT** — Produce validation report in Markdown structured format (see `@/roles/outline/experiment/templates/output_formats.md`). Use `Verification Status: ANALYZED` for stats-only or non-rerunnable cases, and `VERIFIED` only after a successful reproducibility re-run.
+5. **REPORT** — Produce validation report in Markdown structured format (see `@/roles/outline/experiment/templates/output_formats.md`). Record statistical interpretation and the reproducibility outcome separately. A new strict validation handoff is `UNVERIFIED` unless a successful re-run establishes `VERIFIED` for the current result.
 
 **Scope boundary**: validate mode describes what numbers say and flags potential fallacies. It does NOT make editorial recommendations about what to write in the paper — that is this skill reviewer's job.
 
@@ -117,14 +117,14 @@ One question at a time. Multiple choice preferred. If user brings Stage 1 output
 
 ## Output Formats
 
-All outputs use **Markdown-based structured format** with Material Passport (this skill Schema 9) for compatibility. Each output starts with a `## Material Passport` header followed by the mode-specific content.
+Use the mode-specific Markdown report with the default evidence-matrix handoff. A strict handoff adds the Schema 9 Material Passport using the [integration guide](ars_integration_guide.md).
 
 See `@/roles/outline/experiment/templates/output_formats.md` for complete templates for the three execution/validation outputs:
-- **Experiment Result** (run mode): Material Passport + ID, type, status, command, output files, anomalies
-- **Study Status** (manage mode): Material Passport + ID, phase, progress, ethics status, risks, data readiness
-- **Validation Report** (validate mode): Material Passport + statistical findings table, warnings, fallacy scan, reproducibility verdict
+- **Experiment Result** (run mode): ID, type, status, command, output files, anomalies
+- **Study Status** (manage mode): ID, phase, progress, ethics status, risks, data readiness
+- **Validation Report** (validate mode): statistical interpretation status and findings table, warnings, fallacy scan, reproducibility verdict
 
-Plan mode outputs use separate templates and also carry Material Passport:
+Plan mode outputs use these templates:
 - **Code Experiment Plan** (plan mode, code path): `@/roles/outline/experiment/templates/code_experiment_plan.md`
 - **Study Protocol** (plan mode, human-study path): `@/roles/outline/experiment/templates/study_protocol.md`
 
@@ -137,7 +137,7 @@ Plan mode outputs use separate templates and also carry Material Passport:
 | Monitoring coverage | Every code experiment must have at least process-alive + timeout monitoring |
 | Statistical rigor | All 11 fallacy types must be checked in validate mode; coverage reported |
 | Reproducibility | Deterministic experiments: exact match required. Stochastic: < 5% relative diff default |
-| this skill compatibility | All outputs include Material Passport with required fields per this skill Schema 9 |
+| this skill compatibility | Default handoffs include the evidence matrix. Strict handoffs also include the Schema 9 Material Passport. |
 | User sovereignty | All anomaly detections are ADVISORY; only hard timeout auto-kills |
 
 ---
@@ -190,8 +190,7 @@ Plan mode outputs use separate templates and also carry Material Passport:
 This skill works independently. When used with this skill:
 
 - **Consuming this skill output**: Recognizes Stage 1 section headings (`## Research Question Brief`, `## Methodology Blueprint`) to pre-populate plan/manage modes
-- **Producing ARS-compatible output**: All outputs carry Material Passport (Schema 9). Users bring results to Stage 2 manually.
-- **`research-writing` requires zero modification**: No new pipeline stages, no dependencies. The user is the bridge.
+- **Producing writing inputs**: Send experiment evidence and its version to the Stage 2 writer through the agreed handoff.
 
 See `@/roles/outline/experiment/references/ars_integration_guide.md` for details.
 

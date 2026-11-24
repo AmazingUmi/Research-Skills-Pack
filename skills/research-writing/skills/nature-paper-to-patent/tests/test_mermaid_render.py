@@ -17,6 +17,21 @@ SPEC.loader.exec_module(MODULE)
 
 
 class MermaidCommandTests(unittest.TestCase):
+    def test_missing_word_output_fails_and_preserves_previous_export(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "draft.md"
+            markdown = Path(directory) / "disclosure.md"
+            word = markdown.with_suffix(".docx")
+            source.write_text("# Updated disclosure", encoding="utf-8")
+            word.write_bytes(b"previous export")
+            args = ["-i", str(source), "-o", str(markdown), "--no-math"]
+            # A converter can exit successfully without producing the requested file.
+            with mock.patch.object(MODULE.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)):
+                self.assertNotEqual(MODULE.main(args), 0)
+                self.assertEqual(MODULE.main([*args, "--no-docx"]), 0)
+            self.assertEqual(markdown.read_text(encoding="utf-8").strip(), "# Updated disclosure")
+            self.assertEqual(word.read_bytes(), b"previous export")
+
     def test_windows_npx_is_resolved_to_an_executable_path(self) -> None:
         def which(command: str) -> str | None:
             if command == "npx":

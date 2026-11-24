@@ -39,7 +39,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 SCHEMAS = REPO_ROOT / "contracts/passport"
 
 BIBLIOGRAPHY_AGENT_PATH = REPO_ROOT / "../roles/literature/research/agents/bibliography_agent.md"
-BIBLIOGRAPHY_AGENT_SHA256 = "4d7f0e445be8fb3fe6044539b2818d73c40bbaae4558c96c7354f98224017cc9"  # research-writing baseline after the merge
+BIBLIOGRAPHY_AGENT_SHA256 = "141f8d38a05442eababe9d48a8ec39ccc7de405ce0e451857409eb8f10b1bbfc"  # research-writing baseline after the merge
 
 
 def _validate(yaml_path: Path, schema_path: Path) -> list[str]:

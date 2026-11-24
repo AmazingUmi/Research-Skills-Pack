@@ -34,7 +34,7 @@ This document defines all legal states, transition conditions, transition action
 ```
 New full run
   Research needed → 1 Research → 2 Write → 2.5 Integrity
-  Materials ready → 2 Write → 2.5 Integrity
+  Materials ready or partial manuscript to complete → 2 Write → 2.5 Integrity
   Manuscript ready → 2.5 Integrity
 
 After 2.5 and its checkpoint, route to the confirmed target:
@@ -63,7 +63,7 @@ Use [the stage-to-role table](../ROLE.md#2-阶段与角色调用) for role and m
 | From | To | Precondition | Action |
 |------|----|-------------|--------|
 | INIT | Stage 1 | User confirms starting from Stage 1 | Dispatch `outline` and `literature` as needed for the research tasks |
-| INIT | Stage 2 | User has research materials and confirms Stage 2 entry | Give the materials to `outline`, then route the selected literature, figures and draft tasks |
+| INIT | Stage 2 | User has research materials or a partial manuscript to complete and confirms Stage 2 entry | Preserve existing sections. Route evidence, analysis and figure tasks by dependency, then assemble the complete draft |
 | INIT | Stage 2.5 | User brings a complete manuscript into a new full run | Confirm target stage and run the integrity procedure on that version. Use any older report as context |
 | Stage 1 | **checkpoint** | Stage 1 completed | Wait for user confirmation |
 | checkpoint | Stage 2 | User confirms | Give the available research question, methodology and sources to `outline` to start assembly |
@@ -80,11 +80,12 @@ Use [the stage-to-role table](../ROLE.md#2-阶段与角色调用) for role and m
 | checkpoint | Stage 4.5 | Decision = Accept, user confirms | Skip revision, go directly to final verification |
 | Stage 4 | **checkpoint** | Stage 4 completed | Wait for user confirmation |
 | checkpoint (after 4) | Stage 3' | User confirms | Dispatch `review`. Simulated review uses `review re-review`, with [a replay-bound handoff](../strict/pipeline_orchestrator_agent.md#stage-3-re-review-contract-dispatch) in strict mode. Real feedback uses [external self-verification](external_review_protocol.md#step-4-self-verification-completeness-check) against the comments, drafts and response |
+| Stage 3' | Stage 3' (awaiting evidence) | A decision-bearing item cannot be verified | Identify the missing evidence and keep prior findings. Recheck affected items once supplied; in strict mode follow the re-review deferral contract |
 | Stage 3' | **checkpoint** | Decision produced | Wait for user confirmation (MANDATORY — review decision) |
-| Stage 3' (external) | **checkpoint** | Response and draft consistency check completed | Present discrepancies and wait for user confirmation before final integrity |
+| Stage 3' (external) | **checkpoint** | Response and draft consistency check completed | Identify unverified claims in the reply and their missing evidence. Present discrepancies and wait for user confirmation before final integrity |
 | checkpoint (external 3') | Stage 4.5 | User confirms after reviewing the reconciliation | Pass the checked draft, response and unresolved findings |
 | checkpoint | Stage 4.5 | Decision = Accept/Minor, user confirms | Pass final draft to final verification |
-| checkpoint | Stage 4' | Decision = Major, user confirms | Pass new Revision Roadmap (limitations-only when the user chooses it for a Major that rests only on items they declined; `../agents/the orchestrate role § Declined Items at Stage 3' and Stage 4') |
+| checkpoint | Stage 4' | Decision = Major, user confirms | Pass the new Revision Roadmap. When the Major rests only on items the author declined, offer the [limitations-only option](../strict/pipeline_orchestrator_agent.md#declined-items-at-stage-3-and-stage-4). |
 | Stage 4' | **checkpoint** | Stage 4' completed | Wait for user confirmation |
 | checkpoint | Stage 4.5 | User confirms | Pass revised draft to final verification |
 | Stage 4.5 | **checkpoint** | PASS (zero issues, counting the final-output pre-check items; notes such as UNVERIFIABLE_ACCESS are not issues), or recorded Integrity Check FAIL Loop resolution (§ below) | Wait for user confirmation |

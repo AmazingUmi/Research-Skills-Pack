@@ -25,7 +25,8 @@
 
 ## 来源与检索
 
-- 检索时可调用 `$research-writing literature search` 的多源检索；Semantic Scholar、OpenAlex、Crossref、arXiv 与中文文献的接口说明在 `references/*_api_protocol.md`。
+- 先读用户限定的来源范围。“只用附件”时，以附件、引文键清单或证据矩阵建立本次语料，沿用标识并记录读到的范围。缺失、不可读和未覆盖的项随综述交回。检索、核验、综合和写作沿用同一范围，外查按用户授权执行。
+- 允许对外检索时可调用 `$research-writing literature search` 的多源检索；Semantic Scholar、OpenAlex、Crossref、arXiv 与中文文献的接口说明在 `references/*_api_protocol.md`。
 - 核验来源时区分书目身份（这篇文献是否存在、版本是否正确）与主张支持（原文是否支持这句话），并记录实际读到的范围：全文、节选、摘要或仅书目。
 - 每篇文献的方法缺陷按 [`@/references/per_source_method_weaknesses.md`](../../../references/per_source_method_weaknesses.md) 记录，标明是作者自己承认的还是读者推断的。只读过摘要时写“未评估”。
 

@@ -29,7 +29,7 @@ Collect or mark as missing:
 - Suggested/opposed reviewers with affiliation, email, expertise, relationship/conflict check, and rationale.
 - Journal-specific items such as highlights, graphical abstract, reporting summary, checklist, or author declaration.
 
-Do not infer unknown administrative facts. Use `[AUTHOR_INPUT_NEEDED: ...]`.
+Record prior publication (including any prior version), concurrent submission, and approval by all authors as separate facts confirmed by the author. Mark each missing fact `[AUTHOR_INPUT_NEEDED: ...]` and identify pending confirmations before submission.
 
 ## 2. Deliverable matrix
 

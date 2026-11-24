@@ -1,6 +1,6 @@
 # Output Format Templates
 
-All outputs use Markdown-based structured format with Material Passport for `research-writing` compatibility. Planning templates in `code_experiment_plan.md` and `study_protocol.md` follow the same rule.
+Use the mode-specific part of each template for the report. Include the Material Passport block only for a strict handoff. The default handoff carries the evidence matrix described in the [integration guide](../references/ars_integration_guide.md).
 
 ## Experiment Result (from run mode)
 
@@ -84,12 +84,13 @@ All outputs use Markdown-based structured format with Material Passport for `res
 - Origin Skill: outline experiment
 - Origin Mode: validate
 - Origin Date: [ISO 8601]
-- Verification Status: [ANALYZED | VERIFIED]
+- Verification Status: [UNVERIFIED | VERIFIED]
 - Version Label: validation_v1
 
 ## Validation Report
 
 - **Source**: [exp_id | external | manual_study]
+- **Statistical interpretation**: [completed | partial | not performed] — [scope and result location]
 - **Overall Confidence**: [SOLID | CAUTION | RED_FLAG]
 
 ### Statistical Findings

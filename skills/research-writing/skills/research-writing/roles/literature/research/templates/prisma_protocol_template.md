@@ -173,7 +173,8 @@ Pilot: [Describe pilot testing of screening criteria, e.g., "Two reviewers will 
 
 **Tool**: [Specify the tool]
 - RCTs: RoB 2 (Sterne et al., 2019)
-- Non-randomized studies: ROBINS-I (Sterne et al., 2016)
+- Non-randomized intervention effects: specify the applicable ROBINS-I version.
+- Other targets (e.g. diagnostic accuracy): specify the question-specific instrument, version and assessment unit.
 - Qualitative studies: [e.g., CASP qualitative checklist]
 
 **Process**: [Number of assessors, independence, consensus process]

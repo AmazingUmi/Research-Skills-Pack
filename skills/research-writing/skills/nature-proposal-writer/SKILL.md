@@ -1,11 +1,11 @@
 ---
 name: nature-proposal-writer
-description: "Compose, revise, or audit research proposals, opening reports, and research plans from supporting evidence. Use for 研究计划、开题报告、科研项目申请书. Use research-writing ($research-writing draft section) for general manuscript sections."
+description: "Compose, revise, or audit research proposals, opening reports, and research plans from supporting evidence. Use for 研究计划、开题报告、科研项目申请书. For manuscript review, use the review role of research-writing."
 license: MIT
 metadata:
   hermes:
     tags: [research, writing, proposal, revision, qa, multi-agent]
-    related_skills: [brainstorming, professor, avoid-ai-writing, docx]
+    related_skills: [research-writing, nature-shared]
 ---
 
 # nature-proposal-writer — proposal-first 科研写作 pipeline
@@ -20,7 +20,7 @@ metadata:
 2. **论证先于章节** — 写正文前必须完成 `argument_map`
 3. **契约先于段落** — 每节需要 purpose / allowed claims / forbidden claims / inputs / validation
 4. **范围先于完备** — 如果是分阶段写作，先锁定阶段边界
-5. **动态专家，不设固定池** — 用 `professor` 按失败模式召唤对应专家
+5. **专项审查** — 按当前问题选择相应专业视角，分派方式见 [professor-dispatch.md](references/professor-dispatch.md)。
 6. **内容先于语言** — 诊断科学逻辑后再做 anti-slop / 语言打磨
 7. **不自动升级事实** — 永远不把 "may indicate" 改成 "proves"，除非有证据支撑
 8. **删除胜于解释** — 当某主张不可行，直接删除。正文干净，解释留给答辩
@@ -98,32 +98,31 @@ exports/                  最终输出（.md + .docx）
 
 ## QA Mode — 四层质量保障 Pipeline
 
-当用户说"审查这段/跑 QA/检查方案/过 pipeline"时，进入 QA 模式。
+先确认本次交付物。研究计划、开题报告和项目申请的审查可进入本模式；其他文种只有作者明确点名使用本方案的专项检查时，才取其指定维度。一般稿件审阅交给 `$research-writing review`；邮件与周报按用户要求处理。
 
 ### 情境挡位
 
 | 挡位 | 适用场景 | 阈值 |
 |------|---------|------|
-| `paper` | 投稿论文 | 7.0 |
-| `proposal` | 研究方案/开题 | 7.0 |
-| `internal` | 内部汇报/周报 | 5.0 |
-| `quick` | 快速扫读 | 无 |
+| `proposal` | 开题报告、研究计划或项目申请；按文种采用适用评分维度 | 7.0 |
+| `quick` | 快速检查开题材料中的关键问题，或作者点名的专项检查 | 逐项列出依据 |
 
-### Pipeline 顺序（先内容后语言）
+专项检查到所选维度即交付。完整开题 QA 按以下顺序执行。可使用宿主提供的专家或语言工具，也可按本包的[专家分工](references/professor-dispatch.md)、[中文表述指引](references/research-anti-slop.md)和[核对清单](references/validation-checklist.md)完成，报告中注明实际采用的方式。
+
+### 完整开题 QA 的顺序
 
 ```
-Gate 2: professor Convener（内容层）
-  ├── 论文 → 方法论专家 + 领域专家
-  ├── proposal → 可行性专家 + 创新性专家
-  └── 文献综述 → 覆盖面专家 + 批判深度专家
+Gate 2: 按问题组织内容审查
+  ├── 方案设计 → 可行性专家 + 领域专家
+  └── 方案的文献基础 → 覆盖面与证据强度
   │
   ▼
-Gate 1: avoid-ai-writing 模式 detect-only
-  └── 只对英文有效，中文跳过或降级为手工扫读
+Gate 1: 语言审查
+  └── 按目标语种标出模糊措辞、无依据的修饰和术语不一致
   │
   ▼
 Gate 3: auto-validation（格式/完整性层）
-  └── 每个 claim 有 citation？方法可复现？编号连续？
+  └── 各项判断能否定位到文献、前期数据或计划依据？方法与编号是否清楚？
   │
   ▼
 Gate 4: 评分阈值（分维度打分）
@@ -136,14 +135,10 @@ Gate 4: 评分阈值（分维度打分）
 ### 使用方法
 
 ```
-用户: "用 nature-proposal-writer 审查这段 discussion，paper 挡位"
-  → 自动走 Gate 2 → Gate 1 → Gate 3 → Gate 4
-  → 返回审查报告 + 定向修改建议
-
-用户: "快速扫一下这个邮件"
-  → 走 quick 挡位，只标记 P0 问题
+用户请求“审查这份开题报告的实验可行性”
+  → 依据现有设备、样本和时间逐项指出可行条件及未决问题。
 ```
 
 ## 配置你的研究域
 
-首次使用告诉 agent 你的研究背景，agent 会调用 `professor` 建立领域专家知识。后续写作中专家审查会基于你的领域。
+从已给材料提取研究背景、方法与约束，按实际问题选择审查视角。领域信息影响判断时，再向作者核实。

@@ -103,7 +103,7 @@ Windows 上若仅装 Node 未执行 `npm install`，脚本会通过 `npx -y @mer
 ### 与交底书约定
 
 - 技能要求定稿**同时**交付 **Markdown + Word**，且 **`-o` 主文件名须含 `_{YYYYMMDDHHmmss}`**（`references/disclosure/disclosure_builder.md` §7.3 第 5 点，含首次定稿）；**3.2 系统框图**与 **3.4 流程图**均用 fenced mermaid，**不要** ASCII 文字流程图或框图。
-- 交付代理人前：运行 `mermaid_render.py` 一步即可（默认再调 `md_to_docx.py`）；若 Word 失败，按 stderr 提示手动执行 `md_to_docx.py`。
+- 交付代理人前：运行 `mermaid_render.py` 一步即可（默认再调 `md_to_docx.py`）；Word 生成失败时返回非零状态，保留已生成的 Markdown；修复依赖后按 stderr 提示执行 `md_to_docx.py`。
 
 ---
 

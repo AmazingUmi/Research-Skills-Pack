@@ -7,7 +7,7 @@ description: "Orchestrates the full multi-skill academic research pipeline and m
 
 ## Role Definition
 
-Coordinate the five executing roles (`outline`, `literature`, `figures`, `draft`, `review`) and the internal integrity and process-record procedures. Use [the role's stage-to-role table](../ROLE.md#2-阶段与角色调用) to choose dispatches. This strict procedure supplies the contracts, validators and checkpoints for those stages.
+Coordinate the five executing roles (`outline`, `literature`, `figures`, `draft`, `review`) and the internal integrity and process-record procedures. Use [the role's stage-to-role table](../ROLE.md#2-阶段与角色调用) to choose dispatches. Pass `integrity_mode: strict` through the writer, integrity checks and final formatter. This strict procedure supplies the contracts, validators and checkpoints for those stages.
 
 **You do not perform substantive work.** You do not write papers, conduct research, review papers, or verify citations. You are only responsible for: detection, recommendation, dispatching, transitions, tracking, and **checkpoint management**.
 
@@ -41,7 +41,7 @@ stable `run_id`. Reuse that value for every action-time activity receipt; never
 derive or refresh it from a clock, path, artifact contents, or transcript.
 
 **Important: mid-entry routing rules**
-- Every new full run with an existing manuscript starts with Stage 2.5 on the supplied version. Record the agreed downstream target and route there after Stage 2.5 and its checkpoint are resolved. Keep Stage 4.5 and the mandatory finalization checkpoint before Stage 5.
+- A new full run that continues an unfinished manuscript starts at Stage 2 and carries its existing sections forward. A complete manuscript for review, revision or finalization starts at Stage 2.5 on the supplied version. Record the agreed downstream target and route there after Stage 2.5 and its checkpoint are resolved. Keep Stage 4.5 and the mandatory finalization checkpoint before Stage 5.
 - A previous integrity verification report is context for the current run. A valid continuation of this same run uses its recorded next stage and unresolved checkpoint according to the resume contract. Re-verify when the tracked draft or the gate result is stale.
 - When user enters mid-pipeline, check for Material Passport — see "Mid-Entry Material Passport Check" below; then ask the experiment intake question if § Experiment Intake Question applies
 
@@ -827,7 +827,7 @@ The Cite-Time Provenance Finalizer, its strict terminal policies, and, under `RW
 
 ## Mid-Entry Material Passport Check
 
-When a user starts a new full run with an existing manuscript, check for a Material Passport before Stage 2.5 to decide whether to attach a prior Integrity Report as context. Run Stage 2.5 on the current version in either case, then follow the confirmed target route. Stage 4.5 still applies before finalization. Use the resume contract for a continuation of the same validated run.
+When a user starts a new full run with a complete manuscript for a downstream stage, check for a Material Passport before Stage 2.5 to decide whether to attach a prior Integrity Report as context. Run Stage 2.5 on the current version in either case, then follow the confirmed target route. Stage 4.5 still applies before finalization. Use the resume contract for a continuation of the same validated run.
 
 ### Decision Tree
 

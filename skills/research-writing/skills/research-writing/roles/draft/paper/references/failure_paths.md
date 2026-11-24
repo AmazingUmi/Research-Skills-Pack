@@ -345,5 +345,5 @@ F8 (Non-convergence) → May evolve into F10 (abandonment)
 | F8 | socratic_mentor sets a dialogue cap per chapter |
 | F9 | intake_agent performs a complete materials check when detecting a handoff |
 | F10 | Maintain dialogue rhythm to avoid user fatigue |
-| F11 | Phase 7 researches target journal scope when producing the cover letter; format_agent strictly follows formatting rules |
+| F11 | For a requested first-submission letter, `draft section` checks journal scope and the author’s facts. The formatter handles the agreed files. |
 | F12 | intake_agent detects whether this is a conference paper expansion; calculate new content ratio early |

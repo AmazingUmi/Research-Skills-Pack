@@ -30,8 +30,9 @@ an uncertainty. Concretely:
   order of magnitude, the dimensionless group, and the regime it implies.
 
 This skill covers the metrology and the two libraries that implement it. It does not
-cover statistical inference, model selection, or study design — see `statistical-analysis`,
-`statistical-power`, and `experimental-design`.
+cover statistical inference, model selection, or study design. When Research Writing is installed,
+use `$research-writing draft analysis` for inference and supported power calculations, or
+`$research-writing outline design` for study design.
 
 ## Current release and installation
 

@@ -1,6 +1,6 @@
 # Language: Chinese-to-English (writing)
 
-Use this when the user's notes are Chinese, mixed Chinese-English, or organized as lab notes rather than manuscript prose.
+Use this when the target manuscript is English and the notes are Chinese or mixed Chinese-English.
 
 ## Translate intent, not syntax
 
@@ -30,7 +30,7 @@ Then write English in the order required by the section, not in the order of the
 
 ## Output convention
 
-For Chinese-author notes, provide polished English **first**, then brief Chinese notes explaining major structural choices. This lets a Chinese author verify intent without re-reading the English from scratch.
+Deliver the English prose. Include Chinese explanation or a parallel translation when requested.
 
 ## Deeper reference
 

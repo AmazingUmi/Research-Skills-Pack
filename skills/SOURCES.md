@@ -13,7 +13,7 @@
 - 路径：[skills/research-writing/skills/research-writing](research-writing/skills/research-writing/)。只注册这一个技能，内部按编排、大纲、文献、图表、正文、审稿六个角色组织，角色下再分模式。模式与来源的对应见[能力清单](research-writing/skills/research-writing/references/skill-map.md)。
 - 许可证：整体按 [CC BY-NC 4.0](research-writing/LICENSE) 分发，因为包含改编自 ARS 的内容。各来源的许可文本与署名见 [NOTICE](research-writing/NOTICE) 和 [licenses/](research-writing/licenses/)。
 - 合并时的共同改动：
-  - 内容按角色与模式重新归位，文件位置、交叉引用和交接字段都已改写；入口 `SKILL.md`、各角色 `ROLE.md` 和 ARS 来源模式的 `MODE.md` 为新写的中文文件。Nature 与 K-Dense 来源模式的 `MODE.md` 由原 `SKILL.md` 改名而来，正文保留原文，只改了技能间的引用与路径。
+  - 内容按角色与模式重新归位，文件位置、交叉引用和交接字段都已改写；入口 `SKILL.md`、各角色 `ROLE.md` 和 ARS 来源模式的 `MODE.md` 为新写的中文文件。Nature 与 K-Dense 来源模式的 `MODE.md` 由原 `SKILL.md` 改名而来，保留上游结构，并按本包的目标语言、证据范围和角色权限调整执行规则。
   - 角色与模式文件不命名为 `SKILL.md`，不会被单独注册。
   - 文中以 `@/` 开头的路径以 `research-writing` 技能根目录为基准。
 
@@ -39,11 +39,13 @@
 
 #### K-Dense（写作类）
 
-见下方 K-Dense 一节。四个技能并入 `research-writing` 的模式目录，原 `SKILL.md` 改名为 `MODE.md`，对其他 K-Dense 技能的引用改为对应模式；正文未改。
+见下方 K-Dense 一节。四个技能并入 `research-writing` 的模式目录，原 `SKILL.md` 改名为 `MODE.md`，跨技能引用改为对应模式，并适配事前功效分析、审图与工具引用的交接方式。
 
 ### 独立技能
 
 `nature-proposal-writer`、`nature-paper2ppt`、`nature-image2ppt`、`nature-paper-to-patent`、`nature-literature-pipeline`、`nature-experiment-log` 与 `nature-shared` 保持为独立技能，位于 [skills/research-writing/skills](research-writing/skills/)，不适用 CC BY-NC 4.0。`nature-proposal-writer` 沿用上游目录名；它曾以 `researchwrite` 分发，为避免与 `research-writing` 混淆已改回上游名，并删除了 SKILL.md 与 manifest 中关于旧名的说明。
+
+2026-11-24 的本地修订还调整了独立技能的文献纳入与空白判断、开题 QA 范围和专利 Word 导出结果。合并技能同步调整整稿入口、引文与原创证据核查、系统综述筛选报告及复审交接。下表版本号标识引用的上游版本。
 
 ### Nature Skills 逐项
 
@@ -74,7 +76,7 @@
 
 ## K-Dense 科研技能
 
-取自 [K-Dense-AI/scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills/tree/526ebce143bc326f44471554e33d66a19c840360) 的 [`v2.72.0` 发行版](https://github.com/K-Dense-AI/scientific-agent-skills/releases/tag/v2.72.0)，提交 `526ebce143bc326f44471554e33d66a19c840360`。每个技能只放在一处：写作类并入 `research-writing`，其余在 Research Engineering。Research Engineering 中的技能目录与上游一致，未改动。
+取自 [K-Dense-AI/scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills/tree/526ebce143bc326f44471554e33d66a19c840360) 的 [`v2.72.0` 发行版](https://github.com/K-Dense-AI/scientific-agent-skills/releases/tag/v2.72.0)，提交 `526ebce143bc326f44471554e33d66a19c840360`。每个技能只放在一处：写作类并入 `research-writing`，其余在 Research Engineering。Research Engineering 保留上游目录名与兼容性说明，`statsmodels`、`uncertainty-and-units` 的跨包调用指向本包实际入口。
 
 | 技能 | 现在的位置 | 技能版本 | 许可证 |
 | --- | --- | --- | --- |

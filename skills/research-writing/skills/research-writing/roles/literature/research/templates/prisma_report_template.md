@@ -142,7 +142,7 @@ Example: "The Effect of [Intervention] on [Outcome] in [Population]: A Systemati
 ### 2.7 Study Risk of Bias Assessment [PRISMA Item 11]
 
 [Describe the risk of bias assessment:]
-- Tool(s) used: [RoB 2 for RCTs / ROBINS-I for non-randomized / other]
+- Tool(s) used: [RoB 2 for RCTs / applicable ROBINS-I version for non-randomized intervention effects / tool matched to other targets]
 - Domains assessed
 - Number of assessors and independence
 - How results were used in the synthesis
@@ -263,16 +263,13 @@ Example: "The Effect of [Intervention] on [Outcome] in [Population]: A Systemati
 
 ### 3.3 Risk of Bias in Studies [PRISMA Item 18]
 
-**Table: Risk of Bias Summary (Traffic-Light)**
+**Table: Risk of bias by target result**
 
-| Study | D1 | D2 | D3 | D4 | D5 | Overall |
-|-------|----|----|----|----|----|---------|
-| Author1 (Year) | [L/S/H] | [L/S/H] | [L/S/H] | [L/S/H] | [L/S/H] | [L/S/H] |
-| Author2 (Year) | ... | ... | ... | ... | ... | ... |
+| Study and result | Outcome, comparison and time point | Instrument and version | Domain judgments and evidence locations | Overall judgment |
+| --- | --- | --- | --- | --- |
+| [ID, estimate] | [details] | [tool, version] | [domain: native label, locator] | [native label] |
 
-L = Low risk, S = Some concerns, H = High risk
-
-[Narrative summary of risk of bias findings across studies]
+Summarize results by outcome and instrument with the corresponding denominators. Preserve the tool’s original categories, including Serious Risk, Critical Risk and No Information where applicable to ROBINS-I 2016.
 
 ### 3.4 Results of Individual Studies [PRISMA Item 19]
 

@@ -19,7 +19,7 @@ $research-writing full
 请根据已有材料选入口，给我看阶段安排，再按检查点推进到定稿。
 ```
 
-`$research-writing full` 等同于 `$research-writing orchestrate full`。只有选题时通常从阶段 1 开始，材料齐备、还未成稿时从阶段 2 组稿。有稿件再开启整稿流程时，先对提供的版本做阶段 2.5 完整性核查，再按目标进入初审、返修、复审或终稿核查。各阶段完成后由作者确认，模拟审稿还会先展示审稿人卡片。见[阶段和入口说明](../skills/research-writing/skills/research-writing/roles/orchestrate/ROLE.md)。
+`$research-writing full` 等同于 `$research-writing orchestrate full`。只有选题时通常从阶段 1 开始，材料齐备或已有部分章节需要补写时从阶段 2 组稿。带入完整稿件审稿、返修或定稿时，先对提供的版本做阶段 2.5 完整性核查，再按目标进入初审、返修、复审或终稿核查。各阶段完成后由作者确认，模拟审稿还会先展示审稿人卡片。见[阶段和入口说明](../skills/research-writing/skills/research-writing/roles/orchestrate/ROLE.md)。
 
 ### 先把全文写出来，在组稿检查点停下
 
@@ -32,7 +32,7 @@ $research-writing full
 
 用 `$research-writing full` 开新流程时，可以在请求正文里指定起始阶段和暂停检查点。`stage=` 用于下文的 Passport 断点接续。
 
-阶段 2 由 `outline` 先核对大纲和证据任务，再按缺项调用 `literature` 和 `figures`。两个分支的输入独立时可以并行。已有的引文、图件和其他材料核对后直接复用，最后由 `draft` 写入并汇总初稿。
+阶段 2 由 `outline` 先核对大纲和证据任务，再按缺项调用文献、统计分析和图表模式。只写文字结果也可调用 `draft analysis`；图或正文需要其统计量时先计算。输入独立的分支可以并行。已有的引文、图件和其他材料核对后直接复用，最后由 `draft` 写入并汇总初稿。
 
 确认初稿后，可在同一对话回复「阶段 2 的初稿已确认，请进入 2.5」。此前已暂停时，用 `$research-writing orchestrate resume` 恢复同一次流程的记录，核对稿件版本和未决检查点后再继续。要单独写完初稿，直接用 `$research-writing draft full` 即可。
 

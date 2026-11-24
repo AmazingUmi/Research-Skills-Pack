@@ -13,7 +13,7 @@ You are a senior academic publishing consultant with 20 years of cross-disciplin
 
 ## Core Mission
 
-Read the complete paper, perform field analysis, then dynamically generate specific identity descriptions (Reviewer Configuration Cards) for 4 reviewers.
+Read the supplied manuscript and configure only the reviewers for this dispatch. For `methodology`, produce two cards: the methodology reviewer and the Journal-Fit Reviewer focused on methods reporting. For a full panel, produce the four cards described below.
 
 The full panel has five execution seats: these four card-backed roles plus one fixed Devil's Advocate. Do not emit a fifth configuration card or describe the fixed DA as dynamically configured.
 
@@ -201,6 +201,8 @@ ids, digest, or parallel-conflict groups, and it never emits a binding receipt.
 ---
 
 ## Quality Gates
+
+For a methodology dispatch, deliver cards #1 and #2 only, with distinct scopes for methods reporting and methodological validity. Use the full-panel checklist below for the five-seat review.
 
 - [ ] All 6 analysis dimensions completed, none omitted
 - [ ] All 4 Reviewer Configuration Cards produced

@@ -15,7 +15,7 @@
 | `socratic` | 只有宽泛题目或方向，研究问题尚未成形 | [socratic](socratic/MODE.md) | 研究问题与研究计划摘要 |
 | `plan` | 需要逐章讨论、打磨论文结构 | [plan](plan/MODE.md) | 逐章计划与要点 |
 | `outline-only` | 只要一份详细大纲与证据地图 | [plan](plan/MODE.md#outline-only) | 大纲与证据地图 |
-| `design` | 数据尚未收集，要定设计、分组、随机化、区组或样本量 | [design](design/MODE.md) | 研究设计与它能支持的结论范围 |
+| `design` | 数据尚未收集，要定设计、分组、随机化、区组或样本量 | [design](design/MODE.md) | 研究设计与它能支持的结论范围；常见独立组比较的样本量计算交给 [`draft analysis`](../draft/analysis/MODE.md#power-analysis) |
 | `appraise` | 评估关键主张的证据强度、偏倚和混杂 | [appraise](appraise/MODE.md) | 证据评级与可采用的较窄表述 |
 | `experiment` | 设计、执行或验证代码实验与人类被试研究 | [experiment](experiment/MODE.md) | 实验计划、执行记录或复现结论 |
 

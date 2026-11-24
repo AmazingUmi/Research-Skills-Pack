@@ -19,11 +19,11 @@
 | `citation-check` | 检查引文格式、正文与列表是否对应 | [citation-check](citation-check/MODE.md) | 引文问题清单 |
 | `cns-cite` | 用户限定只引 Nature / CNS 系列期刊 | [cns-cite](cns-cite/MODE.md) | 限定范围内的主张—来源映射 |
 | `lit-review` | 写综述，需要带注书目与综合 | [research](research/MODE.md) | 带注书目与综合 |
-| `systematic-review` | 系统综述、元分析、PRISMA 报告 | [research](research/MODE.md) | PRISMA 报告、GRADE 表 |
+| `systematic-review` | 完整系统综述、元分析或完整 PRISMA 综述报告 | [research](research/MODE.md) | PRISMA 报告、GRADE 表 |
 | `fact-check` | 核查一组事实陈述 | [research](research/MODE.md) | 核查报告 |
 | `three-way-scan` | 快速对比一组论文的问题、方法与结论 | [research](research/MODE.md) | WHY / HOW / WHAT 对比 |
 | `deep`、`brief` | 围绕一个研究问题出完整研究报告或简报 | [research](research/MODE.md) | 研究报告或简报 |
-| `screen` | 用户明确要求按纳入排除标准筛选已有检索记录 | [screen](screen/MODE.md) | 筛选判定、PRISMA 计数 |
+| `screen` | 拟定筛选协议、筛选记录、裁决既有分歧、复核排除，或从已有判定生成 PRISMA 计数及方法段 | [screen](screen/MODE.md) | 筛选判定、PRISMA 计数 |
 
 用户没有指定模式时按请求选：核一句话、补几条引用用 `verify`；“帮我查文献”先 `search`，需要读原文再 `fulltext`；写引言或相关工作时，文献量少用 `verify` 加本角色的写作步骤，需要系统梳理用 `lit-review`。三个核对类模式的分工：`verify` 查原文是否支持这句话，`ref-verify` 查书目信息是否正确，`citation-check` 查格式与对应关系。
 
@@ -32,6 +32,8 @@
 - **目标与范围** — 论文主题、目标章节、领域或语言、日期边界、引用格式。需要区分一个术语首次提出、同名方法版本，还是哪项结果最早公开时，记录具体判据和时间口径。
 - **拟写主张** — 原句、已有主张 ID、现有引文键与候选资料。附上能界定主张的研究材料，例如比较条件、样本范围、概念定义或文本版本。
 - **已有计划** — 大纲中的引言方向、方法分组或学术争论，以及需要核实的定向引文。若涉及直接比较，以实际研究记录确认参与对象和评价条件。
+
+用户明确要求只用附件、给定引文键或证据矩阵时，所有模式先记录并沿用这份来源清单。仅在允许的材料内检索、核验和写作，引用键回指清单中的条目，覆盖不足的主张单列待核。另获授权后再查询外部数据库或追溯清单外的引文。
 
 ## 工作步骤
 

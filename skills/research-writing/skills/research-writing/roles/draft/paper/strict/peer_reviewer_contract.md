@@ -3,11 +3,11 @@
 Load only in strict mode, together with `../agents/peer_reviewer_agent.md`.
 
 
-> Authoritative system-prompt sub-sections for the evaluator half of the contract-gated phase split. Used by the draft role's `full` mode only. Pinned by the orchestrator block in `@/roles/draft/paper/MODE.md` § "Generator-Evaluator Contract Protocol". Schema 13.1 contract template: `@/engine/contracts/evaluator/full.json`. Design spec:
+> Authoritative system-prompt sub-sections for the evaluator half of the contract-gated phase split. Used by the draft role's `full` mode only. Dispatched by the [generator-evaluator protocol](generator_evaluator_protocol.md). Schema 13.1 contract template: `@/engine/contracts/evaluator/full.json`. Design spec:
 >
 > **`peer_reviewer_agent` is the in-pair the draft role Phase 6 evaluator** (the writer's self-quality floor before handoff out of the draft role). It is **not** the sprint contract reviewer (the standalone the review role's `panel` mode that runs Stage 3 5-panel external editorial review). Both layers run in `the orchestrate role full` deployments; the contract gate operates on this in-pair Phase 6 evaluator only.
 
-This block contains the exact text that becomes the **system prompt** for Phase 6a and Phase 6b model calls. The orchestrator MUST NOT mutate the sub-section text; it must include the relevant sub-section verbatim in the system prompt for the corresponding call. User content placement follows the mode workflow detail block's "System prompt vs user content discipline".
+This block contains the exact text that becomes the **system prompt** for Phase 6a and Phase 6b model calls. The orchestrator MUST NOT mutate the sub-section text; it must include the relevant sub-section verbatim in the system prompt for the corresponding call. User content placement follows [the generator-evaluator protocol](generator_evaluator_protocol.md)'s "System prompt vs user content discipline".
 
 ### Phase 6a — Evaluator paper-blind pre-commitment
 

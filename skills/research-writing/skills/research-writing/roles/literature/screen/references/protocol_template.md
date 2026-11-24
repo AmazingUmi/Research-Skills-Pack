@@ -96,8 +96,9 @@ marked required.
 | `qc.policy` | `advance` (QC advance wins) or `flag` (listed only) | advance |
 | `seeds` | `[{label, doi, pmid, title}]` known eligible studies | [] |
 | `languages_allowed` | languages that pass without a flag; others are flagged, not excluded | [] |
-| `models` | per role: `A`, `B`, `ADJ`, `QC`, `FTA`, `FTB`, `FTADJ` (`sonnet`, `opus`, or "" for the session model; the cost check lists any override) | sonnet for every role |
-| `model_labels` | exact model names for the methods text, per role | placeholders |
+| `models` | per role: `A`, `B`, `ADJ`, `QC`, `FTA`, `FTB`, `FTADJ` (a supported host model alias or "" for the session model) | session model in the new-review template; older configs that omit roles retain the original sonnet fallback |
+| `reporting.ta`, `reporting.ft` | actual screening host (`host`) and a factual statement of who checked which decisions (`human_verification`), based on that stage’s run records | empty until observed |
+| `model_labels` | exact model names for the methods text, per role | empty until the run |
 | `agent_type` | subagent that runs the reviewers, as listed in the agent registry (for example `academic-research-skills:screening-reviewer-agent` for a plugin install, `screening-reviewer-agent` for a skills-copy install; see orchestration.md for an earlier underscore name); "" uses the default workflow subagent | "" |
 | `batching.max_records` / `max_chars` / `wrap` | batch size limits and line wrap | 50 / 90000 / 150 |
 | `dedup.doi_title_guard` | a shared DOI merges records only if titles are compatible | true |

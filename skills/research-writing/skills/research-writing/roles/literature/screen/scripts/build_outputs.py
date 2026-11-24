@@ -186,13 +186,12 @@ def main():
     by = {}
     for r in rows:
         by[r["f"]["by"]] = by.get(r["f"]["by"], 0) + 1
-    models = cfg["models"]
-    mlab = lambda k: cfg.get("model_labels", {}).get(k) or f"[model for {k}: {models.get(k) or 'session model'}]"
-
-    def pair(k1, k2):
-        if mlab(k1) == mlab(k2):
-            return f"both {mlab(k1)}, prompted with different expert personas"
-        return f"{mlab(k1)}; {mlab(k2)}"
+    # Dispatch aliases describe the requested model. Report only observed labels.
+    def model_label(role):
+        label = (cfg.get("model_labels", {}).get(role) or "").strip()
+        if not label or label.startswith("<"):
+            return f"[TO COMPLETE: actual model for {role}]"
+        return label
 
     # --------------------------------------------------------------- counts
     counts = {"stage": a.stage, "tool": f"{srlib.TOOL} {srlib.VERSION}", "complete": complete,
@@ -444,29 +443,57 @@ def main():
                         "or methods text.\n")
         else:
             po = agree.get("observed_agreement")
-            po_txt = f"{po * 100:.1f}%" if isinstance(po, (int, float)) else "[n/a]"
-            n_conf = agree.get("conflicts", 0)
-            qc_n = sum(1 for r in rows if r["Q"])
-            qc_adv = sum(1 for r in rows if r["pre_qc"])
-            tool = (f"the sr-screener skill (version {srlib.VERSION}) of the open-source Academic Research Skills suite "
-                    f"({REPO_URL}), running in Claude Code")
-            access = ("The reviewer agents had read-only file tools and no web access; "
-                      "each was instructed to read only the file it was given. "
-                      if srlib.is_lean_reviewer(cfg.get("agent_type")) else "")
+            reporting = (cfg.get("reporting") or {}).get(a.stage) or {}
+
+            def reporting_text(key, fallback):
+                raw = reporting.get(key)
+                value = raw.strip() if isinstance(raw, str) else ""
+                if not value or value.startswith("<"):
+                    return fallback
+                return value
+
+            host = reporting_text("host", "[TO COMPLETE: actual screening host]")
+            human = reporting_text(
+                "human_verification",
+                "[TO COMPLETE: who verified which decisions, how disagreements were "
+                "resolved, and the final human-confirmed numbers.]",
+            )
+            overrides = sum(bool(D.get(r["u"]["id"], {}).get("human_override")) for r in rows)
+            if overrides:
+                noun = "item" if overrides == 1 else "items"
+                human = f"The decision log contains human overrides for {overrides} {noun}. {human}"
+            tool = f"the research-writing screening workflow (sr-screener {srlib.VERSION}, {REPO_URL}), run in {host}"
+            roles = {"A": "A", "B": "B", "J": "ADJ", "Q": "QC"} if a.stage == "ta" else {
+                "A": "FTA", "B": "FTB", "J": "FTADJ"}
+            role_counts = {field: sum(bool(r[field]) for r in rows) for field in roles}
+            used = [f"{role}: {model_label(role)}" for field, role in roles.items() if role_counts[field]]
+            paired = sum(bool(r["A"] and r["B"]) for r in rows)
+            review_log = f"Both primary reviewers recorded judgments for {paired} of {len(rows)} items. "
+            if paired and isinstance(po, (int, float)):
+                contrast = "advance versus exclude" if a.stage == "ta" else "include versus non-include"
+                review_log += f"Agreement on {contrast} among paired ratings was {po:.1%}. "
+                kappa = agree.get("kappa")
+                review_log += f"Cohen's kappa was {kappa}. " if kappa is not None else "Cohen's kappa was not estimable. "
+                if a.stage == "ta" and agree.get("pabak") is not None:
+                    review_log += f"Prevalence-adjusted bias-adjusted kappa was {agree['pabak']}. "
+            if used:
+                review_log += f"Recorded reviewer roles and models: {', '.join(used)}. "
+            if role_counts["J"]:
+                review_log += f"The adjudicator ruled on {role_counts['J']} items. "
             if a.stage == "ta":
-                conflict = (f"Disagreements between advancing (include or unclear) and excluding a record "
-                            f"({n_conf} records) were resolved by a third AI reviewer ({mlab('ADJ')}) that re-read the record. "
-                            if cfg["conflict_policy"] == "adjudicate" else
-                            f"Records advanced by either reviewer were retained for full-text assessment "
-                            f"({n_conf} disagreements). ")
-                qc = (f"Because records excluded by both reviewers are never adjudicated, a reproducible random sample "
-                      f"of those joint exclusions, together with exclusions matching keyword signals for the core "
-                      f"criteria ({qc_n} records in total), was re-screened by a senior AI reviewer ({mlab('QC')}) that "
-                      f"did not see the earlier decisions; {qc_adv} were advanced as a result. " if qc_n else "")
+                conflict = ""
+                if cfg["conflict_policy"] == "liberal":
+                    conflict = f"The liberal rule advanced {by.get('LIBERAL', 0)} records. "
+                qc_n = role_counts["Q"]
+                qc_adv = sum(1 for r in rows if r["pre_qc"])
+                qc = (f"The quality-control reviewer rechecked {qc_n} records; {qc_adv} were advanced as a result. "
+                      if qc_n else "")
                 pc = srlib.load_json(os.path.join(work, "pilot_check.json")) or {}
                 po_log = srlib.load_json(os.path.join(work, "pilot_override.json")) or []
                 pilot_txt = ""
-                if pc.get("compared"):
+                context_id = (srlib.load_json(os.path.join(work, "decisions_meta.json")) or {}).get("context_id")
+                po_log = [entry for entry in po_log if entry.get("context_id") == context_id]
+                if pc.get("compared") and pc.get("context_id") == context_id:
                     pilot_txt = (f"Before the full run, the AI screening was piloted on {pc['compared']} records that the "
                                  f"review team had labelled independently; the AI excluded "
                                  f"{len(pc.get('missed_advances', []))} of the {pc.get('human_advanced', 0)} records the "
@@ -492,39 +519,27 @@ def main():
                     f"DOIs and normalised titles with publication year (plus or minus one year); "
                     f"{counts['duplicates_removed']} duplicates were removed, leaving {counts['records_screened']} "
                     "unique records. Titles and abstracts were screened against the pre-specified eligibility criteria "
-                    f"of the review protocol. Each record was assessed independently by two AI reviewers "
-                    f"({pair('A', 'B')}) that were given the same written protocol and decision rules and did "
-                    f"not see each other's decisions. {access}{conflict}The two reviewers agreed on advance-versus-exclude "
-                    f"decisions for {po_txt} of records (Cohen's kappa = {agree.get('kappa')}; prevalence-adjusted "
-                    f"bias-adjusted kappa = {agree.get('pabak')}). {pilot_txt}{qc}{seed_txt}In total, {counts['records_excluded']} "
+                    f"of the review protocol. {review_log}{conflict}{pilot_txt}{qc}{seed_txt}In total, {counts['records_excluded']} "
                     f"records were excluded and {counts['reports_sought_for_retrieval']} records "
                     f"({counts['advanced_include']} judged eligible and {counts['advanced_unclear']} with insufficient "
-                    "information) were advanced to full-text assessment. [TO COMPLETE - human verification: who checked "
-                    "the AI decisions (for example all advanced records and a random sample of excluded records), how "
-                    "disagreements with the AI were resolved, and the final human-confirmed numbers.]\n\n")
+                    f"information) were advanced to full-text assessment. {human}\n\n")
             else:
                 reasons = "; ".join(f"{k} (n = {v})" for k, v in counts["excluded_by_reason"].items()) or "none"
                 f.write("# Selection process - full-text assessment\n\n")
                 f.write(
                     f"Of {counts['reports_sought_for_retrieval']} reports sought for retrieval, "
                     f"{counts['reports_not_retrieved']} could not be retrieved. {counts['reports_assessed']} full-text "
-                    f"reports were assessed independently by two AI reviewers ({pair('FTA', 'FTB')}) using "
-                    f"{tool}; each reviewer recorded one exclusion reason and the page supporting it. {access}"
-                    f"Disagreements were resolved by a third AI reviewer ({mlab('FTADJ')}). The reviewers agreed on "
-                    f"include-versus-exclude decisions for {po_txt} of reports (Cohen's kappa = {agree.get('kappa')}). "
+                    f"reports received decisions using {tool}. {review_log}"
                     f"{counts['reports_excluded']} reports were excluded ({reasons}); "
                     f"{counts['reports_unclear_awaiting_classification']} await classification; "
-                    f"{counts['studies_included_reports']} reports met the eligibility criteria. [TO COMPLETE - human "
-                    "verification of every included and excluded report, and how disagreements were resolved.]\n\n")
-            used = sorted({mlab(k) for k in (("A", "B", "ADJ") if a.stage == "ta" else ("FTA", "FTB", "FTADJ"))})
+                    f"{counts['studies_included_reports']} reports met the eligibility criteria. {human}\n\n")
             f.write("# Use of AI tools (draft statement)\n\n")
+            used_text = ", ".join(used) if used else "no AI reviewer decisions recorded"
             f.write(
-                f"{'Title/abstract screening' if a.stage == 'ta' else 'Full-text eligibility assessment'} was assisted "
-                f"by large language models ({'; '.join(used)}) orchestrated by {tool}, between [TO COMPLETE: dates]. "
-                "The AI reviewers applied the review's pre-specified eligibility criteria verbatim and judged only the "
-                "text of each record or report; every decision and its reason is archived in the supplementary "
-                "screening log. [TO COMPLETE: human oversight - which decisions the review team checked and how.] "
-                "The review team takes full responsibility for the selection of studies. Check the target journal's "
+                f"{'Title/abstract screening' if a.stage == 'ta' else 'Full-text eligibility assessment'} "
+                f"used {tool}, between [TO COMPLETE: dates]. Recorded roles and models: {used_text}. "
+                f"The decisions and recorded reasons are available in the screening log. {human} "
+                "Check the target journal's "
                 "AI policy and current guidance on AI in evidence synthesis (for example RAISE) before submission; "
                 "PRISMA 2020 item 8 asks for details of any automation tools used in the selection process.\n")
 

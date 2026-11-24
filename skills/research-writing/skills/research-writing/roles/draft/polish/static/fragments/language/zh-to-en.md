@@ -1,6 +1,6 @@
 # Language: Chinese-to-English
 
-When the source is Chinese or strongly Chinese-influenced English, do not translate clause-by-clause.
+Use this fragment for an English target and Chinese or mixed source text. Translate the intended claims and their conditions as complete units.
 
 ## Workflow
 

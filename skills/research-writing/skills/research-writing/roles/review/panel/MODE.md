@@ -7,7 +7,7 @@
 | 子模式 | 调用 | 参与的 agent | 交付 |
 | --- | --- | --- | --- |
 | `panel`（默认） | `$research-writing review panel` | 全部 7 个 | 5 份审稿报告、编辑决定信、返修路线图 |
-| `methodology` | `$research-writing review methodology` | field_analyst、eic、methodology_reviewer | 方法学深度审稿报告与决定 |
+| `methodology` | `$research-writing review methodology` | field_analyst、eic、methodology_reviewer、editorial_synthesizer | 方法学深度审稿报告与决定 |
 | `guided` | `$research-writing review guided` | 全部 + 苏格拉底式对话 | 逐个问题引导作者自己发现 |
 | `re-review` | `$research-writing review re-review` | 沿用第一轮的审稿人卡片，不重跑 field_analyst | 逐项核对表、遗留问题、新决定 |
 
@@ -17,9 +17,11 @@
 
 - 完整稿件或指定章节（审稿团只读，不修改稿件）。
 - 可选：目标期刊、投稿类型、需要特别关注的方面。
-- `re-review` 另需：第一轮的返修路线图与审稿人卡片、修订前稿件、修订稿；回复信可选，且在核对证据之后才读。
+- `re-review` 需要首轮路线图与审稿人卡片、新旧两版稿件。缺整版稿件时先索取对应版本，已有回复信可在核对修订证据后阅读。单条意见缺附件时按下文标记 `CANNOT_VERIFY`，继续核对其余意见。
 
-## 流程
+## 完整审稿团流程
+
+下列五席流程用于 `panel`。方法学专项和复审分别使用下文的[两席流程](#methodology)与[复审流程](#re-review)。
 
 文中的 `agents/`、`references/`、`templates/`、`strict/` 指本目录下的子目录；以 `@/` 开头的路径以 `research-writing` 技能根目录为基准。
 
@@ -38,14 +40,14 @@
 
 ### 执行席位的方式
 
-能启动独立子代理时，每个席位用一个只带稿件和该席位卡片的新上下文执行。不能隔离时按顺序执行，并在决定信中如实写明“五个席位在同一上下文中依次生成，未做到相互不可见”。任何情况下都不把角色分工说成“独立审稿”。
+能启动独立子代理时，每个席位用一个只带稿件和该席位卡片的新上下文执行。不能隔离时按顺序执行，并在决定信中写明实际参与的席位、执行顺序及哪些输出彼此可见。任何情况下都不把角色分工说成“独立审稿”。
 
 ## 铁律
 
 agent 文件中引用的 Iron Rule 或 Checkpoint Rule 编号都对应这里。
 
 1. **先确认卡片。** 见流程第 2 步。适用于 `panel`、`methodology`、`guided`；`re-review` 不重跑第 0 阶段。
-2. **席位互不参照。** 五个席位提交报告前不读其他席位的输出。
+2. **席位互不参照。** 参与的席位在提交报告前不读其他席位的输出。
 3. **综合者不编造意见。** 编辑决定中的每一点都能追溯到第 1 阶段某份具体报告。
 4. **Devil's Advocate 的 CRITICAL 必须明确裁决。** 被确认或仍未解决的 CRITICAL 阻止 Accept；被期刊契合度审稿人驳回的，记录驳回理由，不单独否决。不允许默默略过。
 5. **返修引导只在非 Accept 时触发**，用户可以跳过。
@@ -56,7 +58,7 @@ agent 文件中引用的 Iron Rule 或 Checkpoint Rule 编号都对应这里。
 
 ### `methodology`
 
-只配置期刊契合度和方法学两个席位，其他同 `panel`。
+领域分析员只配置两张卡片，请用户确认后交两席分别审阅。方法学席位看设计、分析及复现依据，期刊契合度席位看方法的呈现与报告是否足以评判。编辑综合者对照两份报告和原文，按[方法学专项决定规则](references/editorial_decision_standards.md#two-seat-methodology-review)给出限于本次范围的模拟决定与修改项。严格模式的两席裁决按原有合约执行。
 
 ### `guided`
 
@@ -67,9 +69,10 @@ agent 文件中引用的 Iron Rule 或 Checkpoint Rule 编号都对应这里。
 核对修订是否回应了首轮模拟审稿意见。真实外审意见的改稿核对按[外审逐项自查](../../orchestrate/references/external_review_protocol.md#step-4-self-verification-completeness-check)处理，沿用真实意见与原始编号。模拟审稿后的做法如下。
 
 1. 沿用第一轮的审稿人卡片作为同一把尺子，不重新配置。
-2. **先看证据，再看说法。** 对返修路线图的每一项，先对照修订前稿件与修订稿，判断改动是否存在、是否解决了问题，给出 `FULLY_ADDRESSED`、`PARTIALLY_ADDRESSED`、`NOT_ADDRESSED` 或 `MADE_WORSE`，并给出位置。完成这一步之后才读回复信，再标出回复信的说法与实际改动不一致之处。
+2. **先看证据，再看说法。** 对返修路线图的每一项，先对照修订前稿件与修订稿，判断改动是否存在、是否解决了问题，给出 `FULLY_ADDRESSED`、`PARTIALLY_ADDRESSED`、`NOT_ADDRESSED` 或 `MADE_WORSE`，并给出位置。若修订稿引用的补充表、数据或差异文件缺失，无法判断该项，则记为 `CANNOT_VERIFY`，列出问题 ID、已查位置、声称的改动和需要补交的材料。可直接核对的其他条目继续完成。完成这一步之后才读回复信，再标出回复信的说法与实际改动不一致之处。
 3. 检查修订是否引入了新问题。
-4. 输出逐项核对表、新问题和新的决定；决定规则见 [`references/editorial_decision_standards.md`](references/editorial_decision_standards.md)。
+4. 如果某条 `CANNOT_VERIFY` 的结果可能改变复审决定，交回 `user_review_required` 和所需材料，保留已核条目。收到补件后复核受影响的条目，再给决定。若问题只影响非决定性细节，随决定交接该待核项及其影响。
+5. 默认复审以本轮证据裁决：须大幅再修的已核问题判 Major Revision；仅需局部修正判 Minor Revision；已满足适用要求且没有待修事项判 Accept。保留每项判断所依据的位置。
 
 需要可机器复核的三道门合约时，改用严格模式，按 [`strict/re_review_mode_protocol.md`](strict/re_review_mode_protocol.md) 执行。
 

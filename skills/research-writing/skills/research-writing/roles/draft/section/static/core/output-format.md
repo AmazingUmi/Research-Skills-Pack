@@ -10,7 +10,7 @@ Default output:
 5. `Why this structure:` — `2-4` short bullets on the structural choices made.
 6. `To redirect me:` — one line inviting targeted feedback, e.g. "Name the paragraph or claim that is off and I will revise only that, keeping the rest." This sets up the targeted revision loop (workflow step 9) instead of a full rewrite.
 
-For Chinese-author notes, provide polished English first, then brief Chinese notes explaining major structural choices.
+Deliver the prose in the selected output language. Supply a second language only when the user requests it.
 
 For a Results or full-main-text restructuring task, also include a compact
 `Main-text discipline audit:` after the prose:

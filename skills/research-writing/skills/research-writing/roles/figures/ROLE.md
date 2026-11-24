@@ -13,7 +13,7 @@
 | `make`（默认） | 制作或修订投稿级数据图、多面板图、图形摘要或机制示意图 | [make](make/MODE.md) | 图件、绘图脚本与 QA 结果 |
 | `audit` | 审查图件是否忠实、可读、无障碍，核对不确定度展示与导出规格 | [audit](audit/MODE.md) | 问题清单与修法 |
 
-整稿时先核对和复用用户提供或图表分支已交回的图件，沿用其图件 ID 与稿件标签。任务确有制作或改图需求时，由本角色为每张图选一条生成路径。需要 APA 7 定量图和 LaTeX 插图代码时，可在 `make` 下使用 `make/ars-visualization/` 的 ARS 绘图代理。图注中的统计口径用 `$research-writing draft stats-report`，需要先计算统计量时用 `$research-writing draft analysis`。`audit` 交付检查结果和修法，落实改图时使用 `make`。
+整稿时先核对和复用用户提供或图表分支已交回的图件，沿用其图件 ID 与稿件标签。任务确有制作或改图需求时，由本角色为每张图选一条生成路径。需要 APA 7 定量图和 LaTeX 插图代码时，可在 `make` 下使用 `make/ars-visualization/` 的 ARS 绘图代理。图注中的统计口径用 `$research-writing draft stats-report`，需要先计算统计量时用 `$research-writing draft analysis`。`audit` 交付检查结果和修法，落实改图时使用 `make`。两个模式处理 AI 辅助图形摘要时共用[来源、人工复核和投稿要求](make/references/ai-graphical-abstract-workflow.md)。
 
 ## 先确定任务和输入
 

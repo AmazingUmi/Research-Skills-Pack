@@ -18,7 +18,7 @@ For each axis in the manifest, decide the value using the manifest's `detect:` h
 
 - `paper_type` — research / methods / hypothesis / algorithmic / review. Default: research.
 - `section` — abstract / intro / results / discussion / conclusion / title / methods. May be multiple. Ask the user if it is ambiguous and matters for the polish.
-- `language` — en or zh-to-en. Detect from the draft itself.
+- `language` — establish the output language first, then select `en`, `zh-to-en` or `target-language` using the manifest.
 - `journal` — nature / nat-comms / nat-mach-intell / generic. Default:
   generic. Use `nature` only for flagship Nature, `nat-comms` for Nature
   Communications and `nat-mach-intell` for Nature Machine Intelligence (NMI).

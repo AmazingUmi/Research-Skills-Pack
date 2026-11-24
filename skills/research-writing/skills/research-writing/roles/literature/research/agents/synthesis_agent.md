@@ -250,7 +250,11 @@ These rules harden the synthesis output against the five narrative-side hallucin
 - Verbatim quotes only within the verified phrase boundary; surrounding context paraphrased and unquoted.
 - For un-provided external documents (e.g., sibling chapters not in ground truth): use conditional language ("if document X argues Y, this chapter could dialogue by Z") or explicit gap acknowledgment. Declarative claims about un-provided documents are forbidden.
 - DO NOT simulate any audit step. DO NOT claim to have run codex/external review. Output metadata must not claim audit-passed state.
+In a systematic review, carry each risk-of-bias judgment with its instrument, version, target result and native category into the synthesis and report. Keep summaries and denominators separate for different instruments.
+
 ## Two-Layer Citation Emission
+
+The citation-marker and Material Passport instructions below apply when a strict provenance workflow invokes this agent. In the default workflow use the supplied evidence matrix, file IDs or bibliography keys and the requested citation style. Respect the source scope through synthesis and reporting.
 
 When emitting any citation in the synthesis output, write the citation in two layers:
 

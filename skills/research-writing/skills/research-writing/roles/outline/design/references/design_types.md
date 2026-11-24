@@ -58,8 +58,7 @@ Watch for:
   progression). Balanced orders let you separate period from treatment.
 - **Correlation within subject** — the repeated observations are not independent; the
   analysis must model it (mixed model / repeated-measures ANOVA). Sample-size/power
-  for these depends on the within-subject correlation — use simulation in the
-  **statistical-power** skill.
+  for these depends on the within-subject correlation. Use a design-specific formula or simulate the planned analysis.
 
 ## Split-plot designs
 
@@ -87,7 +86,7 @@ correlated, it is effectively the unit of replication too.
 - The **design effect** `DEFF = 1 + (m − 1)·ICC` (m = common cluster size) approximates the
   variance inflation for an equal-size parallel design with exchangeable correlation;
   unequal sizes or other designs require a suitable calculation. Even a small ICC
-  with large clusters costs dearly. Power these by simulation (see **statistical-power**).
+  with large clusters costs dearly. Simulate the planned design and analysis when the approximation is inadequate.
 - Analyze with a method that accounts for clustering (mixed model with a cluster
   random effect, or GEE). Analyzing individuals as independent is pseudoreplication.
 
@@ -130,7 +129,7 @@ How to avoid it:
 
 Technical replicates are still worth taking — they sharpen each unit's estimate — but
 report and analyze them as what they are, never as independent biological replicates.
-For sample size of nested/clustered designs, use simulation in **statistical-power**.
+For nested or clustered designs, estimate power under the planned allocation, cluster sizes and covariance model.
 
 See the [NC3Rs experimental-unit guidance](https://eda.nc3rs.org.uk/experimental-design-unit)
 for animal, litter, cage, and split-plot examples. Different treatment factors can

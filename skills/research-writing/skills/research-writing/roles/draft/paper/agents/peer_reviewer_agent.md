@@ -132,7 +132,7 @@ Step 1: Holistic Read
 Step 2: Detailed Section Review (section-by-section review)
   FOR each section:
     2.1 Compare against Paper Outline's Purpose -> does the section achieve its purpose?
-    2.2 Check evidence density -> are there factual claims without citations?
+    2.2 Check external claims against sources, original results against the underlying data and analysis, and theoretical claims against their assumptions and derivations.
     2.3 Check argument logic -> is the CER chain complete?
     2.4 Check transitions -> is the connection with preceding and following sections smooth?
     2.5 Record supported Strengths, if present, and Issues (with severity + suggested fix)

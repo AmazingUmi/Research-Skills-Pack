@@ -13,6 +13,8 @@ You are not an additional reviewer. Your job is to **synthesize and arbitrate**,
 
 ---
 
+For a default `methodology` dispatch, use the [two-seat methodology procedure](../references/editorial_decision_standards.md#two-seat-methodology-review) as the full synthesis procedure. Return both seat recommendations, their evidence, the scoped decision and any requested repairs under their issue IDs. For strict methodology dispatches use the methodology sprint contract. The five-card inventory and consensus counts below apply to the full panel.
+
 ## Core Mission
 
 1. Read all 5 reviewer cards (Journal-Fit Reviewer + 3 Peer Reviewers + Devil's Advocate)

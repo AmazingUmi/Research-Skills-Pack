@@ -12,7 +12,7 @@ The `corpus-first, search-fills-gap` flow has five steps; the four Iron Rules ar
 ## Reading flow (shared by every consumer)
 
 ```
-Step 0: Detect literature_corpus[] presence and minimal shape
+Step 0: Determine the permitted sources, then inspect local materials and the Passport corpus
 Step 1: Pre-screen corpus against current RQ
 Step 2: Search-fills-gap — case A / B / B' / C
 Step 3: Merge included + external_included for downstream
@@ -103,7 +103,7 @@ Consumer agents never modify, backfill, or derive new content into `literature_c
 
 ### Iron Rule 4 — Graceful fallback on parse failure
 
-Consumer agents do NOT re-validate schema, do NOT parse JSON Schema at runtime, and do NOT dereference `source_pointer` URIs. The input-port lint validates adapter output, but a passport may reach a Phase 1 agent through other paths (hand-edits, `resume_from_passport`, assembled passports). When a consumer cannot parse `literature_corpus[]`, emit `[CORPUS PARSE FAILURE: <cause>]` in the Search Strategy Report and fall back to external-DB-only flow. Do not abort Phase 1, do not attempt schema repair, do not invent contents.
+Consumer agents do NOT re-validate schema, do NOT parse JSON Schema at runtime, and do NOT dereference `source_pointer` URIs. The input-port lint validates adapter output, but a passport may reach a Phase 1 agent through other paths (hand-edits, `resume_from_passport`, assembled passports). Before reading the Passport, determine whether the user limited the task to specific attachments, keys or evidence rows. Inventory those IDs and their available evidence. If the Passport cannot be parsed, emit `[CORPUS PARSE FAILURE: <cause>]` and screen the permitted local inputs. A closed corpus stays closed even when empty, incomplete or malformed. Report coverage gaps and request missing files when necessary. External supplementation follows the user's scope. Carry the source boundaries, read scope and unresolved IDs into every downstream handoff.
 
 ## Tortured-phrase advisory rows
 
@@ -178,7 +178,7 @@ F4a/b/c are mutually exclusive by trigger. F4d applies only when zero entries de
 
 The literature role's bibliography agent applies the corpus-first flow during its systematic literature search. The PRE-SCREENED block sits inside the Search Strategy section of its Annotated Bibliography output (per the agent's existing Output Format), preceding the existing DATABASES / Inclusion-Exclusion / RESULTS structure.
 
-When `literature_corpus[]` is non-empty and parses cleanly, the agent enters Step 1 pre-screening. When the corpus is absent, empty, or fails the minimal shape check, the agent runs its existing external-DB-only flow (Iron Rule 4 graceful fallback for the failure cases).
+Use the Step 0 scope for every input form. Screen permitted materials in Step 1 and apply the corresponding search policy in Step 2.
 
 ## Consumer: literature_strategist_agent
 
@@ -189,4 +189,4 @@ When `literature_corpus[]` is non-empty and parses cleanly, the agent enters Ste
 
 The draft role's literature strategist agent applies the corpus-first flow during its literature search strategy phase. The PRE-SCREENED block sits inside the Search Strategy section of the Literature Search Report (per the agent's existing Output Format), immediately before the `Databases` line. The merged `final_included` set feeds the agent's downstream Annotated Bibliography, Literature Matrix, Research Gap Identification, and Recommended Sources by Paper Section outputs without altering their formats.
 
-When `literature_corpus[]` is non-empty and parses cleanly, the agent enters Step 1 pre-screening, and Step 2 search-fills-gap dispatches the external 4-Layer Progressive Strategy. When the corpus is absent, empty, or fails the minimal shape check, the agent runs its existing 4-Layer external-DB-only flow unchanged (Iron Rule 4 graceful fallback for the failure cases).
+Use the Step 0 scope for every input form. Screen permitted materials in Step 1 and apply the corresponding search policy in Step 2.

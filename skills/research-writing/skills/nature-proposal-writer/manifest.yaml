@@ -35,7 +35,7 @@ references:
       path: references/revise-mode.md
     - condition: preserving an existing draft while composing missing or expanded modules
       path: references/hybrid-mode.md
-    - condition: scoring a draft or proposal with the 8-dimension rubric
+    - condition: scoring a proposal with the applicable dimensions of the proposal rubric
       path: references/evaluation-rubric.md
     - condition: removing generic, inflated, or template-like language from a Chinese proposal
       path: references/research-anti-slop.md

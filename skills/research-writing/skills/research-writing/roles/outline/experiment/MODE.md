@@ -21,4 +21,4 @@
 
 ## 交回大纲角色
 
-实验计划与结果按主张 ID 记录：数据版本、分析条件、结果位置和适用范围，供大纲、图表和正文角色使用。与其他角色的交接字段见 [`references/ars_integration_guide.md`](references/ars_integration_guide.md)，其中的 Material Passport 只在严格模式下使用。
+实验计划与结果按主张 ID 记录：数据版本、分析条件、结果位置和适用范围，供大纲、图表和正文角色使用。与其他角色的交接字段见 [`references/ars_integration_guide.md`](references/ars_integration_guide.md)，其中的 Material Passport 只在严格模式下使用。验收报告分别记录统计解释完成情况与复现结论。当前结果只有成功重跑才能标为 `VERIFIED`；本次仅完成解释时交 `UNVERIFIED`。

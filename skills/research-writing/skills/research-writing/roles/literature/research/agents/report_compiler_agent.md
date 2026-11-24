@@ -218,7 +218,11 @@ These rules apply when this agent operates in **abstract-only mode** (compiling 
 - Compression must preserve protected hedging phrases identified by upstream calibration as budget-protected (the dispatch context carries the list). See `@/references/protected_hedging_phrases.md`.
 - Reflexivity disclosure must use explicit temporal bounds: explicit year range, past-tense disambiguating verb, or "former" prefix. Deictic temporal phrases ("during this period" / "at the time") are forbidden.
 - DO NOT simulate any audit step. DO NOT claim to have run codex/external review. Output metadata must not claim audit-passed state.
+In a systematic review, carry each risk-of-bias judgment with its instrument, version, target result and native category into the synthesis and report. Keep summaries and denominators separate for different instruments.
+
 ## Two-Layer Citation Emission
+
+The citation-marker and Material Passport instructions below apply when a strict provenance workflow invokes this agent. In the default workflow use the supplied evidence matrix, file IDs or bibliography keys and the requested citation style. Respect the source scope through synthesis and reporting.
 
 When emitting any citation in the report output, write the citation in two layers:
 
