@@ -1,4 +1,4 @@
-# 科研技能包
+# Research-Skills-Pack · 科研技能包
 
 [English](README.md) | 中文
 
@@ -20,7 +20,7 @@
 **项目级导入（仅当前项目生效）**
 
 ```text
-请从 https://github.com/AmazingUmi/codex-research-bundles 导入科研技能包到当前项目的项目级技能目录（按你当前宿主的约定选择项目级 skills 路径，例如 .agents/skills/、.codex/skills/ 或 .claude/skills/）：
+请从 https://github.com/AmazingUmi/Research-Skills-Pack 导入科研技能包到当前项目的项目级技能目录（按你当前宿主的约定选择项目级 skills 路径，例如 .agents/skills/、.codex/skills/ 或 .claude/skills/）：
 1. 获取仓库（若无法联网请提醒我提供本地路径），导入 skills/research-writing/skills/ 和 skills/research-engineering/skills/ 下的全部技能目录（或只导入我指定的技能；导入任一 nature-* 独立技能时一并带上 nature-shared）。
 2. 每个含 SKILL.md 的技能目录须完整复制并保留内部全部子目录与文件，不要重命名目录，不要拆分或单独注册 research-writing 内部的角色与模式文件。
 3. 写入前检查目标目录是否已有同名技能，如有冲突先向我确认后再覆盖。
@@ -30,7 +30,7 @@
 **全局级导入（所有项目通用）**
 
 ```text
-请从 https://github.com/AmazingUmi/codex-research-bundles 导入科研技能包到当前用户的全局技能目录（按你当前宿主的约定选择全局 skills 路径，例如 ~/.agents/skills/、~/.codex/skills/ 或 ~/.claude/skills/）：
+请从 https://github.com/AmazingUmi/Research-Skills-Pack 导入科研技能包到当前用户的全局技能目录（按你当前宿主的约定选择全局 skills 路径，例如 ~/.agents/skills/、~/.codex/skills/ 或 ~/.claude/skills/）：
 1. 获取仓库（若无法联网请提醒我提供本地路径），导入 skills/research-writing/skills/ 和 skills/research-engineering/skills/ 下的全部技能目录（或只导入我指定的技能；导入任一 nature-* 独立技能时一并带上 nature-shared）。
 2. 每个含 SKILL.md 的技能目录须完整复制并保留内部全部子目录与文件，不要重命名目录，不要拆分或单独注册 research-writing 内部的角色与模式文件。
 3. 写入前检查目标目录是否已有同名技能，如有冲突先向我确认后再覆盖。

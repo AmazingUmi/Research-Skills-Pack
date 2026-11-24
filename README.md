@@ -1,4 +1,4 @@
-# Research Skill Bundles
+# Research-Skills-Pack
 
 English | [中文](README.zh.md)
 
@@ -20,7 +20,7 @@ Send either prompt to your agent (e.g. Codex or Claude Code). Replace the reposi
 **Project-level import (current project only)**
 
 ```text
-Import the research skill packs from https://github.com/AmazingUmi/codex-research-bundles into this project's project-level skills directory (use your host's project skills path, such as .agents/skills/, .codex/skills/, or .claude/skills/):
+Import the research skill packs from https://github.com/AmazingUmi/Research-Skills-Pack into this project's project-level skills directory (use your host's project skills path, such as .agents/skills/, .codex/skills/, or .claude/skills/):
 1. Fetch the repository (or ask me for a local path if network access is unavailable) and copy all skill directories under skills/research-writing/skills/ and skills/research-engineering/skills/ (or only the specific skills I name; include nature-shared whenever importing any standalone nature-* skill).
 2. Copy each directory containing SKILL.md intact with all subdirectories and files. Do not rename skill directories, and do not flatten or separately register internal role/mode files inside research-writing.
 3. Check for existing skill directories with the same name before writing, and ask for confirmation before overwriting any conflict.
@@ -30,7 +30,7 @@ Import the research skill packs from https://github.com/AmazingUmi/codex-researc
 **Global import (available across all projects)**
 
 ```text
-Import the research skill packs from https://github.com/AmazingUmi/codex-research-bundles into my user-level global skills directory (use your host's global skills path, such as ~/.agents/skills/, ~/.codex/skills/, or ~/.claude/skills/):
+Import the research skill packs from https://github.com/AmazingUmi/Research-Skills-Pack into my user-level global skills directory (use your host's global skills path, such as ~/.agents/skills/, ~/.codex/skills/, or ~/.claude/skills/):
 1. Fetch the repository (or ask me for a local path if network access is unavailable) and copy all skill directories under skills/research-writing/skills/ and skills/research-engineering/skills/ (or only the specific skills I name; include nature-shared whenever importing any standalone nature-* skill).
 2. Copy each directory containing SKILL.md intact with all subdirectories and files. Do not rename skill directories, and do not flatten or separately register internal role/mode files inside research-writing.
 3. Check for existing skill directories with the same name before writing, and ask for confirmation before overwriting any conflict.
