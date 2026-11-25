@@ -3,13 +3,13 @@
 ## Contents
 
 - [1) Typography](#1-typography)
-- [2) Axes & Spines](#2-axes-spines)
+- [2) Axes & Spines](#2-axes--spines)
 - [3) Color Palette](#3-color-palette)
 - [4) Layout and Composition](#4-layout-and-composition)
 - [5) Bar Chart Rules](#5-bar-chart-rules)
-- [6) Line / Trend Plots](#6-line-trend-plots)
+- [6) Line / Trend Plots](#6-line--trend-plots)
 - [7) Heatmap Rules](#7-heatmap-rules)
-- [8) Radar / Polar Charts](#8-radar-polar-charts)
+- [8) Radar / Polar Charts](#8-radar--polar-charts)
 - [9) Export Policy](#9-export-policy)
 - [10) Multi-Panel Information Architecture](#10-multi-panel-information-architecture)
 - [11) Reproduction Checklist](#11-reproduction-checklist)

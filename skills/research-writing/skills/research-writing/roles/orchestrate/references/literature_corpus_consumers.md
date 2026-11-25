@@ -19,6 +19,8 @@ Step 3: Merge included + external_included for downstream
 Step 4: Emit Search Strategy Report with PRE-SCREENED block
 ```
 
+For a formal systematic review with authorized external search, run the complete registered search across every protocol subtopic. Merge seed and database candidates before screening. When external search is restricted, document the restriction and coverage.
+
 The full flow specification lives in spec §3.1. Each consumer agent's `agent.md` must include the full Step 0–4 description and all four Step 2 case markers (case A / case B / case B' / case C). The lint enforces presence (L6).
 
 ## PRE-SCREENED block template

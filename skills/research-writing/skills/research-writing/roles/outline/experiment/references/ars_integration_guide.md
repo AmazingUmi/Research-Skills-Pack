@@ -15,6 +15,8 @@ Use equivalent headings or the project’s evidence matrix to locate these mater
 
 ## Handoff to the next role
 
+Use one experiment ID through planning, execution, validation and intake. Record `execution.origin` (external_import or pack_run), actual executor, command for pack_run, result path and verification status. Add `confirmed_by: scholar` only upon author confirmation; legacy entries without execution describe imported external results.
+
 In the default workflow, give the receiving role the versioned experiment plan or
 result, its claim IDs, dataset and analysis version, source locations and supported
 scope in the [evidence matrix](../../../../references/handoff.md).
@@ -36,7 +38,7 @@ In the strict workflow, also pass the [Schema 9 Material Passport](../../../../e
 - `manage` mode output → `UNVERIFIED` (data collected but not analyzed)
 - `plan` mode output → `UNVERIFIED` (design artifact only; nothing has been executed yet)
 - `validate` mode output with a skipped, inapplicable, partial or failed re-run → `UNVERIFIED`. Report the extent of statistical interpretation and the actual re-run outcome separately in the validation report.
-- `validate` mode output with a successful reproducibility re-run → `VERIFIED`
+- `validate` mode output → `VERIFIED` only after every preregistered primary metric was rerun under the declared conditions and met its comparison criterion. Missing primary evidence (including runtime for speed claims) remains `UNVERIFIED`
 - A previously verified result whose data, code or analysis version has since changed is `STALE` until verified against the current inputs.
 - When consuming an older validation report labelled `ANALYZED`, preserve the original report. In a new handoff record the completed interpretation in the report and use `UNVERIFIED` for execution-level verification unless the current result has a documented successful re-run.
 

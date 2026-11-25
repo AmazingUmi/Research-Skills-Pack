@@ -1,0 +1,14 @@
+Paper Orchestra Skills v0.2.0
+
+These local Codex skills and their reference files are distributed under the
+Apache License, Version 2.0. They adapt the workflow and roles described in
+PaperOrchestra by Yiwen Song, Yale Song, Tomas Pfister, and Jinsung Yoon.
+
+Upstream: https://github.com/google-research/paper-orchestra
+Reference commit: d9bae997e793a015ed38bb1605be9eb58c00284f
+Upstream paper: https://arxiv.org/abs/2604.05018
+
+The local adaptation implements the workflow as six instructions for Codex,
+with claim-to-evidence handoffs and routing to Writing specialist packs.
+The accompanying LICENSE reproduces the license at the upstream reference
+commit.

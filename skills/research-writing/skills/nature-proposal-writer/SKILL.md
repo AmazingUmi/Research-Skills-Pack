@@ -5,7 +5,7 @@ license: MIT
 metadata:
   hermes:
     tags: [research, writing, proposal, revision, qa, multi-agent]
-    related_skills: [research-writing, nature-shared]
+    related_skills: [research-writing]
 ---
 
 # nature-proposal-writer — proposal-first 科研写作 pipeline
@@ -28,11 +28,13 @@ metadata:
 
 ## 模式分派
 
+本技能负责开题、研究计划和申请书中的文献综述章节。独立综述设计交给 `$research-writing literature lit-review`，系统综述交给 `literature systematic-review`，已有论文的审阅交给 `$research-writing review`。
+
 | 输入 | 模式 |
 |---|---|
-| 题目、方向、模糊想法 | `compose` — 加载 `references/compose-mode.md` |
-| 已有段落/章节/完整 proposal | `revise` — 加载 `references/revise-mode.md` |
-| 已有草稿 + 扩写/补写/重构 | `hybrid` — 加载 `references/hybrid-mode.md` |
+| 开题或申请书的题目、方向、模糊想法 | `compose` — 加载 `references/compose-mode.md` |
+| 已有开题报告或申请书的段落、章节或全文 | `revise` — 加载 `references/revise-mode.md` |
+| 已有开题或申请草稿 + 扩写/补写/重构 | `hybrid` — 加载 `references/hybrid-mode.md` |
 
 模糊时推断默认模式。只在选择会改变工作流时才问用户。
 
@@ -58,7 +60,7 @@ exports/                  最终输出（.md + .docx）
 ```
 
 新建项目时按 `manifest.yaml` 的 `templates.on_demand` 路由从 `templates/` 取空模板。
-`references/worked-example-quaternary-proposal.md` 提供了基于通用材料科学领域的完整填写示例。
+`references/worked-example-quaternary-proposal.md` 提供了基于通用材料科学领域的开题修订与评分示例。
 
 ## Reference 文件索引
 
@@ -71,20 +73,20 @@ exports/                  最终输出（.md + .docx）
 | `references/hybrid-mode.md` | 模式 = hybrid |
 | `references/evaluation-rubric.md` | 使用 8 维 × 4 锚点评分体系时 |
 | `references/research-anti-slop.md` | 清理中文 proposal 的模板化和空泛表达时 |
-| `references/chinese-review-writing-style.md` | 撰写或修订中文综述时 |
+| `references/chinese-review-writing-style.md` | 撰写或修订开题材料的中文文献综述章节时 |
 | `references/stopping-rules.md` | 判断继续迭代、拆分范围或停止时 |
 | `references/professor-dispatch.md` | 按失败模式分派动态专家时 |
-| `references/foundation-files.md` | 建立或修复 foundation 五文件时 |
+| `references/foundation-files.md` | 建立或修复 foundation 六文件时 |
 | `references/project-structure.md` | 初始化项目目录或维护 `state.json` 时 |
 | `references/export-archive.md` | 导出和归档 `.md` / `.docx` 时 |
 | `references/partial-proposal-scope.md` | 分阶段写作并防止范围蔓延时 |
 | `references/ref-renumbering-cascade.md` | 处理参考文献增删和编号级联时 |
-| `references/review-paper-framework.md` | 设计综述论文框架时 |
-| `references/review-critique-methodology.md` | 建立综述的批判性分析时 |
+| `references/review-paper-framework.md` | 设计申请书的文献综述章节框架时 |
+| `references/review-critique-methodology.md` | 比较申请书文献综述章节的论据时 |
 | `references/validation-checklist.md` | 自动检查主张、引用、编号和可复现性时 |
 | `references/gpt-handoff-revision-brief.md` | 生成跨 agent 修订交接简报时 |
 | `references/within-approved-proposal.md` | 在已批准的 proposal 框架内扩写时 |
-| `references/worked-example-quaternary-proposal.md` | 需要查看完整 foundation 文件填写示例时 |
+| `references/worked-example-quaternary-proposal.md` | 需要查看开题返修与评分示例时 |
 | `references/降承诺提案模式.md` | 证据不足，需要降低承诺强度时 |
 
 ## 运行交付

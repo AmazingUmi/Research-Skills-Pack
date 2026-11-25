@@ -24,8 +24,13 @@ keeps the matrix logic unit-testable.
 from __future__ import annotations
 
 import re
+import sys
+from pathlib import Path
 from collections import Counter
 from typing import Any
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from scripts._claim_audit_constants import (
     INV14_FAULT_CLASS_TAGS,

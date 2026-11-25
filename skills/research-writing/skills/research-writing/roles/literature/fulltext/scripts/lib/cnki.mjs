@@ -10,7 +10,6 @@ import {
   waitForComplete,
 } from "./cdp-utils.mjs";
 import { fetchAnyToFile, fetchNativeToFile, fetchToFile } from "./pdf-utils.mjs";
-import { handleVerification } from "./anti-bot.mjs";
 
 export const DEFAULT_CNKI_URL = "https://kns.cnki.net/kns8s/defaultresult/index";
 
@@ -69,9 +68,9 @@ function classifyCnkiWall(url = "", title = "", body = "") {
   const wall = classifyWall(url, title, body);
   if (wall) return wall;
   const text = `${title} ${body}`;
-  // Slider/drag/puzzle CAPTCHA — auto-attemptable
+  // Slider/drag/puzzle CAPTCHA
   if (/滑块|滑动验证|拖动滑块|拼图验证|请按住滑块|请拖动|slide to verify|drag the slider|slide verification|slider captcha/i.test(text)) {
-    return { status: STATUS.PUBLISHER_VERIFICATION_WAITING_USER, reason: "CNKI slider captcha — auto-attemptable" };
+    return { status: STATUS.PUBLISHER_VERIFICATION_WAITING_USER, reason: "CNKI slider captcha" };
   }
   // Login/auth wall
   if (/登录|统一身份认证|机构登录|校外访问|账号登录|扫码登录|验证码|安全验证|人机验证/i.test(text)) {
@@ -172,21 +171,27 @@ async function findDownloadCandidates(proxy, target) {
 }
 
 async function downloadCnkiSupportingInformation(proxy, target, title, outDir) {
+  const page = await pageSnapshot(proxy, target);
+  const wall = classifyCnkiWall(page.url, page.title, page.body);
+  if (wall) return { ...wall, url: page.url, tab: target, found: 0, count: 0, files: [] };
   const raw = await evalJs(
     proxy,
     target,
     `JSON.stringify([...new Set([...document.querySelectorAll('a[href]')].filter(a=>/补充材料|附件|supplementary|supporting information|附录/i.test((a.innerText||'')+' '+a.href)).map(a=>a.href))].slice(0,20))`
-  ).catch(() => "[]");
-  const links = JSON.parse(raw || "[]");
+  ).catch(() => null);
+  if (!raw) return { status: "fetch_failed", count: 0, files: [], reason: "Unable to inspect SI links" };
+  const links = JSON.parse(raw);
   const files = [];
   for (let index = 0; index < links.length; index += 1) {
     const url = links[index];
     const name = (new URL(url).pathname.split("/").pop() || `si-${index + 1}`).replace(/[\/:*?"<>|]+/g, "_");
     const outPath = path.join(outDir, "SupportingInformation", `${safeCnkiFileName(title, "")}__${name}`);
     const downloaded = await fetchAnyToFile(proxy, target, url, outPath, { rejectHtml: true }).catch(() => ({ ok: false }));
+    if (downloaded.wall) return { ...downloaded.wall, found: links.length, count: files.length, files };
     if (downloaded.ok) files.push(downloaded.file);
   }
-  return { status: files.length ? "downloaded" : "not_found", found: links.length, count: files.length, files };
+  const status = !links.length ? "not_found" : files.length === links.length ? "downloaded" : files.length ? "partial" : "fetch_failed";
+  return { status, found: links.length, count: files.length, files };
 }
 
 export function filterCnkiDownloadCandidates(candidates = [], format = "any") {
@@ -197,9 +202,16 @@ export function filterCnkiDownloadCandidates(candidates = [], format = "any") {
 export async function downloadCnkiTitle(proxy, title, outDir, { cnkiUrl = DEFAULT_CNKI_URL, format = "any", debug = false, wantSi = false, transport = null } = {}) {
   const access = transport || createCnkiTransport({ entryUrl: cnkiUrl });
   const tab = (await newTab(proxy, access.resolve(cnkiSearchUrl(title, access.entryUrl)))).targetId;
+  let keepTab = false;
   try {
     await waitForComplete(proxy, tab);
     await sleep(1500);
+    const initial = await pageSnapshot(proxy, tab);
+    const initialWall = classifyCnkiWall(initial.url, initial.title, initial.body);
+    if (initialWall) {
+      keepTab = true;
+      return { title, ...initialWall, url: initial.url, tab };
+    }
     await submitSearchIfNeeded(proxy, tab, title);
     await sleep(2500);
     await waitForComplete(proxy, tab);
@@ -207,25 +219,8 @@ export async function downloadCnkiTitle(proxy, title, outDir, { cnkiUrl = DEFAUL
     let snap = await pageSnapshot(proxy, tab);
     let wall = classifyCnkiWall(snap.url, snap.title, snap.body);
     if (wall) {
-      if (debug) process.stderr.write(`[debug][cnki] wall after search: ${wall.status} "${wall.reason}" — attempting auto-verification...\n`);
-      const vr = await handleVerification(proxy, tab, wall, { debug, maxAttempts: 2 });
-      if (vr.passed) {
-        if (debug) process.stderr.write(`[debug][cnki] auto-verification passed (${vr.method}), re-reading page...\n`);
-        await sleep(1500);
-        await waitForComplete(proxy, tab);
-        snap = await pageSnapshot(proxy, tab);
-        wall = classifyCnkiWall(snap.url, snap.title, snap.body);
-        if (wall) {
-          return { title, status: STATUS.VERIFICATION_AUTO_FAILED, url: snap.url, reason: `auto-verify failed (${vr.method}), still: ${wall.reason}` };
-        }
-      } else {
-        return {
-          title,
-          status: vr.attempted ? STATUS.VERIFICATION_AUTO_FAILED : wall.status,
-          url: snap.url,
-          reason: vr.attempted ? `automatic verification did not resolve: ${wall.reason}` : wall.reason,
-        };
-      }
+      keepTab = true;
+      return { title, ...wall, url: snap.url, tab };
     }
 
     const hit = await findResultUrl(proxy, tab, title);
@@ -249,25 +244,8 @@ export async function downloadCnkiTitle(proxy, title, outDir, { cnkiUrl = DEFAUL
     }
     wall = classifyCnkiWall(snap.url, snap.title, snap.body);
     if (wall) {
-      if (debug) process.stderr.write(`[debug][cnki] wall after detail nav: ${wall.status} "${wall.reason}" — attempting auto-verification...\n`);
-      const vr = await handleVerification(proxy, tab, wall, { debug, maxAttempts: 2 });
-      if (vr.passed) {
-        if (debug) process.stderr.write(`[debug][cnki] auto-verification passed (${vr.method}), re-reading page...\n`);
-        await sleep(1500);
-        await waitForComplete(proxy, tab);
-        snap = await pageSnapshot(proxy, tab);
-        wall = classifyCnkiWall(snap.url, snap.title, snap.body);
-        if (wall) {
-          return { title, status: STATUS.VERIFICATION_AUTO_FAILED, url: snap.url, reason: `auto-verify failed (${vr.method}), still: ${wall.reason}` };
-        }
-      } else {
-        return {
-          title,
-          status: vr.attempted ? STATUS.VERIFICATION_AUTO_FAILED : wall.status,
-          url: snap.url,
-          reason: vr.attempted ? `automatic verification did not resolve: ${wall.reason}` : wall.reason,
-        };
-      }
+      keepTab = true;
+      return { title, ...wall, url: snap.url, tab };
     }
 
     const candidates = filterCnkiDownloadCandidates(await findDownloadCandidates(proxy, tab), format);
@@ -283,6 +261,10 @@ export async function downloadCnkiTitle(proxy, title, outDir, { cnkiUrl = DEFAUL
       const got = ext === ".pdf"
         ? await fetchToFile(proxy, tab, candidate.url, outPath).catch((e) => ({ ok: false, err: String(e).slice(0, 120) }))
         : await fetchNativeToFile(proxy, tab, candidate.url, outPath, { allowedFormats: ["caj"] }).catch((e) => ({ ok: false, err: String(e).slice(0, 120) }));
+      if (got.wall) {
+        keepTab = true;
+        return { title, ...got.wall, source: "cnki" };
+      }
       if (got.ok) {
         const result = {
           title,
@@ -297,7 +279,8 @@ export async function downloadCnkiTitle(proxy, title, outDir, { cnkiUrl = DEFAUL
         };
         if (wantSi) {
           result.si = await downloadCnkiSupportingInformation(proxy, tab, title, outDir);
-          if ((result.si?.count || 0) > 0) result.status = STATUS.DOWNLOADED_WITH_SI;
+          keepTab = Boolean(result.si.tab);
+          if (!result.si.tab && result.si.count > 0) result.status = STATUS.DOWNLOADED_WITH_SI;
         }
         return result;
       }
@@ -305,22 +288,30 @@ export async function downloadCnkiTitle(proxy, title, outDir, { cnkiUrl = DEFAUL
 
     return { title, status: STATUS.PDF_FETCH_FAILED, url: snap.url, via: hit.href, source: "cnki" };
   } finally {
-    await closeTab(proxy, tab);
+    if (!keepTab) await closeTab(proxy, tab);
   }
 }
 
 export async function downloadCnkiDirectUrl(proxy, url, title, outDir, { debug = false, wantSi = false } = {}) {
   const tab = (await newTab(proxy, url)).targetId;
+  let keepTab = false;
   try {
     await waitForComplete(proxy, tab);
     const snapshot = await pageSnapshot(proxy, tab);
     const wall = classifyCnkiWall(snapshot.url, snapshot.title, snapshot.body);
-    if (wall) return { title, status: wall.status, url: snapshot.url, reason: wall.reason, source: "cnki" };
+    if (wall) {
+      keepTab = true;
+      return { title, ...wall, url: snapshot.url, tab, source: "cnki" };
+    }
     const ext = /caj/i.test(`${url} ${snapshot.url}`) ? ".caj" : ".pdf";
     const file = path.join(outDir, ext === ".pdf" ? "PDFs" : "CNKI", safeCnkiFileName(title || "cnki-paper", ext));
     const downloaded = ext === ".pdf"
       ? await fetchToFile(proxy, tab, url, file)
       : await fetchNativeToFile(proxy, tab, url, file, { allowedFormats: ["caj"] });
+    if (downloaded.wall) {
+      keepTab = true;
+      return { title, ...downloaded.wall, source: "cnki" };
+    }
     if (!downloaded.ok) return { title, status: STATUS.PDF_FETCH_FAILED, url, err: downloaded.err, source: "cnki" };
     const result = {
       title,
@@ -332,14 +323,13 @@ export async function downloadCnkiDirectUrl(proxy, url, title, outDir, { debug =
       accessMode: "institution_browser",
     };
     if (wantSi) {
-      result.si = await downloadCnkiSupportingInformation(proxy, tab, title, outDir);
-      if ((result.si?.count || 0) > 0) result.status = STATUS.DOWNLOADED_WITH_SI;
+      result.si = { status: "not_checked", reason: "The direct full-text URL does not identify an SI landing page" };
     }
     return result;
   } catch (error) {
     if (debug) process.stderr.write(`[debug][cnki] direct URL failed: ${String(error)}\n`);
     return { title, status: STATUS.FAILED_AFTER_RETRY, url, err: String(error).slice(0, 160), source: "cnki" };
   } finally {
-    await closeTab(proxy, tab);
+    if (!keepTab) await closeTab(proxy, tab);
   }
 }

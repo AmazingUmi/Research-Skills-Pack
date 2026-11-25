@@ -95,7 +95,7 @@ def main():
         elif not os.path.isfile(pdf):
             raise SystemExit(f"mapped PDF not found for {rid}: {pdf}")
         if pdf and os.path.exists(pdf):
-            man.append({"id": rid, "title": u["title"], "pdf": os.path.abspath(pdf).replace("\\", "/")})
+            man.append({"id": rid, "title": u["title"], "sha256": srlib.pdf_digest(pdf), "pdf": os.path.abspath(pdf).replace("\\", "/")})
         else:
             missing.append({"id": rid, "title": u["title"], "doi": u.get("doi", ""), "pmid": u.get("pmid", ""),
                             "ta_decision": D[rid]["final"]["d"]})

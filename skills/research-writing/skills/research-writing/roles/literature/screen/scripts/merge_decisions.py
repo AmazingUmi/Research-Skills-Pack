@@ -21,7 +21,7 @@ Rules (see references/decision_rules.md):
   * a decision whose label and code disagree, or whose ID is not in the batch the agent
     was given, is discarded - the record is retried, never filled in by default;
   * when both reviewers exclude with different codes, the earlier code in protocol order wins;
-  * QC rechecks and human overrides (overrides.csv: id,d,code,why[,by]) are applied last
+  * QC rechecks and human overrides (overrides.csv: id,d,code,why[,by,where]) are applied last
     and logged on the record;
   * the QC recheck is required: once screening is complete, a reproducible sample of the records
     BOTH reviewers excluded (qc.random_exclusion_sample, all of them when fewer) plus the
@@ -110,8 +110,8 @@ def pick_code(codes_order, *decs):
     return min(ds, key=lambda d: codes_order.index(d["code"]) if d["code"] in codes_order else 999)
 
 
-def load_overrides(path, codes, valid_ids, strict=False):
-    """Human decisions (overrides.csv: id,d,code,why[,by]). They settle a record even when it is pending."""
+def load_overrides(path, codes, valid_ids, strict=False, stage="ta"):
+    """Human decisions (overrides.csv: id,d,code,why[,by,where]). They settle a record even when it is pending."""
     ov = {}
     if not path:
         return ov
@@ -120,15 +120,17 @@ def load_overrides(path, codes, valid_ids, strict=False):
             rid = (row.get("id") or "").strip()
             dec = {"d": (row.get("d") or "").strip().lower(), "code": (row.get("code") or "").strip().upper(),
                    "why": (row.get("why") or "").strip()}
+            if stage == "ft":
+                dec["where"] = (row.get("where") or "").strip()
             if rid not in valid_ids:
                 if strict:
                     raise SystemExit(f"pilot label has an unknown/out-of-scope ID: {rid}")
                 print(f"override skipped (unknown id): {rid}")
                 continue
-            if not srlib.valid_decision(dec, codes):
+            if not srlib.valid_decision(dec, codes, stage):
                 if strict:
                     raise SystemExit(f"pilot label has an invalid label/code: {rid}")
-                print(f"override skipped (label/code mismatch): {rid} {dec['d']}/{dec['code']}")
+                print(f"override skipped (invalid label, code, or exclusion evidence): {rid} {dec['d']}/{dec['code']}")
                 continue
             ov[rid] = dict(dec, by=(row.get("by") or "").strip() or "HUMAN")
     return ov
@@ -469,11 +471,11 @@ def merge_ft(a, cfg, work):
             continue
         role, rid = m.group(1), m.group(2)
         for d in decs:
-            if not isinstance(d, dict) or d.get("id") != rid or rid not in items or not srlib.valid_decision(d, codes):
+            if not isinstance(d, dict) or d.get("id") != rid or rid not in items or not srlib.valid_decision(d, codes, "ft"):
                 dropped += 1
                 continue
             got[role].setdefault(rid, {k: d.get(k, "") for k in ("d", "code", "why", "where")})
-    ov = load_overrides(a.overrides, codes, set(items))
+    ov = load_overrides(a.overrides, codes, set(items), stage="ft")
     final, pend_items, pend_adj, pairs = {}, [], [], []
     for rid, x in items.items():
         A, B = got["FTA"].get(rid), got["FTB"].get(rid)
@@ -532,6 +534,8 @@ def main():
     a = ap.parse_args()
     cfg = srlib.load_config(a.config)
     work = os.path.abspath(a.work)
+    if a.stage == "ft" and srlib.changed_pdfs(srlib.load_json(os.path.join(work, "ft_manifest.json"))):
+        raise SystemExit("full-text bytes changed or lack a digest: rerun prepare_fulltext.py and regenerate the workflow")
     if a.protocol:
         srlib.activate_context(work, a.stage, a.protocol, cfg)
     if not srlib.current_context(work, a.stage, cfg):

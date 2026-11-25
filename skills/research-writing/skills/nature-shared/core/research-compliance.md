@@ -54,7 +54,7 @@ Check that the submitted manuscript states:
   defined, justified and handled analytically when they are used
 - safeguards for vulnerable groups, privacy and sensitive data
 
-Route controlled-access data wording to `nature-data`.
+Route controlled-access data wording to `$research-writing draft data-availability`.
 
 ## 4. Animal research
 

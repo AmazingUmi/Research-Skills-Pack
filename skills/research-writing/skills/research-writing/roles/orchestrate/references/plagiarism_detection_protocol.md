@@ -8,7 +8,7 @@ This document defines the complete execution protocol for `integrity_verificatio
 
 Phase D's purpose is to perform originality screening on body text content before paper submission for review and after revision completion. Unlike Phases A-C which focus on "whether citations and data are correct," Phase D focuses on "whether the body text itself is originally written."
 
-**Core principle: Heuristic screening, not final determination.** This protocol uses WebSearch for publicly available literature comparison. Results are preliminary screening signals and do not equate to conclusions from professional plagiarism detection software.
+**Core principle: Heuristic screening, not final determination.** By default compare only with the local, supplied corpus. Before any external comparison obtain explicit authorization identifying the search provider and the exact excerpts or excerpt scope. Apply that scope to retries and paraphrases; an integrity check or sampling rate does not authorize submission of manuscript text. Results are preliminary screening signals and do not equate to conclusions from professional plagiarism detection software.
 
 ---
 
@@ -25,10 +25,12 @@ For each paragraph in the paper body text:
 3. Record the characteristic sentence's paragraph location (section + paragraph number)
 ```
 
-### D1.2 WebSearch Comparison
+### D1.2 Local comparison and optional public search
+
+With local materials only, identify the comparison set and report matched passages or `NO_LOCAL_MATCH`. With no comparison corpus, report `NOT_CHECKED`.
 
 ```
-For each extracted characteristic sentence:
+Only for sentences within the explicitly authorized external scope:
 1. Use the characteristic sentence (or key fragment) as a WebSearch query
    - Search term: Enclose 8-12 consecutive words in quotation marks
    - Supplementary search: Remove quotes to check for paraphrased versions
@@ -40,7 +42,7 @@ For each extracted characteristic sentence:
 
 | Grade | Code | Definition | Determination Criteria |
 |-------|------|-----------|----------------------|
-| Original | `ORIGINAL` | No similar expression found in public literature | WebSearch returns no related matches |
+| No indexed match | `NO_INDEXED_MATCH` | No similar expression found in public literature | WebSearch returns no related matches |
 | Common Knowledge | `COMMON_KNOWLEDGE` | The knowledge is a widely accepted fact in the field | Multiple sources express the same fact in different ways |
 | Paraphrase | `PARAPHRASE` | Expresses same viewpoint as a source but with clearly different wording | Semantically similar but significantly different sentence structure and word choice, with citation |
 | Close Match | `CLOSE_MATCH` | Highly similar wording to a source, with only a few words substituted | Nearly identical sentence structure, with only synonym substitutions or word order changes |
@@ -66,7 +68,7 @@ For each extracted characteristic sentence:
 ### D2.1 Author's Existing Publications Search
 
 ```
-Prerequisite: User provides author name(s)
+Prerequisite: author authorized the provider and query scope. Otherwise use supplied publications only.
 
 For each author (or primary author):
 1. WebSearch: "author name" + research area keywords
@@ -179,7 +181,7 @@ This protocol's originality verification has the following inherent limitations 
 
 | Grade | Paragraph Count | Proportion |
 |-------|----------------|-----------|
-| ORIGINAL | X | X% |
+| NO_INDEXED_MATCH | X | X% |
 | COMMON_KNOWLEDGE | X | X% |
 | PARAPHRASE | X | X% |
 | CLOSE_MATCH | X | X% |
@@ -232,7 +234,7 @@ To ensure the originality verification process is reproducible:
    - Search term 1: `"key fragment" (8-12 words, in quotes)`
    - Search term 2: `keyword combination (without quotes, to match paraphrases)`
 
-2. **Explicit determination criteria**: Each grade (ORIGINAL through VERBATIM) has clear determination criteria, not relying on subjective feeling
+2. **Explicit determination criteria**: Each grade (NO_INDEXED_MATCH through VERBATIM) has clear determination criteria, not relying on subjective feeling
 
 3. **Complete records**: Search terms, search results, and determination rationale for each sampled paragraph are recorded in the Audit Trail
 

@@ -156,7 +156,7 @@ def main():
         universe = [x["id"] for x in man]
         ta_pending_ids, ta_qc_ids, state_problems, uncovered, ft_stale = srlib.fulltext_status(work, cfg)
         missing = {rid for rid in universe if not srlib.valid_decision(D.get(rid, {}).get("final"),
-                                                                       srlib.exclusion_codes(cfg, "ft"))}
+                                                                       srlib.exclusion_codes(cfg, "ft"), "ft")}
         if universe and not srlib.decision_state_current(work, "ft", cfg):
             state_problems.append("full-text decisions have no current protocol/config/retrieval identity")
             missing |= set(universe)
@@ -166,7 +166,8 @@ def main():
     rows = []
     for rid in universe:
         r = D.get(rid)
-        if not r or rid not in U or not srlib.valid_decision(r.get("final"), srlib.exclusion_codes(cfg, a.stage)):
+        if (rid in pending_ids or not r or rid not in U or
+                not srlib.valid_decision(r.get("final"), srlib.exclusion_codes(cfg, a.stage), a.stage)):
             continue
         u = U[rid]
         rows.append(dict(u=u, f=r["final"], A=r.get("A") or {}, B=r.get("B") or {}, J=r.get("ADJ") or {},

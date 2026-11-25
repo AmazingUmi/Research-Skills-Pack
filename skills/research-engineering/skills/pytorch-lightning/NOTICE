@@ -1,0 +1,6 @@
+pytorch-lightning
+
+Upstream source: https://github.com/K-Dense-AI/scientific-agent-skills/tree/526ebce143bc326f44471554e33d66a19c840360/skills/pytorch-lightning
+License and attribution: LICENSE and K-Dense-MIT.md (collection notice).
+Distributed with local adaptations to guidance and examples in Research-Skills-Pack.
+Source inventory: https://github.com/AmazingUmi/Research-Skills-Pack/blob/main/skills/SOURCES.md

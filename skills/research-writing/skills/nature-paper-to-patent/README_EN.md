@@ -52,6 +52,6 @@
 
 ## Related Skills
 
-- `nature-reader`: turn the paper into traceable reading material first.
-- `nature-writing`: extract contribution and technical narrative.
-- `nature-figure`: draft patent flowcharts or structural schematics.
+- `$research-writing literature read`: turn the paper into traceable reading material first.
+- `$research-writing draft section`: extract contribution and technical narrative.
+- `$research-writing figures make`: draft patent flowcharts or structural schematics.

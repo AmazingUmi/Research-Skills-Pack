@@ -27,6 +27,23 @@ class AntecedentBasisTests(unittest.TestCase):
         text = "1. 一种检测装置，其特征在于，包括电极和基板。\n2. 根据权利要求1所述的装置，其特征在于，所述电极为金属电极。\n"
         self.assertNotIn("ANTECEDENT_BASIS", codes(text))
 
+    def test_disjunctive_self_and_forward_references_block_delivery(self):
+        first = "1. 一种检测装置，其特征在于，包括电极和基板。"
+        for reference in ("1或2", "1、3", "1至3", "1或权利要求3"):
+            claim = f"2. 根据权利要求{reference}所述的装置，其特征在于，包括外壳。"
+            findings = AUDIT.audit(first + "\n" + claim)
+            self.assertIn(("ERROR", "FORWARD_REFERENCE"), {(f.level, f.code) for f in findings})
+
+    def test_antecedents_follow_only_transitive_references(self):
+        first = "1. 一种检测装置，其特征在于，包括电极和基板。"
+        second = "2. 根据权利要求1所述的装置，其特征在于，包括端帽。"
+        third = "3. 根据权利要求{}所述的装置，其特征在于，所述端帽为铜制。"
+        def inspect(ref):
+            return AUDIT.audit("\n".join([first, second, third.format(ref)]))
+        self.assertIn(("WARNING", 3, "ANTECEDENT_BASIS"),
+                      {(f.level, f.claim, f.code) for f in inspect(1)})
+        self.assertNotIn("ANTECEDENT_BASIS", [f.code for f in inspect(2)])
+
 
 class GenericReferenceTests(unittest.TestCase):
     def test_reference_phrase_in_a_dependent_claim_is_not_a_term(self):

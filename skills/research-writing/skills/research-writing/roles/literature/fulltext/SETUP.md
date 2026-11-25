@@ -1,14 +1,14 @@
-# this mode
+# Literature Fulltext Downloader — Setup
 
 <p align="center">
-  <img src="assets/banner.jpg" alt="this mode — 合法 OA、出版商 API 与机构授权全文下载" width="100%">
+  <img src="assets/banner.jpg" alt="Literature Fulltext Downloader — 合法 OA、出版商 API 与机构授权全文下载" width="100%">
 </p>
 
  `$research-writing literature fulltext` 按文献语言、出版商和可用凭据自动选择合法下载路线：
 
 ```text
 确认是否下载 SI
-→ 中文文献：只走 CNKI / 知网机构授权
+→ 指定 PDF 或仅限 OA 时使用公开来源；中文题名可在机构授权范围内走 CNKI
 → 英文文献
    ├─ Elsevier / Springer Nature / IEEE 且有可用 Key
    │  ├─ 出版商 API 成功：结束，不强制判断 OA
@@ -97,7 +97,7 @@ node scripts/batch_download.mjs \
   --out "./文献自动下载"
 ```
 
-中文题名只走知网：
+已授权使用知网时可按题名检索：
 
 ```bash
 node scripts/batch_download.mjs \
@@ -138,7 +138,7 @@ node scripts/batch_download.mjs \
   --out "./文献自动下载"
 ```
 
-元数据冲突时可用 `--language zh|en` 或 `--route cnki|open_access|elsevier|springer_nature|ieee|web_access` 覆盖。`--source-url` 指向 CNKI 时强制中文 CNKI 路由。
+元数据冲突时可用 `--language zh|en` 或 `--route cnki|open_access|elsevier|springer_nature|ieee|web_access` 覆盖。`--source-url` 用于选择备用来源，指定 PDF 与 OA 限制优先。
 
 ## API 失败与 Web Access 回退
 
@@ -180,7 +180,7 @@ node scripts/batch_download.mjs \
 ## 边界
 
 - 不绕过付费墙，不使用镜像站，也不读取或导出 cookie、密码、localStorage 或 session 文件。
-- 对可见滑块、复选框、机器人校验或简单确认按钮，只在同一已授权浏览器标签页中最多尝试两次，并在页面确认成功后继续。
+- 对可见滑块、复选框、机器人校验或简单确认按钮，立即暂停，保留当前页并交由用户验证。
 - 图片选择、二维码确认、短信/OTP、通行密钥、硬件密钥或双重认证必须由用户本人完成。
 - 没有合法访问权限时，只报告状态、失败原因和可能替代路线。
 

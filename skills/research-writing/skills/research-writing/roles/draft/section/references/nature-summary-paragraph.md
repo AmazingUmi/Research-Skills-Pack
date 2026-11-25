@@ -7,9 +7,9 @@
 - [Canonical sentence-level structure](#canonical-sentence-level-structure)
 - [Word-count and compression principle](#word-count-and-compression-principle)
 - [How to read the annotated example in the image](#how-to-read-the-annotated-example-in-the-image)
-- [Practical writing rules for `research-writing`](#practical-writing-rules-for-this-skill)
+- [Practical writing rules for `research-writing`](#practical-writing-rules-for-research-writing)
 - [Frequent failure modes](#frequent-failure-modes)
-- [Relationship to other references in `research-writing`](#relationship-to-other-references-in-this-skill)
+- [Relationship to other references in `research-writing`](#relationship-to-other-references-in-research-writing)
 
 
 ## What this reference is for

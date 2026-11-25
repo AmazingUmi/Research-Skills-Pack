@@ -315,7 +315,7 @@ def emit_text(
     output: str | os.PathLike[str] | None = None,
     force: bool = False,
 ) -> None:
-    """Print text or write it atomically to Markdown."""
+    """Print text or write it atomically to a local report."""
 
     payload = text.encode("utf-8")
     if len(payload) > MAX_REPORT_BYTES:
@@ -325,7 +325,7 @@ def emit_text(
     if output is None:
         print(text, end="" if text.endswith("\n") else "\n")
         return
-    destination = checked_output_file(output, suffixes={".md"}, force=force)
+    destination = checked_output_file(output, suffixes={".md", ".txt"}, force=force)
     atomic_write_bytes(destination, payload, force=force)
 
 

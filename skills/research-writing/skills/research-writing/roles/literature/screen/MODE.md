@@ -38,3 +38,5 @@
 ## 交回文献角色
 
 纳入的研究清单、PRISMA 计数和排除理由交给文献角色，再进入 `systematic-review` 或正文角色。严格模式下可输出 `literature_corpus[]` 条目（schema 见 `@/engine/contracts/passport/literature_corpus_entry.schema.json`）。
+
+Title-only matches are retained in `candidate_duplicates.json` for human review. Exclusions require a reason; full-text exclusions also require a page or passage locator in `where`, including human overrides. Reprepare and rescreen after a retrieved PDF changes.

@@ -44,7 +44,7 @@ After 2.5 and its checkpoint, route to the confirmed target:
   Formatting and submission only → 4.5 Final integrity
 
 3 Review: Accept → 4.5 | Minor or Major → 4 | Reject → 2 or end
-4 Revise → 3' Re-review: Accept or Minor → 4.5 | Major → 4' → 4.5
+4 Revise → 3' Re-review: Accept → 4.5 | Minor → item-level disposition → 4.5 | Major → 4' → 4.5
 4.5 Final integrity → mandatory finalization checkpoint → 5 Finalize
 5 Finalize → 6 Process summary → completion, or decline 6 → completion
 
@@ -59,6 +59,8 @@ Validated resume → recorded stage and any pending checkpoint of the same run
 Use [the stage-to-role table](../ROLE.md#2-阶段与角色调用) for role and mode dispatch. Select the integrity procedure for Stages 2.5 and 4.5 via [the role's integrity section](../ROLE.md#4-完整性核查阶段-25-与-45). Default runs use the [evidence-matrix procedure](../agents/default_integrity_review.md). Material Passport and replay requirements apply when running the strict procedure.
 
 ### Normal Flow Transitions
+
+Apply these same prerequisites to a resumed run before consuming its boundary. The [resume preflight](../../../engine/scripts/check_resume_target.py) checks the recorded destination or the chosen branch. An explicit rerun is limited to the just-completed stage of a nonterminal, branch-free boundary with a valid recorded edge. Terminal decisions end the run. The author and evidence requirements in this table still apply. In particular, Stage 2 cannot go directly to 3, and a pending author choice must be resolved before validating its selected branch.
 
 | From | To | Precondition | Action |
 |------|----|-------------|--------|
@@ -84,7 +86,7 @@ Use [the stage-to-role table](../ROLE.md#2-阶段与角色调用) for role and m
 | Stage 3' | **checkpoint** | Decision produced | Wait for user confirmation (MANDATORY — review decision) |
 | Stage 3' (external) | **checkpoint** | Response and draft consistency check completed | Identify unverified claims in the reply and their missing evidence. Present discrepancies and wait for user confirmation before final integrity |
 | checkpoint (external 3') | Stage 4.5 | User confirms after reviewing the reconciliation | Pass the checked draft, response and unresolved findings |
-| checkpoint | Stage 4.5 | Decision = Accept/Minor, user confirms | Pass final draft to final verification |
+| checkpoint | Stage 4.5 | Decision = Accept, or Minor with every remaining issue linked to the revised manuscript or expressly retained by the author with rationale; user confirms | Pass final draft to final verification |
 | checkpoint | Stage 4' | Decision = Major, user confirms | Pass the new Revision Roadmap. When the Major rests only on items the author declined, offer the [limitations-only option](../strict/pipeline_orchestrator_agent.md#declined-items-at-stage-3-and-stage-4). |
 | Stage 4' | **checkpoint** | Stage 4' completed | Wait for user confirmation |
 | checkpoint | Stage 4.5 | User confirms | Pass revised draft to final verification |
@@ -250,7 +252,8 @@ Stage 3 (First REVIEW)
   -> Decision: Minor/Major -> Stage 4
       -> Stage 4 (REVISE)
           -> Stage 3' (RE-REVIEW, verification)
-              -> Decision: Accept/Minor -> Stage 4.5
+              -> Decision: Accept -> Stage 4.5
+              -> Decision: Minor -> each issue fixed and verified or retained with author rationale -> Stage 4.5
               -> Decision: Major -> Stage 4' (last revision)
                   -> Stage 4.5 (go directly to final verification, no return to review)
 

@@ -174,14 +174,16 @@ RULES: tuple[tuple[str, str, str, re.Pattern[str]], ...] = (
 )
 
 
-def _without_comments(line: str, *, in_block: bool) -> tuple[str, bool]:
-    stripped = line.lstrip()
-    if in_block:
-        if stripped.startswith("%}"):
-            return "", False
-        return "", True
-    if stripped.startswith("%{"):
-        return "", True
+_BLOCK_OPEN_RE = re.compile(r"[ \t]*%\{[ \t]*")
+_BLOCK_CLOSE_RE = re.compile(r"[ \t]*%\}[ \t]*")
+_M_LINE_SPLIT_RE = re.compile(r"\r\n|\r|\n")
+
+
+def _without_comments(line: str, *, block_depth: int) -> tuple[str, int]:
+    if _BLOCK_OPEN_RE.fullmatch(line):
+        return "", block_depth + 1
+    if block_depth:
+        return "", block_depth - bool(_BLOCK_CLOSE_RE.fullmatch(line))
     single = False
     double = False
     index = 0
@@ -198,9 +200,9 @@ def _without_comments(line: str, *, in_block: bool) -> tuple[str, bool]:
                 continue
             double = not double
         elif char == "%" and not single and not double:
-            return line[:index], False
+            return line[:index], 0
         index += 1
-    return line, False
+    return line, 0
 
 
 def scan_source(
@@ -208,9 +210,9 @@ def scan_source(
 ) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
     text = read_text(path, max_bytes=max_file_bytes)
-    in_block = False
-    for line_number, line in enumerate(text.splitlines(), start=1):
-        code, in_block = _without_comments(line, in_block=in_block)
+    block_depth = 0
+    for line_number, line in enumerate(_M_LINE_SPLIT_RE.split(text), start=1):
+        code, block_depth = _without_comments(line, block_depth=block_depth)
         for rule, severity, message, pattern in RULES:
             for match in pattern.finditer(code):
                 findings.append(

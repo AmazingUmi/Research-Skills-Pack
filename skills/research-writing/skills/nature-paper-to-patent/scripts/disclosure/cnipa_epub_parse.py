@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-解析 http://epub.cnipa.gov.cn/ 检索结果页 HTML，提取公布公告列表中的标题、公开号、详情链接、摘要（若有）。
+解析 https://epub.cnipa.gov.cn/ 检索结果页 HTML，提取公布公告列表中的标题、公开号、详情链接、摘要（若有）。
 
 与 `cnipa_epub_crawler.py` / **`cnipa_epub_search.py`**（一步检索+解析）配合：爬虫落盘 HTML 后可用本模块单独再解析；也可被其它脚本 import。
 """
@@ -17,7 +17,7 @@ if hasattr(sys.stderr, "reconfigure"):
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-EPUB_BASE = "http://epub.cnipa.gov.cn/"
+EPUB_BASE = "https://epub.cnipa.gov.cn/"
 
 
 @dataclass

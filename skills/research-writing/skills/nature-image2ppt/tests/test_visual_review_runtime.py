@@ -7,12 +7,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from support import requires_renderer
 from support import SCRIPTS, build_page, complete_visual_review_evidence, filled_arrow_manifest
 
 sys.path.insert(0, str(SCRIPTS))
 from visual_review_evidence import expected_page, validate_evidence  # noqa: E402
 
 
+@requires_renderer
 class VisualReviewRuntimeTests(unittest.TestCase):
     """Integration tests that require a real PowerPoint or LibreOffice renderer."""
 

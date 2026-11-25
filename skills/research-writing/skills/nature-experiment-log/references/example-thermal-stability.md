@@ -9,7 +9,7 @@
 exp_id: HY-T-260601-001
 date: 2026-06-01
 salt_system: 混合盐体系
-salt_batch: HY-B1-B001
+sample_batch: HY-B1-B001
 salt_composition: "*** (*** wt%)"
 exp_type: 热稳定性
 furnace: 管式炉_1号

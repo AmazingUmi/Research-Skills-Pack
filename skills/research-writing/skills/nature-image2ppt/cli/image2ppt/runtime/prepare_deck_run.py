@@ -148,7 +148,7 @@ def write_page_jobs(run_dir, deck):
     write_json(run_dir / "page_jobs.json", jobs)
 
 
-def upgrade_deck_manifest(deck_path, max_concurrent_pages):
+def upgrade_deck_manifest(deck_path, max_concurrent_pages, ocr="local"):
     run_dir = deck_path.parent
     deck = read_json(deck_path)
     run_id = run_dir.name
@@ -158,6 +158,7 @@ def upgrade_deck_manifest(deck_path, max_concurrent_pages):
             "schema_version": 1,
             "run_id": run_id,
             "prepared_at": now_iso(),
+            "ocr": ocr,
             "output": f"final/{output_name}",
             "page_jobs": "page_jobs.json",
             "run_state": "run_state.json",
@@ -184,6 +185,7 @@ def main():
     parser.add_argument("inputs", nargs="+")
     parser.add_argument("--out-root", default="output/image2ppt")
     parser.add_argument("--job-dir")
+    parser.add_argument("--ocr", choices=("local", "cloud"), default="local")
     parser.add_argument("--dpi", type=int, default=180)
     parser.add_argument(
         "--max-concurrent-pages",
@@ -199,7 +201,7 @@ def main():
     run_dir = deck_path.parent
     if not (run_dir / "pages").exists():
         raise SystemExit(f"Input normalization did not create pages/: {run_dir}")
-    deck = upgrade_deck_manifest(deck_path, args.max_concurrent_pages)
+    deck = upgrade_deck_manifest(deck_path, args.max_concurrent_pages, args.ocr)
     print(deck_path)
     print(f"run_id={deck['run_id']}")
     print(f"pages={deck['page_count']}")

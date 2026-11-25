@@ -10,7 +10,7 @@ Start with `scripts/nature_citation.py` when internet access is available:
 python scripts/nature_citation.py \
   --text "PASTE MANUSCRIPT TEXT HERE" \
   --scope cns \
-  --outdir /tmp/this mode \
+  --outdir /tmp/cns-cite \
   --format ris \
   --with-artifacts
 ```

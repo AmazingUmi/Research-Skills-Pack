@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "ars://contracts/passport/excluded_source_entry.schema.json",
   "title": "Material Passport excluded source entry 1.0",
-  "description": "One entry in Material Passport Schema 9 excluded_sources[]: a reference an integrity gate judged NOT_FOUND, kept off every later writer dispatch without mutating literature_corpus[]. How entries are recorded, carried, and restored: ../roles/orchestrate/strict/pipeline_orchestrator_agent.md § Integrity-Excluded Sources.",
+  "description": "One entry in Material Passport Schema 9 excluded_sources[]: a reference an integrity gate judged NOT_FOUND, kept off every later writer dispatch without mutating literature_corpus[]. How entries are recorded, carried, and restored: ../../../roles/orchestrate/strict/pipeline_orchestrator_agent.md § Integrity-Excluded Sources.",
   "type": "object",
   "additionalProperties": false,
   "required": [

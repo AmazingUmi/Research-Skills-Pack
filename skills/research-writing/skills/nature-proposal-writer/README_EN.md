@@ -8,7 +8,7 @@
 
 - Build a research canon, problem chain, and section contracts from a rough research direction.
 - Revise existing paragraphs so argument order, contribution boundaries, and evidence support are clearer.
-- Expand existing drafts into proposals, manuscript sections, review frameworks, or project narratives.
+- Expand existing drafts into proposals, proposal literature review sections, or research plans.
 - Run content, language, citation, and formatting QA after drafting.
 
 ## Three Modes
@@ -41,7 +41,7 @@
 
 - The skill does not invent experimental results, references, collaboration basis, or feasibility evidence.
 - Missing facts are marked as `AUTHOR_INPUT_NEEDED` rather than hidden under fluent prose.
-- For sentence-level English polishing only, use `nature-polishing`.
+- For sentence-level English polishing only, use `$research-writing draft polish`.
 
 ## Complete Reference Set
 
@@ -50,13 +50,13 @@ The skill includes 20 references that are loaded on demand, covering:
 - the complete `compose`, `revise`, and `hybrid` workflows;
 - foundation files, project state, scope control, and writing within an approved proposal;
 - dynamic expert dispatch, scoring, stopping rules, and automated validation;
-- Chinese research-writing cleanup, review architecture, and critical synthesis;
+- Chinese research-writing cleanup, proposal literature review structure and critical synthesis;
 - citation renumbering, revision handoffs, export and archival workflows, and a completed example.
 
 See the [reference index and loading conditions](SKILL.md#reference-文件索引) in `SKILL.md`. Load only the references required by the current task rather than injecting the entire set into context.
 
 ## Related Skills
 
-- `nature-writing`: Nature-style manuscript-section drafting.
-- `nature-polishing`: English manuscript polishing, restructuring, and translation.
-- `nsfc-proposal`: dedicated National Natural Science Foundation of China proposal writing.
+- `$research-writing draft section`: Nature-style manuscript-section drafting.
+- `$research-writing draft polish`: English manuscript polishing, restructuring, and translation.
+- `$research-writing outline`: research-question framing and study design.

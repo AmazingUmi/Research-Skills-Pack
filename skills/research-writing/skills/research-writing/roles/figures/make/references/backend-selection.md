@@ -11,17 +11,12 @@
 
 Backend selection applies only to rendering or editing plotting code. Reuse a choice already established in the same task and its follow-ups; do not ask again merely because a new message omits the language. Read-only figure review and backend-independent data inspection may proceed without this choice. If the backend remains unresolved, retain the one-time Python/R question and pause only dependent plotting steps. Explicit approval requirements and backend exclusivity remain in force.
 
-At the start of a plotting task, resolve the user's preferred backend in this order:
-
-1. explicit Python/R choice in the current request;
-2. clearly language-specific input file or workflow;
-3. choice already established in this task, then saved preference from `scripts/nature_figure_backend.py get`;
-4. if neither exists, ask **Python or R? I will remember this as your default.**
-
-Pause dependent plotting steps after asking and wait for the user's answer; continue independent inspection. After the answer, save it with
-`scripts/nature_figure_backend.py set python` or `scripts/nature_figure_backend.py set r`.
-Do not infer Python just because the task involves simulation, NumPy-like data, or
-custom layout, and do not infer R just because the task is biological or omics-adjacent.
+Use the explicit Python/R choice, a clearly language-specific input, or the choice
+already established in this task. Otherwise consult the saved default with
+`scripts/nature_figure_backend.py get`. If the backend is still unresolved,
+ask “Python or R?” and continue independent inspection. Keep this choice in the
+current task. Run `scripts/nature_figure_backend.py set python` or `set r` only
+when the user explicitly asks to remember a default across projects.
 
 Use the decision table only in either of these cases:
 
@@ -39,8 +34,7 @@ Use the decision table only in either of these cases:
 | Heatmap annotations are biologically rich and multi-layered | Image panels and quantitative panels need tight pixel/axis control |
 
 If either backend can do the job, honor the user's saved preference. Do not switch
-backends for aesthetics alone. If the user explicitly switches backend, save the new
-preference.
+backends for aesthetics alone. Use a requested switch for the current task.
 
 ## Backend exclusivity rule
 

@@ -41,7 +41,7 @@ For local edits or bounded audits, apply only the relevant item-level steps and 
 requested passage or findings with factual gaps flagged. The complete tracker, cover letter,
 reviewer file set, and package readiness assessment apply when a package is requested.
 
-1. Identify task mode and input readiness: `draft`, `audit`, `revise`, `triage-only`, `cover-letter`, `revision-package`, `latex-template`, or `appeal-like`.
+1. Route audits of existing replies to `review rebuttal-audit` and triage to `review revision-coach` for their specialist outputs. Return the specialist result directly for those requests. For author-approved drafting, identify the mode and inputs for `draft`, `revise`, `cover-letter`, `revision-package`, `latex-template`, or `appeal-like`.
 2. If the input is a pasted journal email, automatically extract manuscript title, manuscript ID, journal, decision type, editor instructions, reviewer-report boundaries, required revision files, deadline, reviewer-visibility rules, and portal-specific constraints before drafting.
 3. Apply the decision-type gate to package-level work. If that work depends on an unknown decision, pause and ask the user; do not draft a generic response that silently treats Major and Minor Revision as equivalent. Continue local edits, visible-draft audits, and comment-level triage that do not depend on the label.
 4. When a package strategy is needed and the decision is known, select it while preserving item-level severity.

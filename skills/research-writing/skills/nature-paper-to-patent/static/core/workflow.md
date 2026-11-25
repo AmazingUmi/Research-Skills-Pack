@@ -109,4 +109,4 @@ technical-effect reasoning, formula coverage, and figure alignment. List
 unresolved inventor questions and publication risks.
 
 Gate: meet the thresholds in `static/core/output-contract.md`; otherwise label
-the package `incomplete draft`.
+the package `incomplete-draft`.

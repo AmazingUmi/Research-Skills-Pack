@@ -17,8 +17,6 @@
     "post_letter_observations",
     "dissent_adjudications",
     "resolution_intents",
-    "cross_model_resolutions",
-    "rebuttal_adjudications",
     "g2d_acceptances",
     "pending_rebuttal_upgrades",
     "escalation_approvals",
@@ -42,6 +40,16 @@
     "verdict_record_hash": {
       "$ref": "#/$defs/sha256",
       "description": "sha256 hex over the Phase 2A artifact's JSON Canonical Form. NEVER changes across re-emissions — the 2A artifact is immutable (§6 loop step 3). Third link of the §11 hash chain; the checker recomputes it."
+    },
+    "cross_model_resolutions": {
+      "type": "array",
+      "maxItems": 0,
+      "description": "Optional legacy read-only compatibility field; must be empty in local-only runs."
+    },
+    "rebuttal_adjudications": {
+      "type": "array",
+      "maxItems": 0,
+      "description": "Optional legacy read-only compatibility field; must be empty in local-only runs."
     },
     "rows": {
       "type": "array",
@@ -69,14 +77,6 @@
     "resolution_intents": {
       "type": "array",
       "items": { "$ref": "#/$defs/resolution_intent" }
-    },
-    "cross_model_resolutions": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/cross_model_resolution" }
-    },
-    "rebuttal_adjudications": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/rebuttal_adjudication" }
     },
     "g2d_acceptances": {
       "type": "array",
@@ -157,7 +157,7 @@
         "anchor": { "$ref": "#/$defs/typed_anchor" },
         "anchor_artifact": {
           "enum": ["manuscript", "letter"],
-          "description": "Basis-enforced (§5.3): author_pointer_located_evidence and scope_correction anchors must be manuscript; valid_rebuttal may use either; cross_model_adjudication anchors are mechanically copied, tags included, from the referenced ReapplicationRecord."
+          "description": "Basis-enforced (§5.3): author_pointer_located_evidence and scope_correction anchors must be manuscript; valid_rebuttal may use either; criterion_reapplication anchors are mechanically copied, tags included, from the referenced ReapplicationRecord."
         }
       }
     },
@@ -308,12 +308,8 @@
           "description": "Marker for a valid_rebuttal chain-tail upgrade to FULLY_ADDRESSED (§3.4)."
         },
         "cross_model_status": {
-          "enum": ["agree", "diverges", "unavailable", "not_configured"],
-          "description": "DERIVED PER EMISSION on the rows the pass EVALUATED (those carrying cross_model_verdict): agree <=> cross_model_verdict = final_verdict, else diverges; unavailable/not_configured rows keep their recorded status. MUST_FIX rows always carry it; SHOULD_FIX/CONSIDER rows carry neither field."
-        },
-        "cross_model_verdict": {
-          "$ref": "#/$defs/judge_verdict",
-          "description": "The judge's recorded verdict — immutable once the pass ran; present exactly on evaluated (agree/diverges) rows."
+          "const": "not_configured",
+          "description": "Optional legacy read-only compatibility field; local-only runs omit it or record not_configured."
         }
       },
       "allOf": [
@@ -332,29 +328,6 @@
             }
           },
           "else": { "not": { "required": ["author_reason"] } }
-        },
-        {
-          "if": {
-            "required": ["obligation_class"],
-            "properties": { "obligation_class": { "const": "MUST_FIX" } }
-          },
-          "then": { "required": ["cross_model_status"] },
-          "else": {
-            "not": {
-              "anyOf": [
-                { "required": ["cross_model_status"] },
-                { "required": ["cross_model_verdict"] }
-              ]
-            }
-          }
-        },
-        {
-          "if": {
-            "required": ["cross_model_status"],
-            "properties": { "cross_model_status": { "enum": ["agree", "diverges"] } }
-          },
-          "then": { "required": ["cross_model_verdict"] },
-          "else": { "not": { "required": ["cross_model_verdict"] } }
         }
       ]
     },
@@ -374,7 +347,7 @@
             "valid_rebuttal",
             "scope_correction",
             "user_accepted_fail_closed",
-            "cross_model_adjudication"
+            "criterion_reapplication"
           ]
         },
         "evidence_anchor": {
@@ -385,18 +358,14 @@
         "cannot_verify_reason": { "$ref": "#/$defs/nonempty_string" },
         "residual_gap": { "$ref": "#/$defs/residual_gap" },
         "critical_rebuttal_check": {
-          "anyOf": [
-            { "type": "string", "pattern": "^adjudicated:RADJ-[1-9][0-9]*$" },
-            { "const": "single_family_disclosed" },
-            { "const": "pass_unavailable_disclosed" }
-          ],
-          "description": "§3.4 closed union — present exactly on critical valid_rebuttal adjustments (checker-enforced against the roadmap's driving severity). single_family_disclosed is invalid on a run whose cross-model configuration was active."
+          "const": "single_family_disclosed",
+          "description": "§3.4 local-review disclosure — present exactly on critical valid_rebuttal adjustments (checker-enforced against the roadmap's driving severity)."
         },
         "rationale": { "$ref": "#/$defs/nonempty_string" },
         "source_ref": {
           "type": "string",
           "pattern": "^(reapplication:RAP-[1-9][0-9]*|acceptance:ACC-[1-9][0-9]*)$",
-          "description": "Basis-DISCRIMINATED: required reapplication:<id> iff basis = cross_model_adjudication; required acceptance:<id> iff basis = user_accepted_fail_closed; FORBIDDEN on every other basis."
+          "description": "Basis-DISCRIMINATED: required reapplication:<id> iff basis = criterion_reapplication; required acceptance:<id> iff basis = user_accepted_fail_closed; FORBIDDEN on every other basis."
         },
         "supersedes_adjustment_id": {
           "type": "string",
@@ -436,7 +405,7 @@
         {
           "if": {
             "required": ["basis"],
-            "properties": { "basis": { "const": "cross_model_adjudication" } }
+            "properties": { "basis": { "const": "criterion_reapplication" } }
           },
           "then": {
             "properties": {
@@ -574,7 +543,7 @@
       "required": ["dissent_id", "adjudicator", "outcome", "rationale"],
       "properties": {
         "dissent_id": { "type": "string", "pattern": "^DIS-[1-9][0-9]*$" },
-        "adjudicator": { "enum": ["cross_model", "user"] },
+        "adjudicator": { "const": "user" },
         "outcome": { "enum": ["replacement_approved", "original_upheld"] },
         "rationale": { "$ref": "#/$defs/nonempty_string" }
       }
@@ -602,50 +571,6 @@
           "then": { "not": { "required": ["guidance_note"] } }
         }
       ]
-    },
-
-    "cross_model_resolution": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["resolution_id", "item_id", "intent_id", "reapplication_id", "state", "resolved_by", "rationale"],
-      "properties": {
-        "resolution_id": { "type": "string", "pattern": "^RES-[1-9][0-9]*$" },
-        "item_id": { "$ref": "#/$defs/item_id" },
-        "intent_id": { "type": "string", "pattern": "^INT-[1-9][0-9]*$" },
-        "reapplication_id": { "type": "string", "pattern": "^RAP-[1-9][0-9]*$" },
-        "state": { "enum": ["primary_upheld", "primary_revised"] },
-        "resolved_by": {
-          "enum": ["system", "user"],
-          "description": "system: created mechanically when the reapplication derives a state (reapplied_verdict != CANNOT_VERIFY). user: the acceptance form — the user accepts primary_upheld on a CANNOT_VERIFY reapplication; the user never hand-sets a verdict."
-        },
-        "rationale": { "$ref": "#/$defs/nonempty_string" }
-      },
-      "allOf": [
-        {
-          "if": {
-            "required": ["resolved_by"],
-            "properties": { "resolved_by": { "const": "user" } }
-          },
-          "then": {
-            "properties": { "state": { "const": "primary_upheld" } }
-          }
-        }
-      ]
-    },
-
-    "rebuttal_adjudication": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["rebuttal_adjudication_id", "item_id", "verdict", "rationale"],
-      "properties": {
-        "rebuttal_adjudication_id": { "type": "string", "pattern": "^RADJ-[1-9][0-9]*$" },
-        "item_id": { "$ref": "#/$defs/item_id" },
-        "verdict": {
-          "enum": ["upheld", "challenged"],
-          "description": "§3.4 critical-rebuttal pass: upheld books the drafted AdjustmentRecord; challenged means it is NEVER booked."
-        },
-        "rationale": { "$ref": "#/$defs/nonempty_string" }
-      }
     },
 
     "g2d_acceptance": {
@@ -699,11 +624,9 @@
         "disposition": {
           "anyOf": [
             { "type": "string", "pattern": "^booked:ADJ-[1-9][0-9]*$" },
-            { "type": "string", "pattern": "^challenged:RADJ-[1-9][0-9]*$" },
-            { "type": "string", "pattern": "^booked_disclosed:ADJ-[1-9][0-9]*$" },
             { "type": "string", "pattern": "^booked_single_family:ADJ-[1-9][0-9]*$" }
           ],
-          "description": "booked: upheld by the §3.4 pass; challenged: never booked; booked_disclosed: active cross-model, pass unavailable (adjustment carries pass_unavailable_disclosed); booked_single_family: cross-model not configured (adjustment carries single_family_disclosed)."
+          "description": "booked: non-critical valid_rebuttal adjustment booked directly; booked_single_family: critical valid_rebuttal adjustment booked with single_family_disclosed under local-only review."
         }
       }
     },

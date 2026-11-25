@@ -43,7 +43,7 @@ GET ?search_query=ti:"{title}"&max_results=5
 
 `true` if and only if the citation **has an arXiv ID** AND the ID lookup either returns an empty feed (miss) or misses the title cross-check, AND the title-search fallback returns no match meeting threshold.
 
-A citation with **no arXiv ID** is `skipped` (not `unmatched`) — the resolver does not run and the caller omits `arxiv_unmatched` (absent ≠ false, ). arXiv applicability is ID-gated: a title-only miss against arXiv is a coverage gap for a non-arXiv work, not non-existence evidence, so it must never emit a triangulation signal. The check fires only when `obtained_via != 'manual'` AND an arXiv ID is present.
+A citation with **no arXiv ID** is `skipped` (not `unmatched`) — the resolver does not run and the caller omits `arxiv_unmatched` (absent ≠ false). arXiv applicability is ID-gated: a title-only miss against arXiv is a coverage gap for a non-arXiv work, not non-existence evidence, so it must never emit a triangulation signal. The check fires only when `obtained_via != 'manual'` AND an arXiv ID is present.
 
 Note: the unified `lookup_verified` summary (Delta 4, a later batch) narrows the existence-gate `false` to **ID-keyed** unmatched — a title-only `arxiv_unmatched` with no resolvable ID is a coverage-gap signal, not fabrication evidence (C-V6(a)). This protocol's `arxiv_unmatched` boolean is the raw triangulation signal; the narrowing happens at the Delta 4 reducer, not here.
 
@@ -71,6 +71,5 @@ See `@/engine/scripts/arxiv_client.py`. Class `ArxivClient` exposes `arxiv_id_lo
 
 ## Cross-references
 
--
 - Mirror template: `@/roles/literature/research/references/crossref_api_protocol.md`
 - Sibling protocols: `@/roles/literature/research/references/openalex_api_protocol.md`, `@/roles/literature/research/references/semantic_scholar_api_protocol.md`

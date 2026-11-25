@@ -11,7 +11,7 @@
 ━━━━━━━━━━━━━━━━━━━━
 
 🏅 #{N} | {Title}
-{Journal/Source}, {Year} | {Authors} et al. | {Institution} | ⭐ {score}/10 | 分流：{A-E tier}
+{Journal/Source}, {Year} | {Authors} et al. | {Institution} | ⭐ {score}/10 | 分流：{A-E tier} | 阅读深度：{全文／仅摘要／仅元数据}
 DOI: {doi if available} | arXiv: {arxiv_id if available}
 
 💡 一句话：{one-line takeaway — why this paper matters or why it is only deferred}
@@ -39,6 +39,7 @@ Daily pushes should NOT include a fixed "与 vault 的关联" field or forced wi
 | 🔬 方法 | 实验/模拟？什么盐体系？什么表征（CV/EIS/SEM/XRD/TEM）？什么合金？ |
 | 📊 关键结果 | 必须是具体数据或明确结论。禁止"有重要发现""提供了新的视角"等空泛表述 |
 | 🧭 点评 | 说明对研究主线的实际价值、局限、是否值得全文精读；不机械写 vault 关联 |
+| 阅读深度 | 逐条标明实际读取的材料；仅元数据时将缺乏依据的方法与结果标为未核实 |
 | ⭐ 评分 | 粗筛综合得分（0-10），帮助判断优先级；内部六维评分仍用 0-100 并校验各维度上限 |
 
 ## Example
@@ -51,7 +52,7 @@ All papers, identifiers, dates, and numerical results in this example are synthe
 ━━━━━━━━━━━━━━━━━━━━
 
 🏅 #1 | Electrochemical monitoring of impurity X in compound A-B-C system via advanced voltammetry
-Electrochimica Acta, 2026 | Zhang, Li, Wang et al. | CAS Institute | ⭐ 9.2/10 | 分流：A_核心主线
+Electrochimica Acta, 2026 | Zhang, Li, Wang et al. | CAS Institute | ⭐ 9.2/10 | 分流：A_核心主线 | 阅读深度：全文
 DOI: <DOI> | arXiv: <ARXIV_ID>
 
 💡 一句话：First application of method X to system Y for impurity quantification, detection limit improved ~5× over prior art。

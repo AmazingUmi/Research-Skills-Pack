@@ -26,7 +26,7 @@ export const STATUS = Object.freeze({
   RETRY_AFTER_USER_VERIFICATION: "retry_after_user_verification",
   API_FALLBACK_CONFIRMATION_REQUIRED: "api_fallback_confirmation_required",
 
-  // auto-verification (new — attempted automatic CAPTCHA/slider/robot check solving)
+  // historical manifest values; never emitted
   VERIFICATION_AUTO_PASSED: "verification_auto_passed",
   VERIFICATION_AUTO_FAILED: "verification_auto_failed",
 
@@ -64,9 +64,9 @@ const INSTITUTIONAL_HOST_RE =
 
 // Publisher anti-bot / verification signals (checked against title + body).
 const ROBOT_CHECK_RE =
-  /captcha|are you a robot|cloudflare|verify you are human|unusual traffic|bot verification|challenge/i;
+  /captcha|are you a robot|cloudflare|turnstile|verify (?:that )?you are human|checking your browser|unusual traffic|bot verification|security challenge|人机验证|滑块验证/i;
 
-// Slider/drag CAPTCHA signals — auto-attemptable, return regular verification status.
+// Slider/drag CAPTCHA signals — manual handoff, return regular verification status.
 const SLIDER_CAPTCHA_RE =
   /滑块验证|滑动验证|拖动滑块|拼图验证|请按住滑块|请拖动|请滑动|drag the slider|slide to verify|slide to unlock|slider verification/i;
 
@@ -106,9 +106,9 @@ export function classifyWall(url, title, bodyHint = "") {
     return { status: STATUS.SCIENCEDIRECT_ROBOT_CHECK, reason: "ScienceDirect robot check" };
   }
 
-  // 3. Slider / drag CAPTCHA — auto-attemptable, classify as publisher verification.
+  // 3. Slider / drag CAPTCHA — manual handoff, classify as publisher verification.
   if (SLIDER_CAPTCHA_RE.test(s)) {
-    return { status: STATUS.PUBLISHER_VERIFICATION_WAITING_USER, reason: "slider captcha — auto-attemptable" };
+    return { status: STATUS.PUBLISHER_VERIFICATION_WAITING_USER, reason: "slider captcha — manual handoff" };
   }
 
   // 4. Generic publisher verification (CAPTCHA / Cloudflare / bot check).

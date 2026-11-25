@@ -118,7 +118,7 @@ The agent registers claims against the exact draft bytes, runs `@/engine/scripts
 
 | Grade | Paragraph Count | Proportion |
 |-------|----------------|-----------|
-| ORIGINAL | 12 | 63.2% |
+| NO_INDEXED_MATCH | 12 | 63.2% |
 | COMMON_KNOWLEDGE | 4 | 21.1% |
 | PARAPHRASE | 3 | 15.8% |
 | CLOSE_MATCH | 0 | 0% |

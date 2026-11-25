@@ -157,10 +157,6 @@ def select_image_backend(values: dict, codex_ready: bool, api_ready: bool) -> tu
     model = str(values.get("IMAGE2PPT_IMAGE_MODEL") or DEFAULT_IMAGE_MODEL)
     if preference == "codex-oauth":
         return "codex-oauth", bool(codex_ready and codex_model_compatible(model))
-    if preference == "openai-compatible-api":
-        return "openai-compatible-api", api_ready
-    if codex_ready and codex_model_compatible(model):
-        return "codex-oauth", True
     return "openai-compatible-api", api_ready
 
 
@@ -207,6 +203,7 @@ def config(args: argparse.Namespace) -> int:
 
 def module_status() -> dict[str, dict]:
     purposes = {
+        "defusedxml": "safe parsing of input Office XML",
         "pypdfium2": "PDF input normalization and rendered-slide rasterization",
         "PIL": "image normalization, assets, previews, and offline OCR geometry",
         "openai": "optional image backend",
@@ -243,6 +240,8 @@ def font_status() -> dict:
         Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
         Path("/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf"),
         Path("/System/Library/Fonts/PingFang.ttc"),
+        Path("/System/Library/Fonts/Hiragino Sans GB.ttc"),
+        Path("/System/Library/Fonts/STHeiti Medium.ttc"),
         Path("C:/Windows/Fonts/msyh.ttc"),
     ]
     existing = [str(path) for path in candidates if path.is_file()]
@@ -307,14 +306,18 @@ def internal_resource_status() -> dict:
     return {"ready": all(item["exists"] for item in files.values()), "files": files}
 
 
-def collect_status(check_api: bool = False, check_ocr: bool = False) -> dict:
+def collect_status(check_api: bool = False, check_ocr: bool = False, *, backend: str | None = None) -> dict:
     home = runtime_home()
     active_config = config_path(home)
     config_values = read_config_file(active_config)
     values = dict(config_values)
     for key in ENV_FIELDS:
-        if os.getenv(key):
+        if key in os.environ:
             values[key] = os.environ[key]
+    preference = values.get("IMAGE2PPT_IMAGE_BACKEND", DEFAULT_IMAGE_BACKEND)
+    if backend is not None:
+        values["IMAGE2PPT_IMAGE_BACKEND"] = backend
+        check_api = True
 
     modules = module_status()
     renderer = renderer_status()
@@ -322,25 +325,25 @@ def collect_status(check_api: bool = False, check_ocr: bool = False) -> dict:
     processing = image_processing_status(modules)
     resources = internal_resource_status()
     api_ready = bool(values.get("OPENAI_API_KEY"))
-    codex_ready = codex_oauth_ready()
+    codex_checked = backend == "codex-oauth"
+    codex_ready = codex_checked and codex_oauth_ready()
     selected_backend, cli_fallback_ready = select_image_backend(values, codex_ready, api_ready)
+    if selected_backend == "openai-compatible-api":
+        cli_fallback_ready = cli_fallback_ready and modules["openai"]["available"]
     token = str(values.get("PADDLE_OCR_TOKEN") or "").strip()
-    token_source = "environment" if os.getenv("PADDLE_OCR_TOKEN") else ("config" if token else "unset")
+    token_source = "environment" if "PADDLE_OCR_TOKEN" in os.environ else ("config" if token else "unset")
     offline_ready = modules["PIL"]["available"] and modules["numpy"]["available"]
-    dependency_ready = all(item["available"] for item in modules.values())
-    ok = (
-        dependency_ready
-        and renderer["ready"]
-        and fonts["ready"]
-        and processing["ready"]
-        and resources["ready"]
-        and offline_ready
-        and (cli_fallback_ready if check_api else True)
-        and (bool(token) if check_ocr else True)
-    )
+    dependency_ready = all(modules[name]["available"] for name in ("pypdfium2", "defusedxml", "yaml", "PIL", "numpy"))
+    cloud_ready = bool(token) and modules["requests"]["available"]
+    local_ready = dependency_ready and renderer["ready"] and fonts["ready"] and resources["ready"]
+    ok = local_ready and (not check_api or cli_fallback_ready) and (not check_ocr or cloud_ready)
+    next_action = "no action needed" if ok else "inspect failed doctor sections and install/configure only the missing local or system dependency"
+    if check_api and selected_backend == "codex-oauth" and not codex_checked:
+        next_action = "Run image2ppt doctor --backend codex-oauth to check Codex credentials for this request."
     return {
         "schema_version": "image2ppt-doctor-v1",
         "ok": ok,
+        "capabilities": {"local_reconstruction": local_ready, "cloud_ocr": cloud_ready, "image_cli": cli_fallback_ready},
         "skill_root": str(SKILL_ROOT),
         "local_cli": {"path": str(CLI_ENTRY), "ready": CLI_ENTRY.is_file(), "python": sys.executable},
         "config_home": str(home),
@@ -353,20 +356,21 @@ def collect_status(check_api: bool = False, check_ocr: bool = False) -> dict:
         "fonts": fonts,
         "image_processing": processing,
         "ocr": {
-            "selection": "paddleocr-vl" if token else "builtin-ink",
+            "selection": "builtin-ink",
+            "cloud_ready": cloud_ready,
             "token": "set" if token else "unset",
             "token_source": token_source,
             "endpoint": PADDLE_ENDPOINT,
             "model": PADDLE_MODEL,
             "network_client_ready": modules["requests"]["available"],
             "network_probe_performed": False,
-            "fallback": {"backend": "builtin-ink", "ready": offline_ready, "priority": "network-first-then-local"},
+            "fallback": {"backend": "builtin-ink", "ready": offline_ready, "priority": "local-by-default"},
             "apply_url": PADDLE_TOKEN_APPLY_URL,
             "configure_command": "image2ppt config --paddle-ocr-token <token>",
         },
         "image_backend": {
             "agent_builtin": {"checked": False, "ready": None, "tool_name": "image_gen.imagegen"},
-            "codex_oauth": {"ready": codex_ready, "auth_file": str(codex_auth_file())},
+            "codex_oauth": {"checked": codex_checked, "ready": codex_ready if codex_checked else None, "auth_file": str(codex_auth_file())},
             "api_fallback": {
                 "ready": api_ready,
                 "OPENAI_API_KEY": "set" if api_ready else "unset",
@@ -374,17 +378,17 @@ def collect_status(check_api: bool = False, check_ocr: bool = False) -> dict:
                 "IMAGE2PPT_IMAGE_MODEL": values.get("IMAGE2PPT_IMAGE_MODEL", DEFAULT_IMAGE_MODEL),
                 "IMAGE2PPT_IMAGE_USER_AGENT": values.get("IMAGE2PPT_IMAGE_USER_AGENT", "<default>"),
             },
-            "preference": values.get("IMAGE2PPT_IMAGE_BACKEND", DEFAULT_IMAGE_BACKEND),
+            "preference": preference,
             "cli_fallback_ready": cli_fallback_ready,
             "selection": selected_backend,
         },
         "checks_requested": {"require_image_api": check_api, "require_network_ocr_token": check_ocr},
-        "next": "no action needed" if ok else "inspect failed doctor sections and install/configure only the missing local or system dependency",
+        "next": next_action,
     }
 
 
 def doctor(args: argparse.Namespace) -> int:
-    status = collect_status(check_api=args.check_api, check_ocr=args.check_ocr)
+    status = collect_status(check_api=args.check_api, check_ocr=args.check_ocr, backend=args.backend)
     if args.json:
         print(json.dumps(status, ensure_ascii=False, indent=2))
         return 0 if status["ok"] else 1
@@ -417,7 +421,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(prog="image2ppt", description="Manage Image2PPT configuration and runtime diagnostics")
     sub = parser.add_subparsers(required=True)
     doc = sub.add_parser("doctor", help="Check local runtime, rendering, OCR, image, font, and resource readiness")
-    doc.add_argument("--check-api", action="store_true", help="Require Codex OAuth or image API credentials.")
+    doc.add_argument("--check-api", action="store_true", help="Require image backend readiness. Checking Codex credentials requires --backend codex-oauth.")
+    doc.add_argument("--backend", choices=sorted(ALLOWED_IMAGE_BACKENDS), help="Check this image backend for this invocation. Select codex-oauth to read Codex credentials.")
     doc.add_argument("--check-ocr", action="store_true", help="Require a configured PaddleOCR token; no network request is made.")
     doc.add_argument("--json", action="store_true", help="Print machine-readable JSON.")
     doc.add_argument("--timeout", type=int, default=30, help="Reserved for opt-in network probes.")

@@ -34,12 +34,8 @@ from docx.shared import Inches, Pt, RGBColor
 # 插图最大尺寸（英寸）：在常见 A4、默认边距下保证整图可见、按比例缩放（不过宽也不过高）。
 _DEFAULT_IMAGE_MAX_W_IN = 5.5
 _DEFAULT_IMAGE_MAX_H_IN = 8.2
-# 公式图在 Word 中统一按固定高度嵌入（英寸），避免块级式随 PNG 像素被放大、行内式过小
-_FORMULA_DISPLAY_MAX_H_IN = 0.17
-# 兼容旧名
-_FORMULA_INLINE_MAX_H_IN = _FORMULA_DISPLAY_MAX_H_IN
-_FORMULA_BLOCK_MAX_W_IN = 4.0  # 仅作块级超宽时的宽度上限（通常由固定高度约束）
-_FORMULA_BLOCK_MAX_H_IN = _FORMULA_DISPLAY_MAX_H_IN
+# Inline math fits a text line; display math uses the image's native DPI up to page limits.
+_FORMULA_INLINE_MAX_H_IN = 0.17
 
 _MD_IMAGE_RE = re.compile(r"!\[([^\]]*)\]\(([^)]+)\)")
 _HIDDEN_MD_IMAGE_COMMENT_RE = re.compile(
@@ -210,7 +206,7 @@ def _embed_from_image_ref(
             p.paragraph_format.space_after = Pt(6)
             p.paragraph_format.line_spacing = 1.15
         if p is not None:
-            _embed_picture_inline(p, ipath, max_h_in=_FORMULA_DISPLAY_MAX_H_IN)
+            _embed_picture_inline(p, ipath, max_h_in=_FORMULA_INLINE_MAX_H_IN)
         return
 
     if doc is None:
@@ -222,12 +218,9 @@ def _embed_from_image_ref(
         p = doc.add_paragraph()
         p.paragraph_format.space_after = Pt(6)
         p.paragraph_format.space_before = Pt(3)
-        _embed_picture_inline(
-            p,
-            ipath,
-            max_h_in=_FORMULA_DISPLAY_MAX_H_IN,
-            max_w_in=_FORMULA_BLOCK_MAX_W_IN,
-        )
+        shape = p.add_run().add_picture(str(ipath))
+        scale = min(1, Inches(image_max_w_in) / shape.width, Inches(image_max_h_in) / shape.height)
+        shape.width, shape.height = int(shape.width * scale), int(shape.height * scale)
     else:
         _embed_picture(
             doc,
@@ -334,7 +327,7 @@ def _add_rich_content_to_paragraph(
     text: str,
     base_dir: Path | None,
     *,
-    formula_inline_max_h_in: float = _FORMULA_DISPLAY_MAX_H_IN,
+    formula_inline_max_h_in: float = _FORMULA_INLINE_MAX_H_IN,
     image_max_w_in: float = _DEFAULT_IMAGE_MAX_W_IN,
     image_max_h_in: float = _DEFAULT_IMAGE_MAX_H_IN,
     mono: bool = False,

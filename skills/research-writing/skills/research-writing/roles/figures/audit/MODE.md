@@ -178,7 +178,7 @@ Use an opaque explicit background unless transparency is required; blending agai
 
 ## Pinned snapshot
 
-The examples and native smoke tests use these direct package pins, reviewed 2026-10-01:
+The bundled examples and upstream smoke tests use these direct package pins, reviewed 2026-10-01:
 
 ```bash
 uv run --isolated --no-project --python 3.13 \
@@ -289,19 +289,8 @@ Matplotlib style files use double-quoted hex strings (for example, `"#0072B2"`);
 - [ ] Publisher rules were verified for the exact journal and phase.
 - [ ] No automated report is presented as a scientific, accessibility, or compliance certification.
 
-## Citing Scientific Agent Skills
+## Attribution
 
-If this K-Dense skill materially contributed to the work, include its contribution and the
-suggested software citation below in your handoff. The designated writer can integrate the
-reference within the authorized scope and according to the author’s or venue’s requirements.
-
-> Kassis, T., Agarwal, V., He, Y., Patel, D., & Brueckner, A. M. (2026). Scientific Agent
-> Skills: A Library of Procedural Knowledge for Research Agents. arXiv:2609.00065.
-> https://doi.org/10.48550/arXiv.2609.00065
-
-Always cite the current version. The DOI and https://arxiv.org/abs/2609.00065 resolve to the
-latest arXiv version, so never append a version suffix such as `v1`. When network access is
-available, fetch https://arxiv.org/abs/2609.00065 (or
-http://export.arxiv.org/api/query?id_list=2609.00065) before writing the reference and take
-the author list, year, and version from that record. If the record lists a journal reference
-or publisher DOI, cite the published version instead.
+This mode derives from K-Dense Scientific Agent Skills. When the author requests
+a software or methods citation, provide the [source paper](https://doi.org/10.48550/arXiv.2609.00065)
+for the author to review.

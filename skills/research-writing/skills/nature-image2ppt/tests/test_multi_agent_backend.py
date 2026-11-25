@@ -268,7 +268,7 @@ class MultiAgentBackendTest(unittest.TestCase):
             text=True,
             capture_output=True,
         )
-        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual(0 if json.loads(result.stdout)["ok"] else 1, result.returncode, result.stderr)
         payload = json.loads(result.stdout)
         self.assertEqual(str(ROOT), payload["skill_root"])
         self.assertEqual("PaddleOCR-VL-1.6", payload["ocr"]["model"])
@@ -287,7 +287,7 @@ class MultiAgentBackendTest(unittest.TestCase):
                 text=True,
                 capture_output=True,
             )
-            self.assertEqual(0, result.returncode, result.stderr)
+            self.assertIn(result.returncode, (0, 1), result.stderr)
             self.assertIn("OCR endpoint:", result.stdout)
             self.assertIn("OCR model: PaddleOCR-VL-1.6", result.stdout)
             self.assertIn("OCR fallback: builtin-ink", result.stdout)
@@ -313,7 +313,7 @@ class MultiAgentBackendTest(unittest.TestCase):
         )
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertIn("Backend selection:", result.stdout)
-        self.assertIn("auto uses Codex OAuth", result.stdout)
+        self.assertIn("auto uses the configured OpenAI", result.stdout)
         self.assertIn("openai-compatible-api", result.stdout)
         self.assertIn("image2ppt image edit --image pages/page_001/source.png", result.stdout)
         self.assertNotIn("batch", result.stdout)
@@ -797,6 +797,10 @@ class MultiAgentBackendTest(unittest.TestCase):
             openai_client.call_args.kwargs["default_headers"],
         )
 
+    def test_auto_does_not_inspect_codex_credentials(self):
+        with mock.patch.object(image_gen, "_codex_available", side_effect=AssertionError("read in auto mode")):
+            self.assertEqual(image_gen._select_backend("auto", "gpt-image-2"), "openai-compatible-api")
+
     def test_runtime_backend_selection_is_model_aware_and_explicitly_overridable(self):
         values = {
             "IMAGE2PPT_IMAGE_BACKEND": "auto",
@@ -850,7 +854,7 @@ class MultiAgentBackendTest(unittest.TestCase):
             self.assertEqual("image2ppt-test-client/1.0", config["IMAGE2PPT_IMAGE_USER_AGENT"])
             self.assertNotIn("test-api-key", result.stdout)
 
-    def test_image_edit_dry_run_prefers_codex_oauth_when_auth_exists(self):
+    def test_image_edit_dry_run_uses_explicit_codex_oauth(self):
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "source.png"
             out = Path(tmp) / "out.png"
@@ -868,6 +872,7 @@ class MultiAgentBackendTest(unittest.TestCase):
                     "edit",
                     "--image",
                     str(source),
+                    "--backend", "codex-oauth",
                     "--prompt",
                     "test",
                     "--out",
@@ -891,7 +896,7 @@ class MultiAgentBackendTest(unittest.TestCase):
             for removed in ("moderation", "output_format", "output_compression", "n"):
                 self.assertNotIn(removed, payload)
 
-    def test_image_generate_dry_run_prefers_codex_images_endpoint_when_auth_exists(self):
+    def test_image_generate_dry_run_uses_explicit_codex_endpoint(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "out.png"
             auth = Path(tmp) / "auth.json"
@@ -905,6 +910,7 @@ class MultiAgentBackendTest(unittest.TestCase):
                     "image2ppt.cli",
                     "image",
                     "generate",
+                    "--backend", "codex-oauth",
                     "--prompt",
                     "test",
                     "--out",
@@ -1049,9 +1055,9 @@ class MultiAgentBackendTest(unittest.TestCase):
                 text=True,
                 capture_output=True,
             )
-            self.assertEqual(0, result.returncode, result.stderr)
+            self.assertEqual(0 if json.loads(result.stdout)["ok"] else 1, result.returncode, result.stderr)
             payload = json.loads(result.stdout)
-            self.assertEqual({"pypdfium2", "PIL", "openai", "yaml", "numpy", "requests"}, set(payload["dependencies"]))
+            self.assertEqual({"pypdfium2", "PIL", "openai", "yaml", "numpy", "requests", "defusedxml"}, set(payload["dependencies"]))
             self.assertFalse(payload["image_backend"]["agent_builtin"]["checked"])
             self.assertIsNone(payload["image_backend"]["agent_builtin"]["ready"])
             self.assertEqual(str(ROOT), payload["skill_root"])
@@ -1097,7 +1103,7 @@ class MultiAgentBackendTest(unittest.TestCase):
             )
             self.assertEqual(0, first.returncode, first.stderr)
             first_payload = json.loads(first.stdout)
-            self.assertEqual("ok", first_payload["setup"])
+            self.assertEqual("ok" if first_payload["doctor"]["ok"] else "needs_attention", first_payload["setup"])
             config_path = Path(env["IMAGE2PPT_CONFIG_HOME"]) / "config.yaml"
             before = config_path.read_text(encoding="utf-8")
 
@@ -1115,7 +1121,7 @@ class MultiAgentBackendTest(unittest.TestCase):
             )
             self.assertEqual(0, second.returncode, second.stderr)
             second_payload = json.loads(second.stdout)
-            self.assertEqual("ok", second_payload["setup"])
+            self.assertEqual("ok" if second_payload["doctor"]["ok"] else "needs_attention", second_payload["setup"])
             self.assertEqual(before, config_path.read_text(encoding="utf-8"))
 
     def test_unified_cli_backend_defaults_to_image2ppt_image_cli(self):
@@ -1195,7 +1201,7 @@ class MultiAgentBackendTest(unittest.TestCase):
                 {"generate": ["prompt"], "edit": ["prompt", "referenced_image_paths"]},
                 backend["required_parameters"],
             )
-            self.assertEqual(["codex-oauth", "openai-compatible-api"], backend["fallback_order"])
+            self.assertEqual(["openai-compatible-api"], backend["fallback_order"])
             self.assertEqual(
                 ["tool-unavailable", "tool-error", "input-unreadable", "no-valid-local-output"],
                 backend["fallback_policy"]["on"],

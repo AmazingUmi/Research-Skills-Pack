@@ -3,13 +3,13 @@
 ## Contents
 
 - [国知局公布公告检索（epub.cnipa.gov.cn，Step 5 查新优先）](#国知局公布公告检索epubcnipagovcnstep-5-查新优先)
-- [Office 文档（Word / PPT）转成可扫描文本](#office-文档word-ppt转成可扫描文本)
-- [mermaid_render.py — mermaid：图示 → PNG + 定稿 Markdown + 默认生成 Word](#mermaid_renderpy-mermaid图示-png-定稿-markdown-默认生成-word)
-- [math_render.py — LaTeX 公式 → PNG](#math_renderpy-latex-公式-png)
-- [md_to_docx.py — Markdown → Word](#md_to_docxpy-markdown-word)
-- [iteration_dialog_log.py — 修订对话记录（迭代用）](#iteration_dialog_logpy-修订对话记录迭代用)
-- [docx_to_md.py — Word → Markdown + 抽取图片](#docx_to_mdpy-word-markdown-抽取图片)
-- [pptx_to_md.py — PowerPoint → Markdown + 抽取图片](#pptx_to_mdpy-powerpoint-markdown-抽取图片)
+- [Office 文档（Word / PPT）转成可扫描文本](#office-文档word--ppt转成可扫描文本)
+- [mermaid_render.py — mermaid：图示 → PNG + 定稿 Markdown + 默认生成 Word](#mermaid_renderpy--mermaid图示--png--定稿-markdown--默认生成-word)
+- [math_render.py — LaTeX 公式 → PNG](#math_renderpy--latex-公式--png)
+- [md_to_docx.py — Markdown → Word](#md_to_docxpy--markdown--word)
+- [iteration_dialog_log.py — 修订对话记录（迭代用）](#iteration_dialog_logpy--修订对话记录迭代用)
+- [docx_to_md.py — Word → Markdown + 抽取图片](#docx_to_mdpy--word--markdown--抽取图片)
+- [pptx_to_md.py — PowerPoint → Markdown + 抽取图片](#pptx_to_mdpy--powerpoint--markdown--抽取图片)
 - [扩展其它脚本时](#扩展其它脚本时)
 
 
@@ -23,9 +23,9 @@
 | **`cnipa_epub_crawler.py`** | 仅 Playwright 拉取并**默认保存**结果页 HTML；stdout 亦含 **`EPUB_HITS_JSON:`**。 |
 | **`cnipa_epub_parse.py`** | 仅解析已保存的 HTML：`python scripts/disclosure/cnipa_epub_parse.py path/to/_last_result_xxx.html`；字段含标题、公开号、链接、**`abstract`**（若有）。 |
 
-依赖：`pip install -r scripts/disclosure/requirements-cnipa.txt` 与 `python -m playwright install chromium`。环境变量见各脚本文件头。默认结果 HTML 落在 **`scripts/disclosure/_last_result_*.html`**（已 `.gitignore`）。
+依赖：`pip install -r scripts/disclosure/requirements-cnipa.txt` 与 `python -m playwright install chromium`。环境变量见各脚本文件头。先确认接收网站和检索词，再传入 `--allow-external-search`。爬虫把 HTML 写入独立临时目录，或写入 `EPUB_RESULT_HTML` 指定的项目文件。
 
-抓取失败或解析无命中时，Agent 按 **`references/disclosure/prior_art_search.md`** 降级 **WebSearch**（如 Google 学术 / Google Patents）。
+抓取失败或解析无命中时，Agent 在用户已授权的渠道范围内按 **`references/disclosure/prior_art_search.md`** 降级 **WebSearch**（如 Google 学术 / Google Patents）。
 
 ---
 
@@ -117,7 +117,7 @@ Windows 上若仅装 Node 未执行 `npm install`，脚本会通过 `npx -y @mer
 
 **失败降级**：某一公式渲染失败时**不中断**——该处**保留原文**（``$...$`` 或 ``$$...$$``）；``md_to_docx`` 对未转换的 ``$$`` 块以 **Consolas 代码块**写入 Word。
 
-**Word 版式**：**全部公式图**（行内与块级式 (1) 等）在 Word 中统一按约 **0.17 英寸**高度嵌入；**mermaid 框图/流程图**仍按 **5.5×8.2 英寸**上限等比嵌入。块级 PNG 默认与行内同字号（10.5pt）渲染，避免块级式显得过粗过大。
+**Word 版式**：行内公式按约 **0.17 英寸**高度嵌入。块级公式采用图像 DPI 对应的原始尺寸，超出版心时等比缩小；**mermaid 框图/流程图**仍按 **5.5×8.2 英寸**上限等比嵌入。块级 PNG 默认与行内同字号（10.5pt）渲染，避免块级式显得过粗过大。
 
 ### 依赖
 

@@ -22,7 +22,7 @@ Never print, commit, or copy the token into a run.
 - Authorization: `Authorization: bearer <token>`
 - Submit: multipart file plus `model` and the existing `optionalPayload` flags.
 - Poll: `GET <endpoint>/<jobId>` until `done`; fail on `failed` or timeout.
-- Result: download the service JSONL URL and collect every page's
+- Result: fetch the service JSONL URL over HTTPS, pin the connection to a validated public address, reject redirects, and collect every page's
   `prunedResult` from `layoutParsingResults`.
 
 Do not change response interpretation or add another OCR normalizer. Missing pages,
@@ -45,7 +45,7 @@ characters because recognition may be imperfect.
 
 ## Backend priority and fallback
 
-1. If a token is available, attempt the network job first.
+1. Use local geometry by default. Only `--ocr cloud` authorizes the PDF or page-image upload for this run. An empty token environment variable disables stored-token fallback.
 2. On any cloud failure, generate each page with local `builtin-ink`.
 3. Even after successful cloud OCR, if a page has at most 2 OCR lines while the
    local detector finds at least 6, use the local result for that page.

@@ -146,5 +146,7 @@
     <text class="command" x="696" y="848">draft → uncertainty-and-units / statsmodels</text>
     <text class="meaning" x="58" y="873">审稿</text>
     <text class="command" x="111" y="873">review → sympy</text>
+    <text class="meaning" x="643" y="873">图表</text>
+    <text class="command" x="696" y="873">figures → matlab</text>
   </g>
 </svg>

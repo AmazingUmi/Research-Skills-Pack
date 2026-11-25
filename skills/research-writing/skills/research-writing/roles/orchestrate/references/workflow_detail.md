@@ -84,7 +84,7 @@ Use [the stage-to-role table](../ROLE.md#2-阶段与角色调用) for dispatch a
 3. **Stage 2.5 INTEGRITY** -> checkpoint -> Stage 3 or the confirmed mid-entry target (4, 3', or 4.5). On FAIL, correct and re-verify, up to 3 rounds, then follow the Integrity Check FAIL Loop and record the user's decision.
 4. **Stage 3 REVIEW** -> Accept -> Stage 4.5 / Minor|Major -> Stage 4 / Reject -> Stage 2 or end
 5. **Stage 4 REVISE** -> user confirmation -> Stage 3'
-6. **Stage 3' RE-REVIEW** -> Accept|Minor -> Stage 4.5 / Major -> Stage 4'
+6. **Stage 3' RE-REVIEW** -> Accept, or Minor after per-item edit/author-signed retention -> Stage 4.5 / Major -> Stage 4'
 7. **Stage 4' RE-REVISE** -> user confirmation -> Stage 4.5 (no return to review)
 8. **Stage 4.5 FINAL INTEGRITY** -> PASS (zero issues) -> Stage 5 (FAIL -> fix and re-verify; after 3 unresolved rounds -> Integrity Check FAIL Loop -> recorded user decision)
 9. **Stage 5 FINALIZE** -> MD -> ask which files (DOCX / PDF / .tex) -> DOCX via Pandoc when available (otherwise instructions) -> confirm -> PDF through LaTeX when wanted -> completion checkpoint (FULL) -> Stage 6 (user may decline Stage 6: marked `skipped`, pipeline goes directly to `completed`)
@@ -168,7 +168,7 @@ If ANY answer raises concern, include it in the checkpoint presentation to the u
 | 1 | the orchestrate role | Main orchestrator: detects stage, recommends mode, triggers skill, manages transitions | `agents/the orchestrate role |
 | 2 | `state_tracker_agent` | State tracker: records completed stages, produced materials, revision loop count | `agents/state_tracker_agent.md` |
 | 3 | Integrity reviewer | Check references, citations, reported data, originality and claims | [Default procedure](../agents/default_integrity_review.md) or [strict agent](../agents/integrity_verification_agent.md) |
-| 4 | `collaboration_depth_agent` | **Observer (advisory only — never blocks).** Reads dialogue log and scores user-AI collaboration pattern against `@/references/collaboration_depth_rubric.md`. Invoked at FULL/SLIM checkpoints and during Stage 6 record compilation (whole-pipeline pass, before the Process Record is delivered). Based on Wang & Zhang (2026). | `agents/collaboration_depth_agent.md` |
+| 4 | `collaboration_depth_agent` | **Observer (advisory only — never blocks).** Reads dialogue log and scores user-AI collaboration pattern against `@/references/collaboration_depth_rubric.md`. Invoked only if the author requests the depth rubric, at selected FULL/SLIM checkpoints and during Stage 6 record compilation (whole-pipeline pass, before the Process Record is delivered). Based on Wang & Zhang (2026). | `agents/collaboration_depth_agent.md` |
 | 5 | `claim_ref_alignment_audit_agent` | **Opt-in claim faithfulness auditor.** Audits sampled citations for claim ↔ reference alignment + negative-constraint compliance; emits per-claim `claim_audit_results[]`, `claim_drift[]`, `uncited_assertions[]`, `constraint_violations[]`. Dispatched via orchestrator §3.6 when claim_audit mode is requested. | `agents/claim_ref_alignment_audit_agent.md` |
 
 ---
@@ -217,7 +217,7 @@ After user confirmation:
    - Stage 3 → 4: Pass the Revision Roadmap and author decisions to `review revise`.
    - Stage 4 → 3': For simulated reviews, pass the revised draft, original draft, review findings, roadmap and available response to `review re-review`. Strict simulated re-review uses the replay-bound handoff in the strict workflow. For real journal feedback, dispatch `review` to compare the drafts, original comments and response under the external review protocol. Use `review rebuttal-audit` for coverage if a response is available. A separately requested fresh review uses `review panel`.
    - Stage 3' → 4': Pass the updated roadmap and author decisions to `review revise`. In strict mode carry the traceability sidecar through 4' to 4.5.
-   - Stage 3' (Accept/Minor or completed external verification) or Stage 4' → 4.5: Pass the current draft and any unresolved findings to the selected final integrity procedure. Strict simulated re-review also passes the frozen traceability records when present.
+   - Stage 3' (Accept, Minor with item-level disposition, or completed external verification) or Stage 4' → 4.5: Pass the current draft and any unresolved findings to the selected final integrity procedure. Strict simulated re-review also passes the frozen traceability records when present.
    - Stage 4.5 → 5: Present the final integrity report and enter the mandatory finalization checkpoint. Strict runs follow the accepted-draft artifact checks before format-convert dispatch.
    - Stage 5  --> 6: Pass final deliverables list + the Process-Summary projection of pipeline state history, omitting the activity projection of terminal root `run_id`, pending/sealed activity fields, selected-store data, renderer output, and diagnostics (user may decline Stage 6 at the Stage 5 completion checkpoint)
 3. Begin next stage
@@ -358,7 +358,7 @@ Pipeline artifacts are versioned, hashed, and auditable. Deterministic validator
 
 ## Stage 6: Process Summary Protocol
 
-Produces the final process record: paper creation journey, collaboration quality evaluation (6 dimensions, 1-100), and AI self-reflection report.
+Summarize the stages, decisions and unresolved issues. AI self-reflection and author feedback are separate optional additions.
 
 **Terminal semantics**: Stage 6 is non-mandatory — the user may decline it at the Stage 5 completion checkpoint (Stage 6 marked `skipped`; the pipeline still terminates `completed`). When it runs, after the process record is delivered the orchestrator prompts for a terminal acknowledgement — `finish` / `end` / `done` / `confirm`, or an unambiguous natural-language equivalent that accepts the deliverables. On acknowledgement, Stage 6 is marked `completed` and the pipeline global state is set to `completed`; change requests (the other language version, content corrections) keep Stage 6 `in_progress` and are not acknowledgements. See `references/pipeline_state_machine.md` § Stage 6 terminal semantics.
 
@@ -368,7 +368,7 @@ Produces the final process record: paper creation journey, collaboration quality
 
 ## Collaboration Depth Observer (advisory only — never blocks)
 
-The `collaboration_depth_agent` observes the user's collaboration pattern with the pipeline. It is **advisory only** and **never blocks** progression at any checkpoint. It is `non-blocking` by design and carries `blocking: false` in its frontmatter as a structural guarantee.
+When the author requests rubric-based feedback, the `collaboration_depth_agent` observes the user's collaboration pattern with the pipeline. It is **advisory only** and **never blocks** progression at any checkpoint. It is `non-blocking` by design and carries `blocking: false` in its frontmatter as a structural guarantee.
 
 **When invoked**: every FULL checkpoint, every SLIM checkpoint, and during Stage 6 record compilation (the whole-pipeline pass runs before the Process Record is generated and delivered, so its output can be a chapter of the record the user acknowledges). MANDATORY checkpoints (Stages 2.5 / 4.5 integrity gates) **do not** invoke the observer — those are integrity concerns and must not be diluted.
 
@@ -379,7 +379,6 @@ The `collaboration_depth_agent` observes the user's collaboration pattern with t
 | Mechanism | What it evaluates | Blocking? |
 |---|---|---|
 | `integrity_verification_agent` (Stages 2.5 / 4.5) | Paper content — references, citations, data | Yes (blocking gate) |
-| Stage 6 Collaboration Quality Evaluation (6 dims, 1–100) | The user's collaboration as the AI assessed it (the AI Self-Reflection Report covers the AI's own behaviour) | No, but produced once only |
 | `collaboration_depth_agent` (this observer) | The **user's** collaboration pattern (delegation intensity, vigilance, reallocation) | **No — never blocks. Advisory only.** |
 
 **Non-blocking guarantees**:
@@ -406,7 +405,7 @@ Explicit prohibitions to prevent common failure modes:
 | 4 | **Quality degradation across stages** | Stage 4 revision is worse than Stage 2 draft because context window is exhausted | If Stage N output quality < Stage N-1, PAUSE and reload core principles before continuing |
 | 5 | **Silently dropping reviewer concerns** | Revision addresses 8 of 10 concerns and hopes nobody notices | The R&R tracking table must account for every concern with explicit status |
 | 6 | **Re-verifying only known issues at Stage 4.5** | Final integrity check only re-checks Stage 2.5 findings | Stage 4.5 must run a fresh from-scratch pass; revision may introduce new issues |
-| 7 | **Inflating Collaboration Quality scores** | Giving 90/100 to avoid awkward self-criticism | Honesty first: no inflation, no pleasantries; cite specific evidence for every score |
+| 7 | Unsupported feedback | Inferring the author’s intent from sparse transcripts | Use concrete decisions and the evidence available. |
 | 8 | **Bypassing the Failure Mode Checklist block** | "The 7-mode checklist is new, let's skip it this run" | Stage 2.5/4.5 Failure Mode Checklist is MANDATORY and BLOCKING; there is no unrecorded bypass — every override requires user reasoning recorded for Stage 6 |
 
 ---
@@ -473,7 +472,7 @@ Explicit prohibitions to prevent common failure modes:
 | `references/integrity_review_protocol.md` | Stage 2.5 + 4.5 integrity verification: 5-phase protocol details |
 | `references/two_stage_review_protocol.md` | Two-stage review: Stage 3 full review + Stage 3' verification review |
 | `references/external_review_protocol.md` | External (human) reviewer feedback: 4-step intake/coaching/revision/verification |
-| `references/process_summary_protocol.md` | Stage 6: collaboration quality evaluation + AI self-reflection report |
+| `references/process_summary_protocol.md` | Stage 6: process record, optional AI reflection and author feedback |
 | `references/reproducibility_audit.md` | Standardized workflow contract, deterministic replay boundary, and audit trail format |
 | `references/progress_dashboard_template.md` | ASCII progress dashboard template |
 | `references/reinforcement_content.md` | Stage-specific reinforcement focus table for transitions |

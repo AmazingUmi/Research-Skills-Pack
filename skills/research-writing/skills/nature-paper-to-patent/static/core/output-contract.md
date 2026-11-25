@@ -49,7 +49,7 @@ Score each dimension from 1 to 5 and record one sentence of evidence:
 - figure alignment: at least 4 when figures are required.
 
 Any validation `ERROR`, an unmapped material claim feature, or a missing core
-formula forces the status `incomplete draft`.
+formula forces the status `incomplete-draft`.
 
 ## Delivery note
 

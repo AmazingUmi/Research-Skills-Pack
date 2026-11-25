@@ -14,7 +14,7 @@
 //   GET  /close?target=<id>    -> {...}
 //   GET  /scroll?target=<id>&direction=bottom -> {...}
 
-import { STATUS } from "./status-codes.mjs";
+import { STATUS, classifyWall } from "./status-codes.mjs";
 
 export const DEFAULT_PROXY = "http://127.0.0.1:3456";
 
@@ -111,6 +111,14 @@ export async function waitForComplete(proxy, target, maxMs = 45000) {
     await sleep(1000);
   }
   return last;
+}
+
+/** Inspect visible text only; leave any challenged tab untouched for the user. */
+export async function currentWall(proxy, tab, info) {
+  const page = info || await proxyGet(proxy, "/info", { target: tab });
+  const body = await evalJs(proxy, tab, '(document.body?.innerText || "").slice(0,1000)').catch(() => "");
+  const wall = classifyWall(page.url, page.title, body);
+  return wall ? { ...wall, url: page.url, tab } : null;
 }
 
 /**

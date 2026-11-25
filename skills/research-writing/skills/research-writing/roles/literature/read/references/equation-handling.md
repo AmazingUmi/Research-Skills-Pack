@@ -7,7 +7,6 @@
 - [Display-equation block](#display-equation-block)
 - [Confidence ladder and visual fallback](#confidence-ladder-and-visual-fallback)
 - [Equation index](#equation-index)
-- [公式索引](#公式索引)
 - [Source-map contract](#source-map-contract)
 - [Compatibility fallback](#compatibility-fallback)
 

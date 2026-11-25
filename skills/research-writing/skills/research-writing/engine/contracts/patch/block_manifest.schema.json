@@ -16,6 +16,8 @@
       "pattern": "^[0-9a-f]{12}$",
       "description": "First 12 hex chars of SHA-256 over the anchored draft's raw bytes."
     },
+    "original_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "working_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "blocks": {
       "type": "array",
       "description": "One entry per block, in document order.",

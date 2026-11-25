@@ -4,7 +4,9 @@ Re-review mode is the dedicated mode for the orchestrate role's re-review stage,
 
 This mode is governed by the **three-gate evidence-before-persuasion contract** (`@/engine/contracts/re_review/` + `@/engine/scripts/check_re_review_synthesis.py`): criteria are committed before the revision is seen, evidence verdicts are committed before the author's persuasion is seen, and every later verdict change rides a typed, evidence-bound adjustment record.
 
-### How It Works
+This pack uses local review only. Do not transport review materials to another model. Use author adjudication for dissent. Legacy manifests or traceability sidecars may record `cross_model_active: false`, `cross_model_status: "not_configured"`, and empty historical adjudication arrays (`[]`); these are accepted read-only and never initiate an external pass.
+
+## How It Works
 
 ```
 Input:
@@ -108,17 +110,17 @@ Phase 2B produces the final traceability matrix (Schema 11 + machine-readable si
 | `valid_rebuttal` | upgrade to `FULLY_ADDRESSED` (marker `addressed_by_rebuttal: true`) | The rebuttal's evidence rebuts the original finding on the merits; record the counter-evidence anchor (manuscript- or letter-side) |
 | `scope_correction` | either direction | The letter reveals the 2A reading misidentified the item's target; re-verification against the correct target, manuscript-side anchor |
 | `user_accepted_fail_closed` | to `CANNOT_VERIFY` only | The G2(d) acceptance: user accepts the fail-closed outcome of a `CANNOT_VERIFY` reapplication (typed `G2dAcceptance` record) — the ONLY basis that may land on `CANNOT_VERIFY`; `source_ref` = `"acceptance:<acceptance_id>"` (REQUIRED), `cannot_verify_reason` copied from the reapplication |
-| `cross_model_adjudication` | either direction | A cross-model resolution concluded `primary_revised`, or a dissent adjudication concluded `original_upheld` and re-applying the ORIGINAL criterion changed the verdict; `source_ref` = `"reapplication:<reapplication_id>"` (REQUIRED) |
+| `criterion_reapplication` | either direction | An author adjudication concluded `original_upheld` and re-applying the ORIGINAL criterion changed the verdict; `source_ref` = `"reapplication:<reapplication_id>"` (REQUIRED) |
 
-`source_ref` is a basis-DISCRIMINATED requirement (schema-enforced): REQUIRED with form `"reapplication:<id>"` iff basis is `cross_model_adjudication`, REQUIRED with form `"acceptance:<id>"` iff basis is `user_accepted_fail_closed`, and FORBIDDEN on every other basis (`author_pointer_located_evidence`, `valid_rebuttal`, `scope_correction` carry their evidence in `evidence_anchor`, not a record ref). An assertion in the letter with no locatable manuscript evidence changes nothing. Commitment-axis outcomes (Kong A1, including `acknowledgment_only`) are recorded ONLY in the commitment fields and NEVER produce an adjustment record — the verdict axis and the commitment axis stay orthogonal.
+`source_ref` is a basis-DISCRIMINATED requirement (schema-enforced): REQUIRED with form `"reapplication:<id>"` iff basis is `criterion_reapplication`, REQUIRED with form `"acceptance:<id>"` iff basis is `user_accepted_fail_closed`, and FORBIDDEN on every other basis (`author_pointer_located_evidence`, `valid_rebuttal`, `scope_correction` carry their evidence in `evidence_anchor`, not a record ref). An assertion in the letter with no locatable manuscript evidence changes nothing. Commitment-axis outcomes (Kong A1, including `acknowledgment_only`) are recorded ONLY in the commitment fields and NEVER produce an adjustment record — the verdict axis and the commitment axis stay orthogonal.
 
-**Critical-rebuttal check:** a `valid_rebuttal` upgrade on an item whose Round-1 severity is `critical` is emitted by 2B as a PENDING proposal (never booked in-call). The dispatching layer runs one-transport judgment pass (closed verdict `{upheld, challenged}`) in the post-2B / pre-first-emission window: `upheld` books the adjustment; `challenged` means it is NEVER booked (the row keeps its prior verdict, the challenge surfaces at the checkpoint). when active but the pass failed, `pass_unavailable_disclosed` — the two are never merged, and both mandate the decision-letter disclosure line.
+**Booking a rebuttal:** link the adjustment to the revised-manuscript or response-letter evidence. For an ordinary finding, use `booked:<adjustment_id>` when recording the proposal. For a critical finding, record exactly one matching proposal with `booked_single_family:<adjustment_id>` and mark the adjustment `critical_rebuttal_check: single_family_disclosed`. If evidence is insufficient, preserve the prior finding and ask the author for the missing evidence.
 
-Ends with `[MATRIX-COMMITTED]`. After 2B the dispatching layer runs the three post-2B passes in NORMATIVE ORDER (critical-rebuttal judgments → dissent adjudications → divergence intents/dispatches — see the pipeline orchestrator's the re-review stage step), persists the sidecar, and invokes the checker BEFORE any outcome surfaces.
+Ends with `[MATRIX-COMMITTED]`. After 2B the dispatching layer runs the two post-2B passes in NORMATIVE ORDER (critical-rebuttal review with single-family disclosure → author adjudication of dissent — see the pipeline orchestrator's re-review stage step), persists the sidecar, and invokes the checker BEFORE any outcome surfaces.
 
 ### Decision Derivation (verdict → decision)
 
-Output domain: `decision_state ∈ {Accept, Minor Revision, Major Revision, user_review_required}` or a fail-closed abort — **`Reject` is NOT a the re-review stage decision** (the state machine gives the re-review stage exactly two exits: Accept/Minor → 4.5, Major → 4'); severity-flagged cases set `reject_recommended` instead. Declared decision order for floor arithmetic: `Accept < Minor Revision < Major Revision`.
+Output domain: `decision_state ∈ {Accept, Minor Revision, Major Revision, user_review_required}` or a fail-closed abort — **`Reject` is NOT a re-review stage decision** (the state machine gives the re-review stage exactly two exits: Accept → 4.5, Minor → 4.5 after item-level disposition, Major → 4'); severity-flagged cases set `reject_recommended` instead. Declared decision order for floor arithmetic: `Accept < Minor Revision < Major Revision`.
 
 **`should_fix_addressed_rate` (mechanizing the previously-prose 80% rule):** numerator = |should_fix items with `final_verdict ∈ {FULLY_ADDRESSED, PARTIALLY_ADDRESSED}`|; denominator = |should_fix items|; zero should_fix items → vacuously 100%. Computed over FINAL (post-2B) verdicts — safe because every adjustment is typed and evidence-bound. This deliberately REPLACES the ambiguous "at least 80% should have a response" reading: a numerator counting author explanations would let a persuasive letter buy the rate without manuscript change. A `NOT_ADDRESSED` item's author explanation is still recorded in the matrix; it does not count toward the rate.
 
@@ -130,9 +132,9 @@ Derivation runs in three ordered steps; within each step, FIRST match wins.
 |---|-----------|---------|
 | G0 | Input manifest incomplete or hash-mismatched | `[RE-REVIEW-ABORT: manifest_incomplete \| manifest_hash_mismatch]` |
 | G1 | Any row (any obligation_class) where `final_verdict != phase2a_verdict` without an `adjustment_id` — a SILENT verdict change, the one unrecoverable state | `[RE-REVIEW-ABORT: criteria_drift]` |
-| G2 | Any PENDING user-input state: (a) a tripped dissent bound while ANY dissent record lacks its own adjudication; (b) a must_fix `diverges`-derived row with no COVERING cross-model resolution; (c) a `pending` escalation exception; (d) an `original_upheld` adjudication whose mandated reapplication concluded `CANNOT_VERIFY` and has no user resolution | `decision_state: user_review_required` — matrix + pending items delivered, decision deferred |
+| G2 | Any PENDING user-input state: (a) a tripped dissent bound while ANY dissent record lacks its own adjudication; (c) a `pending` escalation exception; (d) an `original_upheld` adjudication whose mandated reapplication concluded `CANNOT_VERIFY` and has no user resolution | `decision_state: user_review_required` — matrix + pending items delivered, decision deferred |
 
-**Deferral loop (the ONLY place user input enters the derivation):** a pending user-answerable state never aborts and never races the checker — it DEFERS. Each iteration is atomic and ordered: the answer is recorded → any mandated scoped Phase 2B′ re-verification is dispatched and completes → the sidecar is re-persisted (`revision: n+1`, `supersedes_hash`) → the checker re-runs → the recomputed `decision_state` re-surfaces. The loop repeats until no pending state remains. Divergence rows — including coalesced dissent+divergence items — NEVER take the shortcut: their reapplication is always a fresh seat-verifier 2B′ call, because the judge's own divergent pass is the thing being examined and cannot double as the witness. A `CANNOT_VERIFY` reapplication resolves nothing — the row stays pending until the user accepts the fail-closed outcome or a re-examination succeeds.
+**Deferral loop (the ONLY place user input enters the derivation):** a pending user-answerable state never aborts and never races the checker — it DEFERS. Each iteration is atomic and ordered: the answer is recorded → any mandated scoped Phase 2B′ re-verification is dispatched and completes → the sidecar is re-persisted (`revision: n+1`, `supersedes_hash`) → the checker re-runs → the recomputed `decision_state` re-surfaces. The loop repeats until no pending state remains. A `CANNOT_VERIFY` reapplication resolves nothing — the row stays pending until the user accepts the fail-closed outcome or a re-examination succeeds.
 
 **Step 2 — base decision (first match; total by construction):**
 
@@ -144,6 +146,10 @@ Derivation runs in three ordered steps; within each step, FIRST match wins.
 | B4 | Any must_fix OR should_fix `PARTIALLY_ADDRESSED` with `residual_obligation_class: must_fix` | **Major Revision** |
 | B5 | Any must_fix `PARTIALLY_ADDRESSED` with `residual_obligation_class: should_fix \| consider`, OR `should_fix_addressed_rate < 80%`, OR any should_fix `MADE_WORSE`, OR any `regression`-attributed new issue with severity `minor` | **Minor Revision** |
 | B6 | Residual (all must_fix `FULLY_ADDRESSED` incl. `addressed_by_rebuttal`; `should_fix_addressed_rate ≥ 80%`; no should_fix `MADE_WORSE`; no should_fix `PARTIALLY_ADDRESSED` with a `must_fix` residual; no regression-attributed new issues) | **Accept** |
+
+For a Minor decision, populate the [item-level disposition table](../MODE.md#re-review) from residual obligations and new findings before the Stage 4.5 handoff. Bind it to the version actually checked.
+
+
 
 **Step 3 — floors:** `decision_state = max(base, every approved escalation exception's mechanical_decision_impact)` under the declared order. Pending or rejected approvals contribute nothing.
 
@@ -167,7 +173,7 @@ Closed class set: `{research_integrity, ethics, safety, legal_compliance, fatal_
 
 A dissent is the Phase 2A discovery that a pre-committed operationalization cannot be applied as written. It is NOT a verdict-relaxation channel — it swaps the criterion, visibly, before the verdict. `reason_code` ∈ `{criterion_ambiguous, criterion_infeasible_as_written, evidence_surface_moved, criterion_error}`; the item's verdict record then carries `applied_criterion: "dissented:<dissent_id>"`.
 
-**Bounds:** dissent on a must_fix item, or dissents on > ⌈N/3⌉ of all items, triggers independent adjudication of EVERY dissent record in the round — after the 2A verdicts are committed, before the decision derivation accepts them as final. should_fix dissents always take the user path. dissents below the bound stand unadjudicated by design. `replacement_approved` lets the dissented criterion stand (no adjustment — the 2A verdict was already made under it);
+**Bounds:** dissent on a must_fix item, or dissents on > ⌈N/3⌉ of all items, triggers explicit author adjudication of EVERY dissent record in the round — after the 2A verdicts are committed, before the decision derivation accepts them as final. Dissents below the bound stand unadjudicated by design. `replacement_approved` lets the dissented criterion stand (no adjustment — the 2A verdict was already made under it);
 
 ### New-Issue Attribution and the Goalpost Guard
 
@@ -225,13 +231,11 @@ The re-review judges revisions on the same model family that drove them — an a
 
 
 
-**Resolution-state derivation (§9):** a `diverges` cell on a must_fix item must RESOLVE before the decision derivation runs, and the resolution is recorded as a `CrossModelResolution`: `primary_upheld` (verdict stands) or `primary_revised` (verdict changes via an adjustment record with basis `cross_model_adjudication`). The state is DERIVED from the mandated scoped 2B′ re-application witness, and only when `reapplied_verdict != CANNOT_VERIFY`: `reapplied_verdict = pre_reapplication_verdict` → `primary_upheld`, different → `primary_revised` — the comparison binds to the reapplication's recorded pre-value, so the post-update row cannot make every outcome look upheld. A `diverges` row with no covering resolution → `user_review_required`. A DIVERGENCE re-application — including on coalesced dissent+divergence items — is always a fresh scoped seat-verifier 2B′ call, never the judge's own output (else the judge's vote would become the verdict; the judge-output shortcut exists only for dissent-ONLY adjudications, § Decision Derivation). When the primary dissented from a criterion, the judge FIRST blind-applies the original criterion (without seeing the dissent), THEN separately adjudicates the replacement — two calls, so the replacement cannot anchor the original's application.
 
-**Per-emission `cross_model_status` re-derivation (§5.3):** the judge's recorded `cross_model_verdict` is immutable, but the sidecar's `cross_model_status` is DERIVED per emission on the rows the pass evaluated: `agree` ⟺ `cross_model_verdict = final_verdict`, else `diverges`. An adjustment that moves `final_verdict` away from the judge's verdict RE-OPENS the row (it needs a new covering resolution); an adjusted-away agreement can never ride an `agree` label into Accept.
 
-**When not active** (or the pass came back `unavailable`): the re-review proceeds single-family and the Re-Review Output carries the disclosure line verbatim (it is part of the output template below): "This verification round ran on the same model family that drove the revisions; over-optimization to this judge's latent biases is possible (Ren et al. 2026, arXiv:2607.13104 §8.1.2)." Never omit it in single-family runs.
+**Local review:** the re-review proceeds single-family and the Re-Review Output carries the disclosure line verbatim (it is part of the output template below): "This verification round ran on the same model family that drove the revisions; over-optimization to this judge's latent biases is possible (Ren et al. 2026, arXiv:2607.13104 §8.1.2)." Never omit it in single-family runs.
 
-**Judge identity recording (both cases):** the Re-Review Output's Judge Record block records the judge configuration — the verification judge's actual family/id and the exact Round-1 Schema 6 `review_panel_provenance` carrier: artifact reference, raw artifact SHA-256, normalized-manifest SHA-256, execution-topology SHA-256, and all six axes. The Editorial Decision Letter is display-only and never reconstructs this carrier. Replay-validate the referenced bytes before copying; when the carrier or artifact is absent, unreachable, digest-mismatched, schema-invalid, or replay-invalid, use the closed invalid form and keep all Round-1 axes unknown. Schema 6 carries these as the optional `judge_record` field (plus the optional fields `precommitment_hash`, `routing_status`, `apply_chain_witness`).
+**Judge identity recording:** the Re-Review Output's Judge Record block records the judge configuration — the verification judge's actual family/id and the exact Round-1 Schema 6 `review_panel_provenance` carrier: artifact reference, raw artifact SHA-256, normalized-manifest SHA-256, execution-topology SHA-256, and all six axes. The Editorial Decision Letter is display-only and never reconstructs this carrier. Replay-validate the referenced bytes before copying; when the carrier or artifact is absent, unreachable, digest-mismatched, schema-invalid, or replay-invalid, use the closed invalid form and keep all Round-1 axes unknown. Schema 6 carries these as the optional `judge_record` field (plus the optional fields `precommitment_hash`, `routing_status`, `apply_chain_witness`).
 
 ### Commitment Ledger Verification
 
@@ -298,10 +302,10 @@ When `@/engine/scripts/check_re_review_synthesis.py` reports `declined-only Majo
 
 ### must_fix — Required Revisions
 
-| Transport ref | Original Review Comment | Author triage | Author's Claim | Response Status | Revision Location | Verified? | Cross-model | Quality Assessment |
-|---|------------------------|---------------|---------------|-----------------|-------------------|-----------|--------------------|--------------------|
-| R1 | [Original text] | will_address | [What the author claims; "—" when letter absent] | FULLY_ADDRESSED | Section X.X | ✅ Yes | agree | Adequately addressed against committed evidence criteria |
-| R2 | [Original text] | wont_address — [exact author reason] | [Author's stated position] | NOT_ADDRESSED | — | ❌ No | diverges: NOT_ADDRESSED | Decline is preserved; it grants no manuscript or claim authority |
+| Transport ref | Original Review Comment | Author triage | Author's Claim | Response Status | Revision Location | Verified? | Quality Assessment |
+|---|------------------------|---------------|---------------|-----------------|-------------------|-----------|--------------------|
+| R1 | [Original text] | will_address | [What the author claims; "—" when letter absent] | FULLY_ADDRESSED | Section X.X | ✅ Yes | Adequately addressed against committed evidence criteria |
+| R2 | [Original text] | wont_address — [exact author reason] | [Author's stated position] | NOT_ADDRESSED | — | ❌ No | Decline is preserved; it grants no manuscript or claim authority |
 
 Response Status vocabulary: FULLY_ADDRESSED / PARTIALLY_ADDRESSED / NOT_ADDRESSED / MADE_WORSE / CANNOT_VERIFY (fail-closed — Verified? maps FULLY→YES, PARTIALLY→PARTIAL, NOT_ADDRESSED→NO, MADE_WORSE→NO, CANNOT_VERIFY→CANNOT_VERIFY). Verdicts adjusted after Phase 2A carry their adjustment id in Quality Assessment.
 

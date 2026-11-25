@@ -160,9 +160,9 @@ _LATEX_CITE_RE = re.compile(r"\\cite[a-zA-Z]*\*?(?:\[[^\]]*\]){0,2}\{([^}]*)\}")
 # Reference-list section titles — the single source for BOTH the fallback
 # prose-scan boundary (Family C) and the B1 body_only word-count scope; one
 # list so the two checks can never disagree about where the references start.
-_REFS_TITLES = ("references", "bibliography", "參考文獻")
-_REFS_HEADING_RE = re.compile(
-    r"^#{0,6}\s*(?:" + "|".join(_REFS_TITLES) + r")\s*$",
+_REFS_TITLES = ("references", "bibliography", "參考文獻", "参考文献")
+_PLAIN_REFS_HEADING_RE = re.compile(
+    r"^[ \t]*(?:" + "|".join(_REFS_TITLES) + r")[ \t]*$",
     re.IGNORECASE | re.MULTILINE,
 )
 
@@ -247,7 +247,7 @@ def extract_ref_markers(manuscripts: dict[str, str]) -> dict[str, str]:
     """{slug: first-seen package-relative location} from <!--ref:slug--> markers."""
     found: dict[str, str] = {}
     for rel in sorted(manuscripts):
-        for m in _REF_MARKER_RE.finditer(manuscripts[rel]):
+        for m in _REF_MARKER_RE.finditer(_strip_reference_section(manuscripts[rel])):
             found.setdefault(m.group(1), rel)
     return found
 
@@ -306,8 +306,13 @@ def _corpus_metadata(passport: dict[str, Any]) -> dict[tuple, set]:
 
 
 def _strip_reference_section(text: str) -> str:
-    m = _REFS_HEADING_RE.search(text)
-    return text[: m.start()] if m else text
+    """Omit reference lists and their subsections; retain subsequent peer sections and appendices."""
+    prose = _md_drop_sections(text, (_is_refs_title,))
+    if prose != text:
+        return prose
+    # An unstructured plain-text list has no heading levels to delimit its end.
+    heading = _PLAIN_REFS_HEADING_RE.search(text)
+    return text[:heading.start()] if heading else text
 
 
 def _extract_fallback(manuscripts: dict[str, str],
@@ -568,7 +573,7 @@ _WORD_COUNT_TOLERANCE = 1.02  # §3.2: ±2% before fail (format-conversion noise
 
 _MD_HEADING_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*#*\s*$", re.MULTILINE)
 _KEYWORDS_LINE_RE = re.compile(
-    r"^\s*(?:\*\*|__)?\s*keywords?\s*(?:\*\*|__)?\s*[:：]\s*(.+?)\s*$",
+    r"^[ \t]*(?:\*\*|__)?[ \t]*(?:keywords?|关键词|關鍵詞|关键字|關鍵字)[ \t]*(?:\*\*|__)?[ \t]*[:：][ \t]*([^\n]*)$",
     re.IGNORECASE | re.MULTILINE)
 _TEX_KEYWORDS_RE = re.compile(r"\\keywords\s*\{([^}]*)\}", re.IGNORECASE)
 _TEX_SECTION_RE = re.compile(r"\\(?:sub)*section\*?\s*\{([^}]*)\}")
@@ -581,8 +586,13 @@ _HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 
 
 def _word_count(text: str) -> int:
-    """Canonical whitespace-split (../references/word_count_conventions.md)."""
-    return len(text.split())
+    """Count CJK characters and whitespace-delimited words in the other segments."""
+    text = re.sub(r"(?m)^\s*(?:---+|___+|\*\*\*+)\s*$", " ", text)
+    cjk = r"[\u3400-\u9fff\uf900-\ufaff\U00020000-\U0002fa1f\u3040-\u30ff\uac00-\ud7af]"
+    if not re.search(cjk, text):
+        return len(text.split())
+    return len(re.findall(cjk, text)) + sum(
+        any(c.isalnum() for c in token) for token in re.sub(cjk, " ", text).split())
 
 
 def _md_sections(text: str) -> list[tuple[str, int, int]]:
@@ -595,7 +605,9 @@ def _md_sections(text: str) -> list[tuple[str, int, int]]:
 
 
 def _is_abstract_title(title: str) -> bool:
-    return title.lower().strip("*_ ").startswith("abstract")
+    return bool(re.fullmatch(
+        r"(?:(?:english|(?:simplified |traditional )?chinese)\s+)?abstract(?:\s*\([^)]*\))?|(?:中文|英文)?摘要",
+        title.strip("*_ "), re.IGNORECASE))
 
 
 def _is_refs_title(title: str) -> bool:
@@ -605,15 +617,27 @@ def _is_refs_title(title: str) -> bool:
 def _md_drop_sections(text: str, title_predicates) -> str:
     """Remove every section (heading included) whose title matches any
     predicate."""
-    heads = list(_MD_HEADING_RE.finditer(text))
-    keep, cursor = [], 0
-    for i, m in enumerate(heads):
-        end = heads[i + 1].start() if i + 1 < len(heads) else len(text)
-        if any(p(m.group(2).strip()) for p in title_predicates):
-            keep.append(text[cursor:m.start()])
-            cursor = end
-    keep.append(text[cursor:])
-    return "".join(keep)
+    retained = []
+    cursor = 0
+    excluded_level = None
+    headings = re.finditer(
+        r"^(?:(#{1,6})[ \t]+(.+?)[ \t]*#*[ \t]*$|"
+        r"([^\s#][^\n]*)\n(=+|-+)[ \t]*$)", text, re.MULTILINE)
+    for head in headings:
+        if head[1]:
+            level, title = len(head[1]), head[2]
+        else:
+            level, title = (1 if head[4][0] == "=" else 2), head[3]
+        if excluded_level is not None:
+            if level > excluded_level:
+                continue
+            cursor, excluded_level = head.start(), None
+        if any(predicate(title.strip()) for predicate in title_predicates):
+            retained.append(text[cursor:head.start()])
+            excluded_level = level
+    if excluded_level is None:
+        retained.append(text[cursor:])
+    return "".join(retained)
 
 
 def _detex(text: str) -> str:
@@ -650,22 +674,28 @@ def _countable_body(rel: str, text: str, scope: str) -> tuple[str, str]:
     return text, "everything counted (tool markers stripped)"
 
 
-def _abstract_text(rel: str, text: str) -> Optional[str]:
+def _abstract_sections(rel: str, text: str) -> list[tuple[str, str]]:
     if rel.lower().endswith(".tex"):
-        m = _TEX_ABSTRACT_RE.search(text)
-        return _detex(m.group(1)) if m else None
-    for title, start, end in _md_sections(text):
-        if _is_abstract_title(title):
-            body = _HTML_COMMENT_RE.sub(" ", text[start:end])
-            return _KEYWORDS_LINE_RE.sub(" ", body)
-    return None
+        return [("abstract", _detex(m.group(1))) for m in _TEX_ABSTRACT_RE.finditer(text)]
+    heads = list(_MD_HEADING_RE.finditer(text))
+    sections = []
+    for i, head in enumerate(heads):
+        title = head.group(2)
+        if not _is_abstract_title(title):
+            continue
+        following = heads[i + 1] if i + 1 < len(heads) else None
+        if following and len(following.group(1)) > len(head.group(1)) and _is_abstract_title(following.group(2)):
+            continue  # the writer's bilingual wrapper
+        end = next((h.start() for h in heads[i + 1:] if len(h.group(1)) <= len(head.group(1))
+                    or h.group(2).strip().lower() in {"abstract quality report", "quality checklist"}), len(text))
+        content = _MD_HEADING_RE.sub("", text[head.end():end])
+        sections.append((title, _HTML_COMMENT_RE.sub(" ", content)))
+    return sections
 
 
-def _keyword_list(text: str) -> Optional[list[str]]:
-    m = _KEYWORDS_LINE_RE.search(text) or _TEX_KEYWORDS_RE.search(text)
-    if not m:
-        return None
-    return [k for k in re.split(r"[,;、；]", m.group(1)) if k.strip()]
+def _keyword_counts(text: str) -> list[int]:
+    lines = [m.group(1) for pattern in (_KEYWORDS_LINE_RE, _TEX_KEYWORDS_RE) for m in pattern.finditer(text)]
+    return [sum(bool(k.strip()) for k in re.split(r"[,，;、；]", line)) for line in lines]
 
 
 def _headings(rel: str, text: str) -> list[str]:
@@ -751,27 +781,38 @@ def run_family_b(manuscripts: dict[str, str],
         checks.append(_ceiling_check(
             "B1", _word_count(body), word_limit,
             f"manuscript word count of {rel}, scope {scope_decl} "
-            f"({counted_desc}; whitespace-split per "
+            f"({counted_desc}; CJK characters + whitespace-delimited words per "
             f"../references/word_count_conventions.md)",
             location=rel, tolerance=_WORD_COUNT_TOLERANCE))
 
     # B2 — abstract word count vs abstract_word_limit (±2%)
     abstract_limit = profile.get("abstract_word_limit")
-    if abstract_limit is None:
-        checks.append(not_declared("B2", "abstract_word_limit"))
+    language_limits = profile.get("abstract_limits") or {}
+    if abstract_limit is None and not language_limits:
+        checks.append(not_declared("B2", "abstract_word_limit or abstract_limits"))
     elif rel is None:
         checks.append(_check("B2", "not_checked", no_manuscript_reason))
     else:
-        abstract = _abstract_text(rel, text)
-        if abstract is None:
-            checks.append(_check(
-                "B2", "not_checked",
-                f"no abstract section found in {rel}", location=rel))
-        else:
-            checks.append(_ceiling_check(
-                "B2", _word_count(abstract), abstract_limit,
-                f"abstract word count of {rel} (whitespace-split)",
-                location=rel, tolerance=_WORD_COUNT_TOLERANCE))
+        details, missing, exceeded = [], set(language_limits), False
+        for title, section in _abstract_sections(rel, text):
+            body = _KEYWORDS_LINE_RE.sub(" ", section).strip()
+            language = "zh" if ("chinese" in title.lower() or title.strip() in ("摘要", "中文摘要") or
+                                 ("english" not in title.lower() and "英文" not in title
+                                  and re.search(r"[\u3400-\u9fff]", body))) else "en"
+            missing.discard(language)
+            cap = language_limits.get(language, abstract_limit)
+            if cap is None:
+                continue
+            count = _word_count(body)
+            if not count:
+                missing.add(title)
+            details.append(f"{title}: {count}/{cap}")
+            exceeded |= count > cap * _WORD_COUNT_TOLERANCE
+        status = "fail" if exceeded else "not_checked" if missing or not details else "pass"
+        detail = f"abstract lengths of {rel} (CJK characters + words): " + ", ".join(details)
+        if missing or not details:
+            detail += "; missing or empty abstract: " + (", ".join(sorted(missing)) or "unspecified")
+        checks.append(_check("B2", status, detail, location=rel))
 
     # B3 — keyword count vs keyword_range (exact)
     keyword_range = profile.get("keyword_range")
@@ -780,17 +821,20 @@ def run_family_b(manuscripts: dict[str, str],
     elif rel is None:
         checks.append(_check("B3", "not_checked", no_manuscript_reason))
     else:
-        keywords = _keyword_list(text)
-        if keywords is None:
+        sections = _abstract_sections(rel, text)
+        counts = _keyword_counts(text)
+        if len(sections) > 1:
+            counts = [n for _, section in sections for n in (_keyword_counts(section) or [0])]
+        if not counts or 0 in counts:
             checks.append(_check(
                 "B3", "not_checked",
                 f"no keywords line found in {rel}", location=rel))
         else:
             lo, hi = keyword_range["min"], keyword_range["max"]
-            ok = lo <= len(keywords) <= hi
+            ok = all(lo <= n <= hi for n in counts)
             checks.append(_check(
                 "B3", "pass" if ok else "fail",
-                f"keyword count of {rel}: {len(keywords)} vs declared range "
+                f"keyword count of {rel}: {counts} vs declared range "
                 f"{lo}–{hi}", location=rel))
 
     # B4 — required sections present (set comparison)
@@ -881,6 +925,12 @@ def _validate_venue_profile(raw: dict[str, Any]) -> dict[str, Any]:
         if v is not None and (not _is_int(v) or v < 1):
             raise ValueError(f"venue profile {field} must be a positive "
                              f"integer or null, got {v!r}")
+    limits = raw.get("abstract_limits")
+    if limits is not None and (
+        not isinstance(limits, dict) or not limits or set(limits) - {"en", "zh"} or
+        any(not _is_int(n) or n < 1 for n in limits.values())
+    ):
+        raise ValueError("abstract_limits must specify positive en and/or zh ceilings")
     scope = raw.get("word_count_scope")
     if scope is not None and scope not in _schema_enum("word_count_scope"):
         raise ValueError(f"venue profile word_count_scope must be one of "

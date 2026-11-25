@@ -140,7 +140,7 @@ In default orchestration, record the equivalent explicit user declaration and th
 
 **User acknowledgement options at block**:
 - Confirm the flag — return to Stage 2 WRITE (or earlier) to fix
-- Override with reasoning — user explicitly states why the flag is a false positive, reasoning is recorded in the process log for Stage 6
+- Resolve a false positive with checked evidence; confirmed false or misrepresented citations remain excluded from the citable set until corrected and reverified. The author states why the flag is a false positive, reasoning is recorded in the process log for Stage 6
 - Revise the specific passage and re-run the check
 
 ### At Stage 4.5 FINAL INTEGRITY
@@ -172,9 +172,9 @@ Gap coverage provided by this checklist: **Modes 1, 3, 5, 6, and the pipeline-le
 
 ---
 
-## Open questions (for )
+## Open questions
 
-- **Override auditing**: if a user overrides a flag, is the reasoning ever reviewed? In it goes into the Stage 6 record only. A stronger version would flag overrides for peer review during Stage 3 so that a reviewer can push back on the user's reasoning.
+- **Override auditing**: if a user overrides a flag, is the reasoning ever reviewed? Currently it goes into the Stage 6 record only. A stronger version would flag overrides for peer review during Stage 3 so that a reviewer can push back on the user's reasoning.
 
 ---
 

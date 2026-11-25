@@ -21,7 +21,7 @@ Quick guide:
 
 | Service | Env Var | Register At | Free Tier |
 |---------|---------|-------------|-----------|
-| Semantic Scholar | `SEMANTIC_SCHOLAR_API_KEY` | [api.semanticscholar.org](https://api.semanticscholar.org/) | 100 req/s with key (1/s without) |
+| Semantic Scholar | `S2_API_KEY` | [api.semanticscholar.org](https://api.semanticscholar.org/) | 100 req/s with key (1/s without) |
 | NCBI E-utilities | `NCBI_API_KEY` | [ncbi.nlm.nih.gov/account](https://www.ncbi.nlm.nih.gov/account/) | 10 req/s with key (3/s without) |
 | Elsevier / Scopus / ScienceDirect | pybliometrics config | [dev.elsevier.com](https://dev.elsevier.com/) | Depends on API entitlement |
 | Firecrawl (publisher pages, PDF text) | `FIRECRAWL_API_KEY` | [firecrawl.dev](https://www.firecrawl.dev/?utm_source=nature-skills&utm_medium=integration) | 1,000 credits/month on the free plan |
@@ -45,14 +45,14 @@ Run before batch network operations to verify API endpoints are reachable.
 
 ### Format converter dependencies
 
-The format converter (`scripts/format-converter.py`) uses Python stdlib only — no extra dependencies. Run `python scripts/format-converter.py --test` to verify the conversion pipeline.
+The format converter (`scripts/format-converter.py`) requires `defusedxml` and `requests`. Install with `python -m pip install -r requirements.txt` from the search mode directory. Check the installed entry point with `python scripts/format-converter.py --help`. The optional `--test` smoke check contacts PubMed and Crossref.
 
 ### No-MCP fallback (standalone search)
 
-When the MCP server is not mounted (plain CLI use, skill auto-discovery, CI), the search workflow still runs via two stdlib-only scripts that hit public HTTP APIs directly — the same pattern `nature-citation/scripts/nature_citation.py` uses for CrossRef:
+When the MCP server is not mounted (plain CLI use, skill auto-discovery, CI), the search workflow still runs via two scripts that hit public HTTP APIs directly — the same pattern `../cns-cite/scripts/nature_citation.py` uses for CrossRef:
 
 - **Discovery** — `scripts/academic_search.py` queries OpenAlex (basic queries work keyless; a free API key raises the daily budget 10x). OpenAlex indexes CrossRef, PubMed and arXiv-deposited works, so one endpoint covers journals and preprints for keyword/author search, with relevance re-ranking and author disambiguation (`--affiliation` / `--orcid` / `--list-authors`). Returns ranked JSON (title, DOI, authors, year, citations, abstract).
-- **Download / convert** — `scripts/format-converter.py` turns the chosen DOIs/PMIDs/arXiv IDs into `.ris`/`.bib`/`.enw`/`.nbib` (CrossRef + PubMed + arXiv, also stdlib-only).
+- **Download / convert** — `scripts/format-converter.py` turns the chosen DOIs/PMIDs/arXiv IDs into `.ris`/`.bib`/`.enw`/`.nbib` (CrossRef + PubMed + arXiv, requires the search dependencies).
 
 ```bash
 # discover, then export the picks

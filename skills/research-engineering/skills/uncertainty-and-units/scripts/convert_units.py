@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import math
 import sys
+from tokenize import TokenError
 from typing import Any
 
 import _common
@@ -84,6 +85,8 @@ def is_multiplicative(registry: Any, unit: str) -> bool:
         return False
     except pint.errors.UndefinedUnitError as exc:
         raise CliError(f"unknown unit {unit!r}") from exc
+    except (pint.errors.PintError, TokenError, TypeError, ValueError) as exc:
+        raise CliError(f"invalid unit {unit!r}: {exc}") from exc
     return True
 
 
@@ -100,13 +103,9 @@ def convert(
     import pint
 
     try:
-        quantity = registry.Quantity(value, unit)
+        return registry.Quantity(value, unit).to(target, *contexts, **parameters)
     except pint.errors.UndefinedUnitError as exc:
-        raise CliError(f"unknown source unit {unit!r}") from exc
-    try:
-        return quantity.to(target, *contexts, **parameters)
-    except pint.errors.UndefinedUnitError as exc:
-        raise CliError(f"unknown target unit {target!r}") from exc
+        raise CliError(f"unknown unit in conversion from {unit!r} to {target!r}: {exc}") from exc
     except pint.errors.DimensionalityError as exc:
         raise CliError(
             f"{exc}. If the two units are related by a physical law rather than by "
@@ -117,7 +116,7 @@ def convert(
         ) from exc
     except pint.errors.PintError as exc:
         raise CliError(f"pint could not perform the conversion: {exc}") from exc
-    except (KeyError, TypeError, ValueError, ArithmeticError) as exc:
+    except (KeyError, TokenError, TypeError, ValueError, ArithmeticError) as exc:
         raise CliError(f"invalid conversion or context parameters: {exc}") from exc
 
 

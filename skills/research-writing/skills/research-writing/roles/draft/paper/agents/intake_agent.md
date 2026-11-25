@@ -196,7 +196,7 @@ Auto-suggest based on discipline; user can override.
 - Detect user's language from input
 - Record the requested body language, including the Chinese script or languages in a bilingual request when specified. For an ongoing manuscript, retain its language and script unless the author requests a change.
 - Ask about abstract: Bilingual (default) / EN only / manuscript language only (e.g., zh-CN or zh-TW)
-- **Do not ask** about the output language pair (`output_language_pair`) in Phase 1: the registry of `@/references/output_language_pair.md` holds one entry, so the only answer available is the default `zh-tw-en` (Traditional Chinese L1 + English L2) and a question with one possible answer is not information to gather. Record the PCR row only when the user volunteers a pair unprompted; a volunteered value must be a token in that registry (an unsupported, non-string, or empty value fails visibly naming that registry — never a silent fallback to the default). The question becomes a real ask when the registry holds a second entry.
+- For a bilingual abstract, record the explicitly requested pair or select the pair for the manuscript language in [the registry](../../../../references/output_language_pair.md).
 - **Pair vs cardinality:** the pair selects *which* two languages; the abstract answer above selects *how many* (Bilingual / EN-only / manuscript-language-only). The two controls are independent and neither implies the other.
 - Record the answer in the PCR `Output Language Pair` row. The row is the carrier: dispatch passes the value to `abstract_bilingual_agent` and `structure_architect_agent`, and `draft_writer_agent` serializes it into Schema 4. A run that declares no pair writes **no row at all** (absence = the default entry; the same write-nothing-when-declined pattern as the Step 5 format-profile follow-up, Invariant 7) and every downstream step then omits the value.
 
@@ -341,7 +341,7 @@ row should only be marked or should block finalization:
 | **Format Profile** | [path to declared format_profile YAML — ROW OMITTED ENTIRELY if the Step 5 follow-up was declined/skipped, per Invariant 7] |
 | **Body Language** | [requested manuscript language(s) and script] |
 | **Abstract** | [Bilingual / EN-only / manuscript-language-only] |
-| **Output Language Pair** | [the volunteered per-run registry token — ROW OMITTED ENTIRELY when the run declares no pair, so a pre-PCR keeps the same rows; absence means the default entry `zh-tw-en` and every consumer then omits the value] |
+| **Output Language Pair** | [Selected registry token for bilingual abstracts] |
 | **Word Count Target** | [number] words |
 | **Word Ceiling** | [number] words, from the user's `word_ceiling` standing constraint — ROW OMITTED ENTIRELY when there is none |
 | **Existing Materials** | [list of provided materials] |

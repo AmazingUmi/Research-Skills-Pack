@@ -225,7 +225,7 @@ PRISMA 2020-compliant systematic review with optional meta-analysis. Follows 5-p
 
 > **Compliance:** in the orchestrate role's full workflow, `systematic-review` triggers `@/roles/orchestrate/agents/compliance_agent.md` at the integrity checks (PRISMA-trAIce and RAISE). See `@/references/compliance_checkpoint_protocol.md`.
 
-> See `references/systematic_review_protocol.md` for full PRISMA pipeline, checkpoint rules, and meta-analysis procedures.
+> Follow the [systematic review protocol](systematic_review_protocol.md). Use [literature screen](../../screen/MODE.md) or a team decision ledger for selection, quality checks and reconciled PRISMA counts.
 
 ---
 

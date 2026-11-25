@@ -44,5 +44,5 @@
 
 ## Related Skills
 
-- `nature-data`: turn experiment data into Data Availability and FAIR checklists.
-- `nature-figure`: turn experiment data or images into submission-grade figures.
+- `$research-writing draft data-availability`: turn experiment data into Data Availability and FAIR checklists.
+- `$research-writing figures make`: turn experiment data or images into submission-grade figures.

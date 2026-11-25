@@ -1,6 +1,6 @@
 # Nature Communications — formatting facts
 
-Authoritative facts about Nature Communications formatting requirements. Used by both `nature-polishing` and `nature-writing` when `journal=nat-comms`. This file holds the **facts**; each skill's `static/fragments/journal/nat-comms.md` adds the **action layer**.
+Authoritative facts about Nature Communications formatting requirements. Used by both `$research-writing draft polish` and `$research-writing draft section` when `journal=nat-comms`. This file holds the **facts**; each skill's `static/fragments/journal/nat-comms.md` adds the **action layer**.
 
 > Always verify against the journal's current guidelines before final submission. Limits change. The numbers below are accurate as of early 2026.
 

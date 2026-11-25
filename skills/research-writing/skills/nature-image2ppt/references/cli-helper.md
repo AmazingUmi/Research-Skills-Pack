@@ -65,7 +65,7 @@ image2ppt image edit --help
 image2ppt formula render-latex --help
 ```
 
-`image2ppt image` is the CLI fallback layer. `--backend` (or `IMAGE2PPT_IMAGE_BACKEND`) selects `auto`, `codex-oauth`, or `openai-compatible-api`. `auto` uses Codex OAuth only for compatible GPT Image model ids; provider-specific model ids use the configured OpenAI Images-compatible API even when local Codex auth exists. See `manifest-schema.md` for the run/page backend field contract. `image2ppt doctor` checks CLI backend readiness; it cannot discover whether an agent runtime exposes the built-in tool.
+`image2ppt image` is the CLI fallback layer. `--backend` (or `IMAGE2PPT_IMAGE_BACKEND`) selects `auto`, `codex-oauth`, or `openai-compatible-api`. `auto` selects the configured API. Use `--backend codex-oauth` for explicit Codex authentication. See `manifest-schema.md` for the run/page backend field contract. `image2ppt doctor` checks CLI backend readiness; it cannot discover whether an agent runtime exposes the built-in tool.
 
 Public `image2ppt image generate/edit` parameters are intentionally narrow. Required request inputs are `--prompt` or `--prompt-file`, plus at least one `--image` for `edit`. CLI fallback calls should pass an explicit `--out`. Retained useful controls are `--backend`, `--model` (default `gpt-image-2`), `--size` (default `auto`), `--quality` (default `auto`), `--force`, `--dry-run`, `--timeout`, and edit-only `--mask`. `auto` size/quality values are omitted on the API path so the provider chooses its defaults; explicit values pass through. The CLI does not pass any other image API options.
 
@@ -122,13 +122,13 @@ image2ppt config --api-key "<key>" --image-backend openai-compatible-api --base-
 
 Write `image2ppt config` only when API fallback is needed or when the user explicitly provides a third-party image API. Do not write API keys into the project directory, run directory, prompts, or manifests.
 
-Optional but recommended on first use: configure a PaddleOCR-VL token. The offline detector only measures text geometry (where and how large); with a token the hints also carry recognized text content and cleaner block boundaries. Store it next to the other credentials:
+Optional but recommended on first use: configure a PaddleOCR-VL token. The offline detector only measures text geometry (where and how large); with a token and explicit per-run cloud selection the hints also carry recognized text content and cleaner block boundaries. Store it next to the other credentials:
 
 ```bash
 image2ppt config --paddle-ocr-token "<token>"
 ```
 
-`image2ppt doctor` reports the current text-hints backend; without a token everything still works through the built-in offline detector. When and how to ask the user about the token — including the application URL and the regenerate step — is defined under "Preflight and OCR choice" in `SKILL.md`.
+`image2ppt doctor` reports the current text-hints backend; the default is local geometry even with a configured token. When and how to ask the user about the token — including the application URL and the regenerate step — is defined under "Preflight and OCR choice" in `SKILL.md`.
 
 ## Run Commands
 
@@ -140,7 +140,7 @@ image2ppt prepare input.png --image-backend builtin-imagegen
 
 Purpose: normalize a single image, multiple images, a PDF, or an image-based PPTX into a run directory and generate `deck_manifest.json`, `page_jobs.json`, `notes_manifest.json`, plus per-page `pages/page_NNN/source.png`, `page_request.json`, and text hints. `--image-backend` records the requested run/page contract; selection policy lives under "Image backend selection" in `SKILL.md`.
 
-When a PaddleOCR token is configured, `prepare` may submit the input pages to PaddleOCR for content-aware text hints. In a sandboxed or approval-gated environment, request network approval up front for this command instead of accepting a DNS/sandbox failure followed by lower-quality `builtin-ink` fallback; see "Preflight and OCR choice" in `SKILL.md` for the approval-rejection policy.
+When the user selects `prepare --ocr cloud` and a PaddleOCR token is configured, this run submits the input pages to PaddleOCR for content-aware text hints. In a sandboxed or approval-gated environment, request network approval up front for this command instead of accepting a DNS/sandbox failure followed by lower-quality `builtin-ink` fallback; see "Preflight and OCR choice" in `SKILL.md` for the approval-rejection policy.
 
 ```bash
 image2ppt run next <run> --json
@@ -214,13 +214,13 @@ image2ppt run hints <run>
 
 Purpose: regenerate `text_hints.json`/`text_hints.png` for every page of a prepared run — for example right after configuring a PaddleOCR token, so the current run gets content-aware hints without re-running prepare.
 
-When used with a configured PaddleOCR token, this command calls the external OCR service. If the runtime requires approval for network access, request it with the task-local conversion-data justification from `SKILL.md`; see "Preflight and OCR choice" for the approval-rejection policy.
+When run in cloud mode with a configured PaddleOCR token, this command calls the external OCR service. If the runtime requires approval for network access, request it with the task-local conversion-data justification from `SKILL.md`; see "Preflight and OCR choice" for the approval-rejection policy.
 
 ```bash
 image2ppt page hints pages/page_001
 ```
 
-Purpose: detect the text lines on one page's `source.png` and write `text_hints.json` (each line's source-pixel `box_px`, measured glyph height, and derived font sizes) plus `text_hints.png`, the source image with every detected line framed and labeled. `image2ppt prepare` already runs this for every page. With a PaddleOCR token, an original PDF is submitted as one multi-page job; image and PPT/PPTX inputs submit each normalized `source.png` directly as a separate job. Without a token, the built-in offline detector runs. Use this command only to regenerate hints for a page. How to consume the hints is defined in `page-decision-tree.md` section 3.1.
+Purpose: detect the text lines on one page's `source.png` and write `text_hints.json` (each line's source-pixel `box_px`, measured glyph height, and derived font sizes) plus `text_hints.png`, the source image with every detected line framed and labeled. `image2ppt prepare` already runs this for every page. With an authorized `--ocr cloud` run and a PaddleOCR token, an original PDF is submitted as one multi-page job; image and PPT/PPTX inputs submit each normalized `source.png` directly as a separate job. Without a token, the built-in offline detector runs. Use this command only to regenerate hints for a page. How to consume the hints is defined in `page-decision-tree.md` section 3.1.
 
 ## Image Backend Commands
 
@@ -250,7 +250,7 @@ image2ppt image edit \
 
 When multiple fallback image outputs are required, run `image2ppt image generate` or `image2ppt image edit` calls serially. For foreground icons and small visual objects, prefer one sparse asset sheet with generous spacing; create a second sheet only when one sheet cannot fit the required objects cleanly.
 
-These commands follow the explicit/configured backend. In `auto`, they use Codex OAuth only for compatible GPT Image ids and otherwise use the configured OpenAI Images-compatible API. The API path accepts arbitrary provider model ids; compatibility is defined by the `/images/generations` and `/images/edits` request/response protocol, not by a provider-name allowlist. In a network-restricted runtime, request approval before the call and state that only task-local prompts plus required page images/masks/references are uploaded for the current conversion.
+These commands follow the explicit/configured backend. In `auto`, they use the configured OpenAI Images-compatible API. The API path accepts arbitrary provider model ids; compatibility is defined by the `/images/generations` and `/images/edits` request/response protocol, not by a provider-name allowlist. In a network-restricted runtime, request approval before the call and state that only task-local prompts plus required page images/masks/references are uploaded for the current conversion.
 
 ## Asset Processing Commands
 

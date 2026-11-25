@@ -97,7 +97,8 @@ def utf8_stdout():
 
 
 def read_text(path):
-    raw = open(path, "rb").read()
+    with open(path, "rb") as handle:
+        raw = handle.read()
     if raw[:2] in (b"\xff\xfe", b"\xfe\xff"):
         text = raw.decode("utf-16")
     else:
@@ -304,6 +305,25 @@ def ta_snapshot(work):
                    "final": {rid: r.get("final") for rid, r in decisions.items()}})
 
 
+def pdf_digest(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def changed_pdfs(manifest):
+    changed = set()
+    for item in manifest or []:
+        try:
+            if not item.get("sha256") or pdf_digest(item["pdf"]) != item["sha256"]:
+                changed.add(item["id"])
+        except OSError:
+            changed.add(item["id"])
+    return changed
+
+
 def fulltext_status(work, cfg):
     """The retrieved/not-retrieved partition must cover the *current* TA advances."""
     ta_ids, qc_ids, problems = ta_status(work, cfg)
@@ -315,13 +335,14 @@ def fulltext_status(work, cfg):
     retrieved = [x["id"] for x in man or []]
     not_retrieved = [x["id"] for x in nr or []]
     covered = set(retrieved) | set(not_retrieved)
-    stale = (man is None or nr is None or meta.get("ta_snapshot") != ta_snapshot(work) or
+    changed = changed_pdfs(man)
+    stale = (bool(changed) or man is None or nr is None or meta.get("ta_snapshot") != ta_snapshot(work) or
              advanced != covered or set(retrieved) & set(not_retrieved) or
              len(retrieved) != len(set(retrieved)) or len(not_retrieved) != len(set(not_retrieved)) or
              meta.get("retrieval_hash") != digest({"manifest": man, "not_retrieved": nr}))
     if stale:
         problems.append("full-text set is out of date: rerun prepare_fulltext.py for the current title/abstract decisions")
-    return ta_ids, qc_ids, problems, advanced ^ covered, bool(stale)
+    return ta_ids, qc_ids, problems, (advanced ^ covered) | changed, bool(stale)
 
 
 def spreadsheet_text(value):
@@ -437,7 +458,7 @@ def code_labels(cfg, stage="ta"):
     return out
 
 
-def valid_decision(d, codes):
+def valid_decision(d, codes, stage="ta"):
     """A decision is usable only when its label and code agree."""
     if not isinstance(d, dict):
         return False
@@ -447,7 +468,8 @@ def valid_decision(d, codes):
     if lab == "unclear":
         return code == "UNC"
     if lab == "exclude":
-        return code in codes
+        return (code in codes and isinstance(d.get("why"), str) and bool(d["why"].strip()) and
+                (stage != "ft" or isinstance(d.get("where"), str) and bool(d["where"].strip())))
     return False
 
 

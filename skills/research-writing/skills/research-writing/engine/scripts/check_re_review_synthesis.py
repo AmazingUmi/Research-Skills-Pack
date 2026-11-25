@@ -102,7 +102,8 @@ ADJUSTMENT_BASES = (
     "valid_rebuttal",
     "scope_correction",
     "user_accepted_fail_closed",
-    "cross_model_adjudication",
+    "criterion_reapplication",
+    "cross_model_adjudication",  # historical name on locally adjudicated dissent records
 )
 ATTRIBUTIONS = ("regression", "previously_missed", "indeterminate")
 DECISION_STATES = ("Accept", "Minor Revision", "Major Revision", "user_review_required", "aborted")
@@ -139,7 +140,6 @@ _ARTIFACT_REF_RE = re.compile(r"^(passport|path):.+$")
 _ANSWER_REF_RE = re.compile(r"^(adjudication:DIS-[1-9][0-9]*|intent:INT-[1-9][0-9]*)$")
 _CRITERION_REF_RE = re.compile(r"^(phase1:REV-[A-Za-z0-9-]+|dissent:DIS-[1-9][0-9]*)$")
 _SOURCE_REF_RE = re.compile(r"^(reapplication:RAP-[1-9][0-9]*|acceptance:ACC-[1-9][0-9]*)$")
-_CHECK_ADJUDICATED_RE = re.compile(r"^adjudicated:(RADJ-[1-9][0-9]*)$")
 _AUTHOR_EVENT_RE = re.compile(r"^AUTHOR-EVENT-[A-Za-z0-9._-]+$")
 _BLOCK_ID_RE = re.compile(r"^(?:B[0-9]{4,}|DOC-BODY-START)$")
 _CLAIM_AUTH_RE = re.compile(r"^CLAIM-AUTH-[A-Za-z0-9._-]+$")
@@ -156,7 +156,6 @@ _ID_RES = {
     "ADJ": re.compile(r"^ADJ-[1-9][0-9]*$"),
     "INT": re.compile(r"^INT-[1-9][0-9]*$"),
     "RES": re.compile(r"^RES-[1-9][0-9]*$"),
-    "RADJ": re.compile(r"^RADJ-[1-9][0-9]*$"),
     "ACC": re.compile(r"^ACC-[1-9][0-9]*$"),
     "RAP": re.compile(r"^RAP-[1-9][0-9]*$"),
     "PRB": re.compile(r"^PRB-[1-9][0-9]*$"),
@@ -626,9 +625,9 @@ def _validate_adjustment_body(v: _V, rec, path, *, drafted: bool):
     if drafted:
         return
     source_ref = rec.get("source_ref")
-    if rec["basis"] == "cross_model_adjudication":
+    if rec["basis"] in ("criterion_reapplication", "cross_model_adjudication"):
         if not (isinstance(source_ref, str) and source_ref.startswith("reapplication:")):
-            v.fail(path, 'basis cross_model_adjudication requires source_ref "reapplication:<id>"')
+            v.fail(path, 'criterion reapplication requires source_ref "reapplication:<id>"')
     elif rec["basis"] == "user_accepted_fail_closed":
         if not (isinstance(source_ref, str) and source_ref.startswith("acceptance:")):
             v.fail(path, 'basis user_accepted_fail_closed requires source_ref "acceptance:<id>"')
@@ -636,12 +635,10 @@ def _validate_adjustment_body(v: _V, rec, path, *, drafted: bool):
         v.fail(path, f"source_ref is FORBIDDEN on basis {rec['basis']} (§5.3)")
     if source_ref is not None:
         v.pattern(source_ref, f"{path}.source_ref", _SOURCE_REF_RE, "reapplication:RAP-<n> | acceptance:ACC-<n>")
-    check = rec.get("critical_rebuttal_check")
-    if check is not None:
+    if "critical_rebuttal_check" in rec:
         if rec["basis"] != "valid_rebuttal":
             v.fail(path, "critical_rebuttal_check exists only on valid_rebuttal adjustments (§3.4)")
-        if check not in ("single_family_disclosed", "pass_unavailable_disclosed") and not _CHECK_ADJUDICATED_RE.match(check):
-            v.fail(f"{path}.critical_rebuttal_check", f"invalid value {check!r}")
+        v.enum(rec["critical_rebuttal_check"], f"{path}.critical_rebuttal_check", ("single_family_disclosed",))
 
 
 def validate_traceability(art: dict):
@@ -649,10 +646,10 @@ def validate_traceability(art: dict):
     v.obj(art, "$", [
         "contract_version", "round_id", "revision", "verdict_record_hash", "rows", "adjustments",
         "new_issues", "post_letter_observations", "dissent_adjudications",
-        "resolution_intents", "cross_model_resolutions", "rebuttal_adjudications",
+        "resolution_intents",
         "g2d_acceptances", "pending_rebuttal_upgrades", "escalation_approvals",
         "reapplications", "decision_inputs", "decision_state",
-    ], ["supersedes_hash", "abort_reason"])
+    ], ["supersedes_hash", "abort_reason", "cross_model_resolutions", "rebuttal_adjudications"])
     v.enum(art["contract_version"], "$.contract_version", ("1.1",))
     v.string(art["round_id"], "$.round_id")
     v.integer(art["revision"], "$.revision", minimum=1)
@@ -714,22 +711,8 @@ def validate_traceability(art: dict):
             v.pattern(row["adjustment_id"], f"{path}.adjustment_id", _ID_RES["ADJ"], "ADJ-<n>")
         if "addressed_by_rebuttal" in row and row["addressed_by_rebuttal"] is not True:
             v.fail(f"{path}.addressed_by_rebuttal", "when present the marker is the literal true")
-        has_status = "cross_model_status" in row
-        has_cmv = "cross_model_verdict" in row
-        if row["obligation_class"] == "MUST_FIX":
-            if not has_status:
-                v.fail(path, "MUST_FIX rows always carry cross_model_status (§5.3 / #539)")
-        elif has_status or has_cmv:
-            v.fail(path, "SHOULD_FIX/CONSIDER rows carry neither cross-model field (#539 scope)")
-        if has_status:
-            v.enum(row["cross_model_status"], f"{path}.cross_model_status",
-                   ("agree", "diverges", "unavailable", "not_configured"))
-            if row["cross_model_status"] in ("agree", "diverges"):
-                if not has_cmv:
-                    v.fail(path, "evaluated (agree/diverges) rows carry cross_model_verdict")
-                v.enum(row["cross_model_verdict"], f"{path}.cross_model_verdict", JUDGE_VERDICTS)
-            elif has_cmv:
-                v.fail(path, "unavailable/not_configured rows carry no cross_model_verdict")
+        if row.get("cross_model_status", "not_configured") != "not_configured" or "cross_model_verdict" in row:
+            v.fail(path, "this pack accepts only local review evidence")
 
     v.array(art["adjustments"], "$.adjustments")
     for i, rec in enumerate(art["adjustments"]):
@@ -748,7 +731,7 @@ def validate_traceability(art: dict):
         path = f"$.dissent_adjudications[{i}]"
         v.obj(rec, path, ["dissent_id", "adjudicator", "outcome", "rationale"])
         v.pattern(rec["dissent_id"], f"{path}.dissent_id", _ID_RES["DIS"], "DIS-<n>")
-        v.enum(rec["adjudicator"], f"{path}.adjudicator", ("cross_model", "user"))
+        v.enum(rec["adjudicator"], f"{path}.adjudicator", ("user",))
         v.enum(rec["outcome"], f"{path}.outcome", ("replacement_approved", "original_upheld"))
         v.string(rec["rationale"], f"{path}.rationale")
 
@@ -764,28 +747,9 @@ def validate_traceability(art: dict):
                 v.fail(path, "guidance_note exists only on user intents (§5.3)")
             v.string(rec["guidance_note"], f"{path}.guidance_note")
 
-    v.array(art["cross_model_resolutions"], "$.cross_model_resolutions")
-    for i, rec in enumerate(art["cross_model_resolutions"]):
-        path = f"$.cross_model_resolutions[{i}]"
-        v.obj(rec, path, ["resolution_id", "item_id", "intent_id", "reapplication_id", "state", "resolved_by", "rationale"])
-        v.pattern(rec["resolution_id"], f"{path}.resolution_id", _ID_RES["RES"], "RES-<n>")
-        v.pattern(rec["item_id"], f"{path}.item_id", _ITEM_ID_RE, "REV-<id>")
-        v.pattern(rec["intent_id"], f"{path}.intent_id", _ID_RES["INT"], "INT-<n>")
-        v.pattern(rec["reapplication_id"], f"{path}.reapplication_id", _ID_RES["RAP"], "RAP-<n>")
-        v.enum(rec["state"], f"{path}.state", ("primary_upheld", "primary_revised"))
-        v.enum(rec["resolved_by"], f"{path}.resolved_by", ("system", "user"))
-        if rec["resolved_by"] == "user" and rec["state"] != "primary_upheld":
-            v.fail(path, "the user acceptance form is always primary_upheld — the user never hand-sets a verdict (§5.3)")
-        v.string(rec["rationale"], f"{path}.rationale")
-
-    v.array(art["rebuttal_adjudications"], "$.rebuttal_adjudications")
-    for i, rec in enumerate(art["rebuttal_adjudications"]):
-        path = f"$.rebuttal_adjudications[{i}]"
-        v.obj(rec, path, ["rebuttal_adjudication_id", "item_id", "verdict", "rationale"])
-        v.pattern(rec["rebuttal_adjudication_id"], f"{path}.rebuttal_adjudication_id", _ID_RES["RADJ"], "RADJ-<n>")
-        v.pattern(rec["item_id"], f"{path}.item_id", _ITEM_ID_RE, "REV-<id>")
-        v.enum(rec["verdict"], f"{path}.verdict", ("upheld", "challenged"))
-        v.string(rec["rationale"], f"{path}.rationale")
+    for field in ("cross_model_resolutions", "rebuttal_adjudications"):
+        if field in art and art[field] != []:
+            v.fail(f"$.{field}", "retired external-review evidence cannot be used in a local review")
 
     v.array(art["g2d_acceptances"], "$.g2d_acceptances")
     for i, rec in enumerate(art["g2d_acceptances"]):
@@ -804,8 +768,8 @@ def validate_traceability(art: dict):
         v.pattern(rec["item_id"], f"{path}.item_id", _ITEM_ID_RE, "REV-<id>")
         _validate_adjustment_body(v, rec["drafted_adjustment"], f"{path}.drafted_adjustment", drafted=True)
         disposition = rec["disposition"]
-        if not isinstance(disposition, str) or not re.match(
-            r"^(booked:ADJ-[1-9][0-9]*|challenged:RADJ-[1-9][0-9]*|booked_disclosed:ADJ-[1-9][0-9]*|booked_single_family:ADJ-[1-9][0-9]*)$",
+        if not isinstance(disposition, str) or not re.fullmatch(
+            r"(?:booked|booked_single_family):ADJ-[1-9][0-9]*",
             disposition,
         ):
             v.fail(f"{path}.disposition", f"invalid disposition {disposition!r}")
@@ -917,15 +881,17 @@ def validate_manifest(manifest: dict):
 
     if not isinstance(manifest, dict):
         fail("must be an object")
-    expected_top = {"contract_version", "round_id", "cross_model_active", "artifacts"}
-    if set(manifest) != expected_top:
+    expected_top = {"contract_version", "round_id", "artifacts"}
+    # Read a legacy, disabled configuration without rewriting its hash-bound bytes.
+    keys = set(manifest)
+    if manifest.get("cross_model_active") is False:
+        keys.remove("cross_model_active")
+    if keys != expected_top:
         fail(f"top-level fields must be exactly {sorted(expected_top)}")
     if manifest["contract_version"] != "1.1":
         fail("contract_version must be current 1.1; legacy/mixed chains use the archived loader")
     if not _is_str(manifest["round_id"]):
         fail("round_id must be a non-empty string")
-    if not isinstance(manifest["cross_model_active"], bool):
-        fail("cross_model_active must be a boolean")
     artifacts = manifest["artifacts"]
     single_keys = (
         "original_manuscript", "revised_manuscript", "revision_roadmap",
@@ -1605,7 +1571,6 @@ def check(
     roadmap_by_id = {item["id"]: item for item in roadmap_items}
     must_fix_order = [item["id"] for item in roadmap_items if item["obligation_class"] == "must_fix"]
     p12_ids = {item["id"] for item in roadmap_items if item["obligation_class"] in ("must_fix", "should_fix")}
-    cross_model_active = manifest["cross_model_active"]
 
     # round_id equality across all artifacts.
     for name, art in (("precommitment", precommitment), ("verdict_record", verdict_record), ("traceability", traceability)):
@@ -1860,7 +1825,7 @@ def check(
         adjudications_by_dissent[rec["dissent_id"]] = rec
         if rec["dissent_id"] not in dissent_by_id:
             fails.add(f"dissent adjudication {rec['dissent_id']}: no such dissent record")
-        if rec["adjudicator"] == "cross_model" and not cross_model_active:
+        if rec["adjudicator"] != "user":
             fails.add(f"dissent adjudication {rec['dissent_id']}: cross_model adjudicator on an inactive configuration (§11)")
         if not bound_tripped:
             fails.add(
@@ -2033,8 +1998,8 @@ def check(
                 fails.add(f"reapplication {rec['reapplication_id']}: a verdict-changing reapplication requires exactly one derived adjustment (§13)")
             else:
                 adj = derived[0]
-                if adj["item_id"] != item_id or adj["basis"] != "cross_model_adjudication":
-                    fails.add(f"reapplication {rec['reapplication_id']}: derived adjustment must be a cross_model_adjudication on the same item")
+                if adj["item_id"] != item_id or adj["basis"] not in ("criterion_reapplication", "cross_model_adjudication"):
+                    fails.add(f"reapplication {rec['reapplication_id']}: derived adjustment must be a criterion reapplication on the same item")
                 if adj["from_verdict"] != rec["pre_reapplication_verdict"] or adj["to_verdict"] != rec["reapplied_verdict"]:
                     fails.add(f"reapplication {rec['reapplication_id']}: derived adjustment endpoints must bind to the RECORDED pre-value (§6)")
                 if adj["rationale"] != rec["rationale"]:
@@ -2069,7 +2034,7 @@ def check(
 
     # --- cross-model resolutions (§5.3/§9) ---
     resolutions_by_reapp = {}
-    for rec in traceability["cross_model_resolutions"]:
+    for rec in traceability.get("cross_model_resolutions", []):
         if rec["reapplication_id"] in resolutions_by_reapp:
             fails.add(f"reapplication {rec['reapplication_id']}: referenced by more than one CrossModelResolution")
         resolutions_by_reapp[rec["reapplication_id"]] = rec
@@ -2085,7 +2050,7 @@ def check(
                     f"reapplication {rec['reapplication_id']}: a derived state mandates a mechanically-created "
                     "system CrossModelResolution (§6 loop step 2)"
                 )
-    for rec in traceability["cross_model_resolutions"]:
+    for rec in traceability.get("cross_model_resolutions", []):
         intent = intents_by_id.get(rec["intent_id"])
         reapp = reapp_by_id.get(rec["reapplication_id"])
         if intent is None or intent["item_id"] != rec["item_id"]:
@@ -2152,7 +2117,7 @@ def check(
             reapp = reapp_by_id.get(acceptance["reapplication_id"])
             if reapp is not None and reapp.get("cannot_verify_reason") != adj.get("cannot_verify_reason"):
                 fails.add(f"adjustment {adj['adjustment_id']}: cannot_verify_reason must be copied from the accepted reapplication (§3.4)")
-        elif adj["basis"] == "cross_model_adjudication":
+        elif adj["basis"] in ("criterion_reapplication", "cross_model_adjudication"):
             rap_id = adj["source_ref"].split(":", 1)[1]
             if rap_id not in reapp_by_id:
                 fails.add(f"adjustment {adj['adjustment_id']}: reapplication ref does not resolve")
@@ -2201,14 +2166,7 @@ def check(
                 f"!= the chain tail as it stood at dispatch ({expected_pre!r}, §13)"
             )
 
-    # --- critical-rebuttal machinery (§3.4/§5.3) ---
-    radj_by_id = {}
-    for rec in traceability["rebuttal_adjudications"]:
-        if rec["rebuttal_adjudication_id"] in radj_by_id:
-            fails.add(f"duplicate rebuttal_adjudication_id {rec['rebuttal_adjudication_id']}")
-        radj_by_id[rec["rebuttal_adjudication_id"]] = rec
-        if not cross_model_active:
-            fails.add(f"rebuttal adjudication {rec['rebuttal_adjudication_id']}: the §3.4 pass exists only under active cross-model (§11)")
+    # --- local rebuttal proposals and booked adjustments (§3.4/§5.3) ---
     adjustments_by_id = {adj["adjustment_id"]: adj for adj in traceability["adjustments"]}
 
     def _is_critical(item_id):
@@ -2223,24 +2181,13 @@ def check(
                 f"adjustment {adj['adjustment_id']}: critical_rebuttal_check present iff the adjustment is a critical "
                 f"valid_rebuttal (§3.4)"
             )
-        if has_check:
-            check_value = adj["critical_rebuttal_check"]
-            match = _CHECK_ADJUDICATED_RE.match(check_value) if isinstance(check_value, str) else None
-            if match:
-                radj = radj_by_id.get(match.group(1))
-                if radj is None or radj["verdict"] != "upheld" or radj["item_id"] != adj["item_id"]:
-                    fails.add(f"adjustment {adj['adjustment_id']}: adjudicated:* must resolve to an upheld RebuttalAdjudication on the same item (§3.4)")
-            elif check_value == "single_family_disclosed" and cross_model_active:
-                fails.add(f"adjustment {adj['adjustment_id']}: single_family_disclosed is invalid on an active cross-model run (§3.4)")
-
-    proposals_by_id = {}
+    proposal_ids = set()
     booked_by_adjustment = {}
     seen_drafted_bodies = {}
-    challenged_bodies = []
     for rec in traceability["pending_rebuttal_upgrades"]:
-        if rec["proposal_id"] in proposals_by_id:
+        if rec["proposal_id"] in proposal_ids:
             fails.add(f"duplicate proposal_id {rec['proposal_id']}")
-        proposals_by_id[rec["proposal_id"]] = rec
+        proposal_ids.add(rec["proposal_id"])
         kind, ref_id = rec["disposition"].split(":", 1)
         if rec["drafted_adjustment"]["item_id"] != rec["item_id"]:
             fails.add(f"proposal {rec['proposal_id']}: drafted_adjustment.item_id must equal the proposal's item_id (§5.3)")
@@ -2251,64 +2198,28 @@ def check(
                 f"(same canonical body as {seen_drafted_bodies[body_key]}) — one proposal per drafted upgrade (§5.3)"
             )
         seen_drafted_bodies[body_key] = rec["proposal_id"]
-        if kind == "challenged":
-            challenged_bodies.append((rec["proposal_id"], rec["item_id"], rec["drafted_adjustment"]))
-        if kind == "challenged":
-            radj = radj_by_id.get(ref_id)
-            if radj is None or radj["item_id"] != rec["item_id"]:
-                fails.add(f"proposal {rec['proposal_id']}: challenged ref does not resolve on the same item")
-            elif radj["verdict"] != "challenged":
-                fails.add(f"proposal {rec['proposal_id']}: challenged disposition must reference a challenged adjudication")
-        else:
-            adj = adjustments_by_id.get(ref_id)
-            if adj is None or adj["item_id"] != rec["item_id"] or adj["basis"] != "valid_rebuttal":
-                fails.add(f"proposal {rec['proposal_id']}: booked ref must resolve to a valid_rebuttal adjustment on the same item")
-                continue
-            if ref_id in booked_by_adjustment:
-                fails.add(f"proposal {rec['proposal_id']}: adjustment {ref_id} already booked by {booked_by_adjustment[ref_id]}")
-            booked_by_adjustment[ref_id] = rec["proposal_id"]
-            drafted = dict(rec["drafted_adjustment"])
-            booked = {
-                key: value for key, value in adj.items()
-                if key not in ("adjustment_id", "supersedes_adjustment_id", "critical_rebuttal_check")
-            }
-            if drafted != booked:
-                fails.add(
-                    f"proposal {rec['proposal_id']}: booked adjustment must content-equal the drafted body "
-                    "field-for-field, excluding EXACTLY {adjustment_id, supersedes_adjustment_id, critical_rebuttal_check} (§5.3)"
-                )
-            check_value = adj.get("critical_rebuttal_check")
-            if kind == "booked":
-                match = _CHECK_ADJUDICATED_RE.match(check_value) if isinstance(check_value, str) else None
-                if not match or radj_by_id.get(match.group(1), {}).get("verdict") != "upheld":
-                    fails.add(f"proposal {rec['proposal_id']}: booked disposition requires an upheld adjudicated:* check (§3.4)")
-            elif kind == "booked_disclosed":
-                if check_value != "pass_unavailable_disclosed":
-                    fails.add(f"proposal {rec['proposal_id']}: booked_disclosed requires critical_rebuttal_check pass_unavailable_disclosed")
-                if not cross_model_active:
-                    fails.add(f"proposal {rec['proposal_id']}: booked_disclosed exists only under active cross-model (§11)")
-            elif kind == "booked_single_family":
-                if check_value != "single_family_disclosed":
-                    fails.add(f"proposal {rec['proposal_id']}: booked_single_family requires critical_rebuttal_check single_family_disclosed")
-                if cross_model_active:
-                    fails.add(f"proposal {rec['proposal_id']}: booked_single_family is invalid under active cross-model (§3.4)")
+        adj = adjustments_by_id.get(ref_id)
+        if adj is None or adj["item_id"] != rec["item_id"] or adj["basis"] != "valid_rebuttal":
+            fails.add(f"proposal {rec['proposal_id']}: booked ref must resolve to a valid_rebuttal adjustment on the same item")
+            continue
+        if ref_id in booked_by_adjustment:
+            fails.add(f"proposal {rec['proposal_id']}: adjustment {ref_id} already booked by {booked_by_adjustment[ref_id]}")
+        booked_by_adjustment[ref_id] = rec["proposal_id"]
+        booked = {
+            key: value for key, value in adj.items()
+            if key not in ("adjustment_id", "supersedes_adjustment_id", "critical_rebuttal_check")
+        }
+        if rec["drafted_adjustment"] != booked:
+            fails.add(f"proposal {rec['proposal_id']}: booked adjustment must match the drafted body (§5.3)")
+        expected_kind = "booked_single_family" if _is_critical(rec["item_id"]) else "booked"
+        if kind != expected_kind:
+            fails.add(f"proposal {rec['proposal_id']}: roadmap severity requires {expected_kind}:{ref_id} (§3.4)")
     for adj in traceability["adjustments"]:
         if adj["basis"] == "valid_rebuttal" and _is_critical(adj["item_id"]) and adj["adjustment_id"] not in booked_by_adjustment:
             fails.add(
                 f"adjustment {adj['adjustment_id']}: every critical valid_rebuttal adjustment traces to exactly one "
                 "booked* PendingRebuttalUpgrade (§5.3)"
             )
-        if adj["basis"] == "valid_rebuttal":
-            booked_view = {
-                key: value for key, value in adj.items()
-                if key not in ("adjustment_id", "supersedes_adjustment_id", "critical_rebuttal_check")
-            }
-            for proposal_id, item_id, drafted in challenged_bodies:
-                if adj["item_id"] == item_id and booked_view == drafted:
-                    fails.add(
-                        f"adjustment {adj['adjustment_id']}: content-equals CHALLENGED proposal {proposal_id}'s "
-                        "drafted body — a challenged upgrade is NEVER booked (§3.4)"
-                    )
 
     # --- escalation approvals ---
     approvals_by_exception = {}
@@ -2318,12 +2229,6 @@ def check(
         approvals_by_exception[rec["exception_id"]] = rec
         if rec["exception_id"] not in exceptions_by_id:
             fails.add(f"escalation approval {rec['exception_id']}: no such exception record")
-
-    # --- cross-model activity consistency (§11) ---
-    if not cross_model_active:
-        for item_id, row in row_by_item.items():
-            if row.get("cross_model_status") in ("agree", "diverges", "unavailable"):
-                fails.add(f"row {item_id}: cross_model_status {row['cross_model_status']!r} implies an active configuration (§11)")
 
     # --- DecisionInputs recomputation (§13) ---
     di = traceability["decision_inputs"]
@@ -2436,7 +2341,7 @@ def check(
                 pending.append(f"G2(a): dissent {dissent_id} lacks its DissentAdjudication (bound tripped — covering cardinality)")
 
     def _covering_resolution(item_id, final_verdict):
-        for rec in traceability["cross_model_resolutions"]:
+        for rec in traceability.get("cross_model_resolutions", []):
             if rec["item_id"] != item_id:
                 continue
             reapp = reapp_by_id.get(rec["reapplication_id"])

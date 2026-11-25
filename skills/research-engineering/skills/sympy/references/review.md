@@ -22,7 +22,7 @@ were not verified. Generated Python source was imported and compared with the
 symbolic expression. C/Fortran source emission ran, but generated native code,
 Cython/f2py compilation and LaTeX document rendering were not tested.
 
-The repository suite `tests/sympy/test_examples.py` contains 30 native behavioral
+The upstream K-Dense suite `tests/sympy/test_examples.py` contains 30 native behavioral
 checks. It covers exact arithmetic, assumptions/branches, excluded poles,
 integral ordering, incomplete and local solver outputs, ODE residuals, linear
 systems, complex condensed SVD, matrix functions/conditioning, discrete events,

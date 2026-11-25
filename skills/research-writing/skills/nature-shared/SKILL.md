@@ -1,11 +1,11 @@
 ---
 name: nature-shared
-description: Internal shared-reference support package for the standalone Nature skills in this pack (such as nature-paper2ppt, nature-proposal-writer, and nature-paper-to-patent). Do not invoke it as a standalone user workflow. Load only the specific core or journal-format file requested by another Nature skill.
+description: Internal shared-reference support package for nature-paper2ppt and other callers explicitly requesting a shared reference. Do not invoke it as a standalone user workflow. Load only the specific core or journal-format file requested by another Nature skill.
 ---
 
 # Nature Shared References
 
-Use this package only as a dependency of another installed Nature skill.
+Install this directory alongside `nature-paper2ppt`. Shared references use `@/` for optional routes inside a separately installed `research-writing` skill. The slide workflow can use the local shared definitions on their own.
 
 - Load the exact referenced file; do not preload the whole package.
 - Treat `core/` and `journal-formats/` as shared definitions, not standalone workflows.

@@ -39,21 +39,17 @@ Read [manifest.yaml](manifest.yaml). It declares the `backend` axis, the allowed
 
 Also read every file listed under `always_load` (`static/core/contract.md` and `static/core/stance.md`). These hold the figure contract, the backend gate, the missing-runtime rule, the privacy rule, and the default operating stance that apply to every figure job.
 
-### 2. Resolve the plotting backend
-
-Backend selection applies only to rendering or editing plotting code. Reuse a choice already established in the same task and its follow-ups; do not ask again merely because a new message omits the language. Read-only figure review and backend-independent data inspection may proceed without this choice. If the backend remains unresolved, retain the one-time Python/R question and pause only dependent plotting steps. Explicit approval requirements and backend exclusivity remain in force.
-
-Resolve the plotting backend from the current task before consulting the saved default. Decide the `backend` value in this order:
-
-1. If the current request explicitly chooses Python or R, use that backend and save it with `scripts/nature_figure_backend.py set python` or `scripts/nature_figure_backend.py set r`.
-2. If the request provides a clearly language-specific input file/workflow, use that backend and save it.
-3. Otherwise reuse a Python/R choice already established in this task. If none exists, run `scripts/nature_figure_backend.py get` and use a returned `python` or `r` preference.
-4. If neither a task choice nor a saved preference exists, ask exactly one concise question — **Python or R? I will remember this as your default.** — and pause only dependent plotting steps. After the user answers, save the answer before proceeding.
+### 2. Use the explicit Python/R choice, a clearly language-specific input, or the choice
+already established in this task. Otherwise consult the saved default with
+`scripts/nature_figure_backend.py get`. If the backend is still unresolved,
+ask “Python or R?” and continue independent inspection. Keep this choice in the
+current task. Run `scripts/nature_figure_backend.py set python` or `set r` only
+when the user explicitly asks to remember a default across projects.
 
 - `python` — matplotlib / seaborn.
 - `r` — ggplot2 / patchwork / ComplexHeatmap.
 
-Do not guess or choose a backend by aesthetics alone. Only recommend a backend when the user explicitly asks you to choose; then use `references/backend-selection.md`, state the reason, save the selected backend, and proceed. Once selected, the backend is **exclusive** for all drawing, previewing, exporting, and visual QA (see `core/contract.md`). This gate does not apply to the explicit OpenRouter AI-schematic route above.
+Do not guess or choose a backend by aesthetics alone. Only recommend a backend when the user explicitly asks you to choose; then use `references/backend-selection.md`, state the reason and proceed. Once selected, the backend is **exclusive** for all drawing, previewing, exporting, and visual QA (see `static/core/contract.md`). This gate does not apply to the explicit OpenRouter AI-schematic route above.
 
 ### 3. Load the matching backend fragment
 
@@ -136,3 +132,8 @@ The files under `references/` are deep references, not defaults. Open them on de
 
 Do not infer flagship Nature or NMI requirements from a Nature Communications
 corpus or from the visual-style examples in this skill.
+
+## 图件交接
+
+对承载主张的图表，按[图表溯源约定](ars-visualization/references/vlm_figure_verification.md)交付 `figure_table_trace[]`。每条保留 `artifact_id`、`source_data`、`transformation`、`caption_claim`、`supported_manuscript_claims` 和 `limitations`。用同一 ID 将导出路径与图注回链；严格核查和断点恢复时沿用该记录及其源版本。
+默认交接沿用已有图件清单。进入严格流程时，可将同一记录保存为 YAML 或 JSON 的 Figure Package，保留原 ID 和来源；核查脚本及恢复时的版本校验见[完整性核查 C3](../../orchestrate/agents/integrity_verification_agent.md#c3-figuretable-caption-fidelity)。

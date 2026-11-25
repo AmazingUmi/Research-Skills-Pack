@@ -24,7 +24,7 @@
 # Shape-validate the provenance entries with:
 #   python scripts/check_experiment_provenance.py examples/passport_with_experiment_provenance.yaml
 # Passport-level repro_lock check:
-#   python scripts/check_repro_lock.py examples/passport_with_experiment_provenance.yaml
+#   python engine/scripts/repro_lock_validation.py engine/examples/passport_with_experiment_provenance.yaml
 # Cross-array invariant check (convert to JSON first — that lint reads JSON):
 #   the test suite (scripts/test_experiment_provenance.py) feeds this example
 #   through check_claim_audit_consistency.validate_passport and asserts 0 findings.

@@ -77,8 +77,8 @@ local prepare
   -> source/render inspection + hash-bound structured visual evidence
   -> worker writes page_result.json
   -> local run record
-  -> local run finalize
-  -> local final arrow postprocess + structure/render QA
+  -> local run finalize (arrow postprocess, structural validation, awaiting final QA)
+  -> final structure/render QA + reviewed evidence -> complete
 ```
 
 The Prompt builder preserves the original two-layer order: it renders the complete

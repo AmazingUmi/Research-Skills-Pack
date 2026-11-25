@@ -139,6 +139,31 @@ class DraftValidationTests(unittest.TestCase):
     def test_valid_draft_passes(self):
         self.assertEqual([], VALIDATOR.validate(valid_draft()))
 
+    def test_formal_features_require_supported_traceable_evidence(self):
+        for status in ("needs-confirmation", "unsupported"):
+            draft = valid_draft()
+            draft["evidence_ledger"][0].update(support_status=status, source_ids=[])
+            codes = {item.code for item in VALIDATOR.validate(draft)}
+            self.assertIn("UNSUPPORTED_FEATURE", codes)
+
+    def test_empty_source_map_preserves_all_unknown_link_findings(self):
+        draft = valid_draft()
+        draft["source_map"] = []
+        codes = {item.code for item in VALIDATOR.validate(draft)}
+        self.assertTrue({"EMPTY_SOURCE_MAP", "UNKNOWN_SOURCE_ID", "UNSUPPORTED_FEATURE",
+                         "FORMULA_INVENTORY_SOURCE", "EQUATION_SOURCE", "FIGURE_SOURCE",
+                         "FIGURE_INVENTORY_SOURCE"} <= codes)
+
+    def test_check_formal_text_values_and_abstract(self):
+        draft = valid_draft()
+        draft["terminology_ledger"][0]["forbidden_aliases"] = ["problem"]
+        self.assertEqual([], VALIDATOR.validate(draft))
+        draft["specification"]["background"] = ["[TO CONFIRM]"]
+        draft["abstract"] = "problem [待确认]"
+        findings = VALIDATOR.validate(draft)
+        self.assertEqual(2, sum(item.code == "FORMAL_PLACEHOLDER" for item in findings))
+        self.assertIn("FORBIDDEN_ALIAS", {item.code for item in findings})
+
     def test_unmapped_claim_fails(self):
         draft = valid_draft()
         draft["claim_feature_map"] = []

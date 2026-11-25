@@ -39,7 +39,7 @@ For each paper, output:
   "rationale": "one sentence"
 }
 
-Return the top 5 papers by total score, sorted descending.
+Exclude papers scoring below 10 on Topic Match. Return up to 5 eligible papers by total score, sorted descending.
 ```
 
 ## Common Pitfalls

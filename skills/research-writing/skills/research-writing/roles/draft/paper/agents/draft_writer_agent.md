@@ -67,7 +67,7 @@ Combine all sections into a coherent document with:
 - Title page
 - All body sections
 - In-text citations
-- Reference list placeholder (citation_compliance_agent will finalize)
+- Reference list assembled from the sources used. Give the manuscript to citation_compliance_agent for a read-only audit, then merge accepted location-specific corrections as the designated writer.
 - **Writing Quality Check sweep** — run the diagnostics in `@/roles/draft/paper/references/writing_quality_check.md` over the assembled draft; its *Priority and scope* paragraph governs (author and venue requirements first; presets are prompts for judgment, not quotas). Resolve the clarity and claim-support problems it surfaces before handoff to citation_compliance_agent.
 - **Acronym report:** save the assembled draft as `draft.md` in your `phase4_*/` folder; the caller runs `@/engine/scripts/check_acronyms.py` on that file. If a later call carries its report, fix the findings that apply with targeted edits to that file (`@/roles/draft/paper/references/writing_quality_check.md` § F).
 
@@ -316,8 +316,8 @@ Quality gate not passed ->
 When the caller uses a strict Schema 4 handoff, follow `## Schema 4: Paper Draft` in `@/engine/handoff_schemas.md`. Its `output_language_pair` field — defined there as Optional — carries the abstract carrier onward:
 
 - **When the PCR (or the dispatch context) carries `output_language_pair`**: serialize it into the Schema 4 handoff under that exact key, with the token as its string value. Take the token **verbatim** — it is an opaque registry token from `@/references/output_language_pair.md`. Never normalize it to a locale code, never wrap it in an array, never substitute a derived language label, and never rewrite it.
-- **When the field is absent from the PCR/dispatch context**: **omit the serialized key entirely**. Do not emit it as `null`, as `""`, or as the default token. Absence is the legacy state, and what stays put is exact: the omitted key, the legacy object keys, and the heading literals — so an earlier handoff keeps the same keys, headings, and serialized shape, and every downstream step then omits the value too.
-- **Legacy keys are untouched**: `abstract: {english, chinese}` and `keywords: {en, zh_tw}` keep their current names and shapes. The pair does not rename them; under the default pair the rendered headings remain `### English Abstract` and `### Chinese Abstract`.
+- For a legacy handoff with no field, follow the manuscript-language fallback in the registry.
+- Serialize `abstract: {english, chinese}` and `keywords: {en, zh_cn}` or `{en, zh_tw}` according to the selected script.
 - **Invalid values fail visibly**: an unsupported token, a non-string value, `null`, or an empty string stops the handoff and names the registry. Never fall back to the default silently.
 
 ## Quality Criteria

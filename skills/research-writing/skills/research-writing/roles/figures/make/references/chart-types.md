@@ -2,10 +2,10 @@
 
 ## Contents
 
-- [Radar / Polar Chart](#radar-polar-chart)
-- [3D Sphere / Conceptual Illustration](#3d-sphere-conceptual-illustration)
+- [Radar / Polar Chart](#radar--polar-chart)
+- [3D Sphere / Conceptual Illustration](#3d-sphere--conceptual-illustration)
 - [Scatter Plot with Color-Coded Clusters](#scatter-plot-with-color-coded-clusters)
-- [Probability + Manifold Concept Panel](#probability-manifold-concept-panel)
+- [Probability + Manifold Concept Panel](#probability--manifold-concept-panel)
 - [Ablation Line Panel with Reference Baselines](#ablation-line-panel-with-reference-baselines)
 - [Fill-Between Area Chart (Stacked trend)](#fill-between-area-chart-stacked-trend)
 - [Log-Scale Bar Chart](#log-scale-bar-chart)

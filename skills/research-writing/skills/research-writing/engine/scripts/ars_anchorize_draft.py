@@ -27,12 +27,13 @@ malformed-state / unsupported-construct rules — fail closed, fix the
 draft and re-run).
 
 Usage:
-    python scripts/ars_anchorize_draft.py path/to/draft.md
-    python scripts/ars_anchorize_draft.py draft.md --manifest-out m.json
+    python engine/scripts/ars_anchorize_draft.py original.md --output working.md
+    python engine/scripts/ars_anchorize_draft.py working.md --manifest-out working-manifest.json
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -107,16 +108,19 @@ def build_manifest(anchored_raw: bytes, parsed: ParsedDocument) -> dict:
     }
 
 
-def anchorize_file(draft_path: Path, manifest_path: Path) -> dict:
-    """Anchorize in place (atomic), write the manifest, return summary."""
+def anchorize_file(draft_path: Path, manifest_path: Path, output_path: Path | None = None) -> dict:
+    """Anchorize a private copy, or refresh a working draft in place for legacy callers."""
+    working = output_path or draft_path
+    if manifest_path.resolve() in (working.resolve(), draft_path.resolve()):
+        raise ValueError("the manifest needs a distinct output path")
+    if output_path is not None and working.resolve() == draft_path.resolve():
+        raise ValueError("the working copy must differ from the original")
     raw = draft_path.read_bytes()
     text = raw.decode("utf-8")
 
     anchored, newly_labeled = _anchorize(text)
     changed = anchored != text
     anchored_raw = anchored.encode("utf-8")
-    if changed:
-        atomic_write_bytes(draft_path, anchored_raw)
 
     # Defensive re-parse of what is now on disk: every block labeled,
     # grammar intact. A failure here is a bug, not a user error.
@@ -126,8 +130,24 @@ def anchorize_file(draft_path: Path, manifest_path: Path) -> dict:
         raise AssertionError("anchorize self-check failed: unlabeled block survived")
 
     manifest = build_manifest(anchored_raw, reparsed)
+    if output_path is not None:
+        manifest["original_sha256"] = hashlib.sha256(raw).hexdigest()
+        manifest["working_sha256"] = hashlib.sha256(anchored_raw).hexdigest()
     manifest_bytes = (json.dumps(manifest, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
-    atomic_write_bytes(manifest_path, manifest_bytes)
+    if output_path is not None:
+        # Reserve a fresh working path. A failed manifest write permits a clean retry.
+        target = working.open("xb")
+        try:
+            with target:
+                target.write(anchored_raw)
+            atomic_write_bytes(manifest_path, manifest_bytes)
+        except BaseException:
+            working.unlink(missing_ok=True)
+            raise
+    else:
+        if changed:
+            atomic_write_bytes(working, anchored_raw)
+        atomic_write_bytes(manifest_path, manifest_bytes)
 
     return {
         "changed": changed,
@@ -139,18 +159,22 @@ def anchorize_file(draft_path: Path, manifest_path: Path) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("draft", type=Path, help="markdown draft to anchorize (modified in place)")
+    parser.add_argument("draft", type=Path, help="source Markdown; without --output only use a private working draft (in place)")
     parser.add_argument(
         "--manifest-out",
         type=Path,
         default=None,
         help="block manifest output path (default: <draft>.block-manifest.json)",
     )
+    parser.add_argument("--output", type=Path, help="create a new anchored working copy, preserving the input")
     args = parser.parse_args(argv)
 
-    manifest_path = args.manifest_out or Path(str(args.draft) + ".block-manifest.json")
+    manifest_path = args.manifest_out or Path(str(args.output or args.draft) + ".block-manifest.json")
     try:
-        summary = anchorize_file(args.draft, manifest_path)
+        summary = anchorize_file(args.draft, manifest_path, args.output)
+    except (OSError, ValueError) as exc:
+        print(f"Cannot prepare anchored draft: {exc}", file=sys.stderr)
+        return 2
     except BlockParseError as exc:
         print(f"REJECTED [{exc.kind}]: {exc}", file=sys.stderr)
         return 2

@@ -1,5 +1,5 @@
 import path from "node:path";
-import { evalJs, navigate, sleep, waitForComplete } from "./cdp-utils.mjs";
+import { currentWall, evalJs, navigate, sleep, waitForComplete } from "./cdp-utils.mjs";
 import { fetchAnyToFile } from "./pdf-utils.mjs";
 
 const SUPPLEMENT_LABEL = /(?:supporting\s+information|supplement(?:ary|al)?(?:\s+(?:information|material|data|file|table|figure|video))?|source\s+data|\bmmc\d+\b)/i;
@@ -66,7 +66,7 @@ export function selectSupportingInformationLinks(links, baseUrl, limit = 30) {
   for (const link of links || []) {
     const rawUrl = link.href || link.dataHref || link.dataUrl || link.dataDownloadUrl || "";
     const label = [link.text, link.ariaLabel, link.title].filter(Boolean).join(" ").trim();
-    if (!rawUrl || !SUPPLEMENT_LABEL.test(`${label} ${link.download || ""} ${rawUrl}`)) continue;
+    if (!rawUrl || !(SUPPLEMENT_LABEL.test(`${label} ${link.download || ""} ${rawUrl}`) || ATTACHMENT_URL.test(rawUrl))) continue;
     if (/^#/i.test(link.rawHref || "") || /^(?:#|javascript:|mailto:|tel:|data:)/i.test(rawUrl)) continue;
     let url;
     try {
@@ -95,12 +95,11 @@ async function scanPage(proxy, tab, url) {
   let links = [];
   for (let attempt = 0; attempt < 5; attempt++) {
     await sleep(attempt === 0 ? 800 : 1000);
+    const wall = await currentWall(proxy, tab);
+    if (wall) return { wall };
     const raw = await evalJs(proxy, tab, SCAN_LINKS_SCRIPT);
-    try {
-      links = JSON.parse(raw || "[]");
-    } catch {
-      links = [];
-    }
+    links = JSON.parse(raw);
+    if (!Array.isArray(links)) throw new Error("SI link inspection returned no result");
     const found = selectSupportingInformationLinks(links, url);
     if (found.attachments.length || found.pages.length) break;
   }
@@ -119,10 +118,13 @@ export async function fetchAttachmentWithNavigationFallback(
   ));
   const navigateImpl = dependencies.navigateImpl || navigate;
   const waitForCompleteImpl = dependencies.waitForCompleteImpl || waitForComplete;
+  const currentWallImpl = dependencies.currentWallImpl || currentWall;
   let result = await fetchImpl(proxy, tab, attachment.url, resolvePath);
-  if (result.ok || !/(?:failed to fetch|cors)/i.test(result.err || "")) return result;
+  if (result.ok || result.wall || !/(?:failed to fetch|cors)/i.test(result.err || "")) return result;
   await navigateImpl(proxy, tab, attachment.url);
-  await waitForCompleteImpl(proxy, tab);
+  const page = await waitForCompleteImpl(proxy, tab);
+  const wall = await currentWallImpl(proxy, tab, page);
+  if (wall) return { ok: false, wall };
   return fetchImpl(proxy, tab, attachment.url, resolvePath);
 }
 
@@ -144,7 +146,7 @@ function safeAttachmentName(value = "") {
     .slice(0, 140) || "supplement";
 }
 
-function uniqueAttachmentPath(bundleDir, attachment, meta, usedNames) {
+function uniqueAttachmentPath(bundleDir, attachment, meta, usedNames, filenamePrefix) {
   const headerName = filenameFromDisposition(meta.contentDisposition);
   let filename = safeAttachmentName(headerName || attachment.filename);
   if (!path.extname(filename)) {
@@ -158,6 +160,7 @@ function uniqueAttachmentPath(bundleDir, attachment, meta, usedNames) {
       filename += CONTENT_TYPE_EXTENSION.get(contentType) || "";
     }
   }
+  filename = filenamePrefix + filename;
   let candidate = filename;
   let suffix = 2;
   while (usedNames.has(candidate.toLowerCase())) {
@@ -175,6 +178,7 @@ export async function downloadWosSupportingInformation({
   landingUrl,
   bundleDir,
   reservedFilenames = [],
+  filenamePrefix = "",
   dependencies = {},
 }) {
   const scanPageImpl = dependencies.scanPageImpl || scanPage;
@@ -186,6 +190,7 @@ export async function downloadWosSupportingInformation({
   } catch (error) {
     return { status: "fetch_failed", found: 0, downloaded: 0, files: [], failures: [{ url: landingUrl, error: String(error).slice(0, 200) }] };
   }
+  if (landingLinks.wall) return { ...landingLinks.wall, found: 0, downloaded: 0, files: [], failures: [] };
   const first = selectSupportingInformationLinks(landingLinks, landingUrl);
   const attachments = [...first.attachments];
   const seen = new Set(attachments.map((item) => item.url));
@@ -194,6 +199,7 @@ export async function downloadWosSupportingInformation({
   for (const page of first.pages) {
     try {
       const nestedLinks = await scanPageImpl(proxy, tab, page.url);
+      if (nestedLinks.wall) return { ...nestedLinks.wall, found: attachments.length, downloaded: 0, files: [], failures };
       const nested = selectSupportingInformationLinks(nestedLinks, page.url);
       for (const attachment of nested.attachments) {
         if (seen.has(attachment.url)) continue;
@@ -224,8 +230,9 @@ export async function downloadWosSupportingInformation({
       proxy,
       tab,
       attachment,
-      (meta) => uniqueAttachmentPath(bundleDir, attachment, meta, usedNames)
+      (meta) => uniqueAttachmentPath(bundleDir, attachment, meta, usedNames, filenamePrefix)
     ).catch((error) => ({ ok: false, err: String(error).slice(0, 200) }));
+    if (result.wall) return { ...result.wall, found: attachments.length, downloaded: files.length, files, failures };
     if (result.ok) files.push(result.file);
     else failures.push({ url: attachment.url, error: result.err || "download failed" });
   }

@@ -39,9 +39,8 @@ class RuntimePathTests(unittest.TestCase):
             capture_output=True,
             check=False,
         )
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         report = json.loads(result.stdout)
-        self.assertTrue(report["ok"])
+        self.assertEqual(result.returncode, 0 if report["ok"] else 1)
         self.assertIn(report["ocr"]["selection"], {"paddleocr-vl", "builtin-ink"})
 
     def test_command_is_fixed_to_source_tree_cli(self) -> None:

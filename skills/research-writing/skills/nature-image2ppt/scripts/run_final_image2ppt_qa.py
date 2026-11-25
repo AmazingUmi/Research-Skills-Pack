@@ -11,9 +11,14 @@ from pathlib import Path
 from typing import Any
 
 from render_image2ppt_qa import image_diff
-from runtime_paths import SCRIPT_DIR, image2ppt_runtime_script, resolve_inside
+from runtime_paths import RUNTIME_ROOT, SCRIPT_DIR, image2ppt_runtime_script, resolve_inside
 from postprocess_manifest_arrows import load_run_manifests, read_json, write_json
 from visual_review_evidence import expected_page, validate_evidence, write_template
+
+
+sys.path.insert(0, str(RUNTIME_ROOT))
+from finalize_deck_run import assert_pages_ready, record_final_status
+from deck_run_state import load_jobs
 
 
 def run(command: list[str]) -> dict[str, Any]:
@@ -65,6 +70,10 @@ def main() -> int:
         pptx = resolve_inside(run_dir, args.pptx) if args.pptx else default_pptx
     except ValueError as exc:
         raise SystemExit(f"Final QA PPTX must stay inside run directory: {args.pptx}") from exc
+    managed = (run_dir / "page_jobs.json").is_file() and pptx == default_pptx
+    if managed:
+        record_final_status(run_dir, "awaiting_final_qa")
+        assert_pages_ready(run_dir, load_jobs(run_dir))
     final_dir = pptx.parent
     paths = {
         "postprocess": final_dir / "image2ppt_arrow_postprocess.json",
@@ -100,7 +109,7 @@ def main() -> int:
         ):
             errors.append("final semantic-region or compound-diagram inspection failed")
 
-    if not errors:
+    if not errors and (not managed or not paths["postprocess"].is_file()):
         command = [
             sys.executable,
             str(SCRIPT_DIR / "postprocess_manifest_arrows.py"),
@@ -220,6 +229,8 @@ def main() -> int:
         "errors": errors,
     }
     write_json(paths["report"], report)
+    if managed:
+        record_final_status(run_dir, "complete" if passed else ("final_qa_failed" if errors else "awaiting_final_qa"))
     print(json.dumps(report, ensure_ascii=True, indent=2))
     return 0 if passed else 2
 

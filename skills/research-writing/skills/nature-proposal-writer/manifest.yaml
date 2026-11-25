@@ -31,7 +31,7 @@ references:
   on_demand:
     - condition: composing a proposal from a topic, direction, or rough idea
       path: references/compose-mode.md
-    - condition: revising an existing paragraph, section, chapter, or complete proposal
+    - condition: revising part or all of an existing proposal
       path: references/revise-mode.md
     - condition: preserving an existing draft while composing missing or expanded modules
       path: references/hybrid-mode.md
@@ -39,13 +39,13 @@ references:
       path: references/evaluation-rubric.md
     - condition: removing generic, inflated, or template-like language from a Chinese proposal
       path: references/research-anti-slop.md
-    - condition: drafting or revising a Chinese review article with scientific section titles and evidence-led synthesis
+    - condition: drafting or revising the Chinese literature review section of a proposal with scientific section titles and evidence-led synthesis
       path: references/chinese-review-writing-style.md
     - condition: deciding whether to continue, stop, split scope, or request more evidence
       path: references/stopping-rules.md
     - condition: dispatching one or more dynamic specialists for scientific content review
       path: references/professor-dispatch.md
-    - condition: creating or repairing the five foundation files before drafting
+    - condition: creating or repairing the six foundation files before drafting
       path: references/foundation-files.md
     - condition: initializing the project directory or reading and updating state.json
       path: references/project-structure.md
@@ -55,9 +55,9 @@ references:
       path: references/partial-proposal-scope.md
     - condition: inserting or deleting citations that require reference-number cascade updates
       path: references/ref-renumbering-cascade.md
-    - condition: designing the question chain, evidence structure, and section architecture of a review paper
+    - condition: designing the question chain, evidence structure, and section architecture of a proposal literature review section
       path: references/review-paper-framework.md
-    - condition: building critical comparison and evidence-weighted synthesis into a review paper
+    - condition: building critical comparison and evidence-weighted synthesis into a proposal literature review section
       path: references/review-critique-methodology.md
     - condition: validating claims, citations, numbering, method reproducibility, or project completeness
       path: references/validation-checklist.md
@@ -65,7 +65,7 @@ references:
       path: references/gpt-handoff-revision-brief.md
     - condition: extending text within an already approved proposal without changing its scientific commitments
       path: references/within-approved-proposal.md
-    - condition: consulting a completed materials-science example for the expected depth of foundation files
+    - condition: consulting a worked materials-science proposal revision and scoring example
       path: references/worked-example-quaternary-proposal.md
     - condition: evidence is insufficient for a high-commitment proposal and claims must be deliberately narrowed
       path: references/降承诺提案模式.md

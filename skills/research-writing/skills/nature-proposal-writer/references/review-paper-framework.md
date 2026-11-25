@@ -1,6 +1,8 @@
 # Review Paper Framework Design — Gap-Driven Approach
 
-Use this reference to design a review or survey paper from a research topic. It covers pre-writing framework design; use `compose-mode.md` after the framework is approved and evidence has been assembled.
+在开题技能中，本参考仅用于申请书或研究计划的文献综述章节。独立综述设计与已有稿件审阅按技能入口分派。
+
+Use this reference to design the literature-review or state-of-the-art section inside a research proposal or opening report (use `$research-writing literature lit-review` or `systematic-review` for standalone review papers). Return to `compose-mode.md` once the section structure and evidence gaps are approved.
 
 ## Contents
 
@@ -94,7 +96,7 @@ For each section define:
 
 ## Phase 7: Default structure
 
-Adapt this mechanism-led template to the field and venue:
+Adapt this mechanism-led subsection sequence to the proposal's literature-review chapter (compressing subsections to fit the funder's page budget):
 
 | Section | Role |
 |---|---|

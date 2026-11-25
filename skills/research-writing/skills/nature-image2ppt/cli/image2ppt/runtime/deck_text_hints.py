@@ -6,7 +6,7 @@ Runs as part of `image2ppt prepare`, after page directories exist: each
 files so page workers find their text measurements already in place.
 
 Backend selection per run:
-- With a PaddleOCR token (PADDLE_OCR_TOKEN env var, or PADDLE_OCR_TOKEN in the
+- With explicit per-run cloud OCR and a PaddleOCR token (PADDLE_OCR_TOKEN env var, or PADDLE_OCR_TOKEN in the
   active config.yaml): an original PDF is submitted as one multi-page job;
   image and PPTX inputs submit each normalized source.png as its own job.
   OCR coordinates are rescaled to each page's actual source.png resolution
@@ -33,7 +33,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from deck_run_state import load_deck, load_jobs, page_dir_for, run_dir_from_target
+from deck_run_state import load_deck, load_jobs, page_dir_for, run_dir_from_target, save_deck
 from text_hints import draw_overlay, page_text_hints
 
 HINTS_JSON = "text_hints.json"
@@ -41,9 +41,8 @@ HINTS_PNG = "text_hints.png"
 
 
 def paddle_token() -> str:
-    token = os.environ.get("PADDLE_OCR_TOKEN", "").strip()
-    if token:
-        return token
+    if "PADDLE_OCR_TOKEN" in os.environ:
+        return os.environ["PADDLE_OCR_TOKEN"].strip()
     try:
         from runtime_env import config_path, read_config_file
 
@@ -92,12 +91,16 @@ def paddle_pages(run_dir: Path, deck: dict, page_dirs: list[Path], token: str, t
 def main() -> int:
     parser = argparse.ArgumentParser(description="Generate per-page text hints for a prepared run.")
     parser.add_argument("run", help="Run directory or deck_manifest.json path.")
+    parser.add_argument("--ocr", choices=("local", "cloud"), help="Update the OCR choice for this run.")
     parser.add_argument("--timeout", type=int, default=300, help="OCR job timeout in seconds.")
     parser.add_argument("--no-overlay", action="store_true", help="Skip the labeled overlay images.")
     args = parser.parse_args()
 
     run_dir = run_dir_from_target(args.run)
     deck = load_deck(run_dir)
+    if args.ocr and deck.get("ocr") != args.ocr:
+        deck["ocr"] = args.ocr
+        save_deck(run_dir, deck)
     jobs = load_jobs(run_dir)
     page_dirs = [page_dir_for(run_dir, page) for page in jobs.get("pages", [])]
     page_dirs = [d for d in page_dirs if (d / "source.png").exists()]
@@ -105,23 +108,12 @@ def main() -> int:
         print("text-hints: no pages with source.png; skipped", file=sys.stderr)
         return 0
 
-    token = paddle_token()
+    cloud_enabled = deck.get("ocr", "local") == "cloud"
+    token = paddle_token() if cloud_enabled else ""
     results: dict[Path, dict] = {}
     backend = "builtin-ink"
-    if not token:
-        print(
-            "text-hints: no PaddleOCR token configured; falling back to the built-in offline "
-            "detector (geometry only — it measures where text is and how large, but cannot read "
-            "it). A free PaddleOCR-VL token adds recognized text content and cleaner block "
-            "boundaries, noticeably improving text fidelity in the final PPT. The free personal quota "
-            "is currently more than enough for this skill, so applying is risk-free with no extra "
-            "cost. ASK THE USER once "
-            "before reconstructing pages: configure a token now (apply at "
-            "https://aistudio.baidu.com/account/accessToken, then `image2ppt config "
-            "--paddle-ocr-token <token>` and `image2ppt run hints <run>` to regenerate this run's "
-            "hints), or continue with the offline result. Respect their choice and do not ask again.",
-            file=sys.stderr,
-        )
+    if cloud_enabled and not token:
+        print("text-hints: cloud OCR has no token; using local geometry", file=sys.stderr)
     if token:
         try:
             results = paddle_pages(run_dir, deck, page_dirs, token, args.timeout)

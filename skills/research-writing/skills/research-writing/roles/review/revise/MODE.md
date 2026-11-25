@@ -12,6 +12,6 @@
 
 ## 严格模式：补丁式改稿
 
-需要证明“没有点名的段落一个字都没动”时，按 [`references/revision_patch_protocol.md`](references/revision_patch_protocol.md) 执行：先用 `@/engine/scripts/ars_anchorize_draft.py` 给稿件分块编号，写作者只产出补丁文件，再用 `@/engine/scripts/ars_apply_revision_patch.py` 确定性地应用，生成新文件和应用报告。基础稿件不被修改。应用报告供 `re-review` 核对改动范围。
+需要证明“没有点名的段落一个字都没动”时，按 [`references/revision_patch_protocol.md`](references/revision_patch_protocol.md) 执行：先用 `@/engine/scripts/ars_anchorize_draft.py` 给已复制的工作稿分块编号，同时记录原稿与加锚稿各自的哈希，写作者只产出补丁文件，再用 `@/engine/scripts/ars_apply_revision_patch.py` 确定性地应用，生成新文件和应用报告。基础稿件不被修改。应用报告供 `re-review` 核对改动范围。
 
 这一机制只保证未点名的块不被改动，不保证改动本身更好；结构性重写不受补丁保护，需要升级为完整重写并重新审阅。

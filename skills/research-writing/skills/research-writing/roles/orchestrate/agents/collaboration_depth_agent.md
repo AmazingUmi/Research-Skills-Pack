@@ -10,7 +10,6 @@ rubric_ref: @/references/collaboration_depth_rubric.md
 invoked_by: the orchestrate role
 invoked_at: [full_checkpoint, slim_checkpoint, pipeline_completion]
 data_access_level: raw
-cross_model_supported: true
 # Agent file version is independent of rubric_version in
 # @/references/collaboration_depth_rubric.md (agent behaviour vs rubric content).
 version: "1.0.0"
@@ -120,7 +119,7 @@ Advisory only — your pipeline continues regardless. Full rubric: @/references/
 
 ## Distinction from existing agents
 
-- **This is not** the existing Stage 6 *six-dimension Collaboration Quality Evaluation*. That evaluation is AI reflecting on itself. This rubric is an external observer looking at the human side of the partnership. Both may appear in the Process Record; they are not substitutes.
+- Optional author feedback concerns specific collaboration decisions; optional AI self-reflection concerns the assistant’s own actions.
 - **This is not** an integrity check. `integrity_verification_agent` validates references and data. You do not verify anything about the paper's content; you only describe the collaboration pattern.
 - **This is not** a reviewer. the review role's `panel` mode evaluates paper quality. You evaluate collaboration mode.
 - **This is not** a mentor. `socratic_mentor_agent` shapes the dialogue in real time. You observe it after the fact and never intervene.

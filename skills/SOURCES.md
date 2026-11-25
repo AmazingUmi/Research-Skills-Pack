@@ -4,6 +4,8 @@
 
 2026-11-22 核对上游版本。ARS-Codex 与 K-Dense 采用当时的正式发布，Nature Skills 与 GitHub CI 采用各自默认分支的固定提交，Paper Orchestra 采用 Google 上游当时默认分支的 HEAD。2026-11-23 将写作侧的四个来源合并为 `research-writing` 技能。
 
+2026-11-25 根据包审阅修订角色交接、质检、实验与分发。每个可安装技能的 `NOTICE` 附固定来源，相关许可证随技能目录复制。
+
 ## Research Writing
 
 路径：[skills/research-writing](research-writing/)。
@@ -70,7 +72,7 @@
 | `nature-shared` | `references/nature-shared/`，并在独立技能中保留一份 | [skills/nature-shared](https://github.com/Yuan1z0825/nature-skills/tree/c6701dbea29afa7c596d029b957b7edc92130ea5/skills/nature-shared) | 1.6.0 | [Apache-2.0](research-writing/licenses/Apache-2.0-Nature.txt) |
 | `nature-statistics` | draft `stats-report` | [skills/nature-statistics](https://github.com/Yuan1z0825/nature-skills/tree/c6701dbea29afa7c596d029b957b7edc92130ea5/skills/nature-statistics) | 1.3.0 | [Apache-2.0](research-writing/licenses/Apache-2.0-Nature.txt) |
 | `nature-writing` | draft `section` | [skills/nature-writing](https://github.com/Yuan1z0825/nature-skills/tree/c6701dbea29afa7c596d029b957b7edc92130ea5/skills/nature-writing) | 1.5.0 | [Apache-2.0](research-writing/licenses/Apache-2.0-Nature.txt) |
-| `nature-proposal-writer` | 独立技能 | [skills/nature-proposal-writer](https://github.com/Yuan1z0825/nature-skills/tree/c6701dbea29afa7c596d029b957b7edc92130ea5/skills/nature-proposal-writer) | 1.1.1 | [MIT](research-writing/licenses/MIT-Nature-contributors.txt) (SKILL.md 声明) |
+| `nature-proposal-writer` | 独立技能 | [skills/nature-proposal-writer](https://github.com/Yuan1z0825/nature-skills/tree/c6701dbea29afa7c596d029b957b7edc92130ea5/skills/nature-proposal-writer) | 1.1.1 | [MIT](research-writing/licenses/MIT-Nature-contributors.txt)（开题技能）。本包另从 `nature-paper-to-patent` 引入 [Word 公式转换脚本](research-writing/skills/nature-proposal-writer/scripts/math_to_omml.py)，该脚本沿用 [Apache-2.0](research-writing/licenses/Apache-2.0-Nature.txt)。 |
 
 `nature-image2ppt` 的组件上游是 [Paul-Jeo/Image2PPT@3bcedf4](https://github.com/Paul-Jeo/Image2PPT/tree/3bcedf41a277a3a4ae8024f6030437930c969d30)，由 Nature 源码清单记录。
 
@@ -105,4 +107,4 @@
 | --- | --- | --- | --- |
 | `gh-fix-ci` | [openai/skills, `skills/.curated/gh-fix-ci/`](https://github.com/openai/skills/tree/49f948faa9258a0c61caceaf225e179651397431/skills/.curated/gh-fix-ci) | Git commit `49f948faa9258a0c61caceaf225e179651397431` | [Apache-2.0](research-engineering/skills/gh-fix-ci/LICENSE.txt) |
 
-完整保留上游技能目录，包括入口、Python 脚本、Agent 元数据和两张图标。
+保留上游入口、Python 脚本、Agent 元数据和两张图标。已修订跨仓查询和按作业提取日志。

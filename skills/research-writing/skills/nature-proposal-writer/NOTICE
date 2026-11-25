@@ -1,0 +1,9 @@
+nature-proposal-writer
+
+Upstream source: https://github.com/Yuan1z0825/nature-skills/tree/c6701dbea29afa7c596d029b957b7edc92130ea5/skills/nature-proposal-writer
+Attribution: Nature Skills contributors. License: see LICENSE.
+scripts/math_to_omml.py is adapted from the Nature Skills nature-paper-to-patent converter:
+https://github.com/Yuan1z0825/nature-skills/blob/c6701dbea29afa7c596d029b957b7edc92130ea5/skills/nature-paper-to-patent/scripts/math_to_omml.py
+That file is distributed under Apache-2.0 (licenses/Apache-2.0-math-to-omml.txt).
+Distributed with local adaptations to workflows and reference paths in Research-Skills-Pack.
+Source inventory: https://github.com/AmazingUmi/Research-Skills-Pack/blob/main/skills/SOURCES.md

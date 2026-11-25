@@ -17,6 +17,7 @@ import sys
 from typing import Any
 
 import _common
+from convert_units import build_registry, checked_unit, convert, is_multiplicative
 from _common import CliError
 
 
@@ -65,7 +66,8 @@ TEMPLATE: dict[str, Any] = {
 }
 
 
-def normalize_component(raw: Any, index: int, measurand: float | None) -> dict[str, Any]:
+def normalize_component(raw: Any, index: int, measurand: float | None,
+                        unit: str | None = None, registry: Any = None) -> dict[str, Any]:
     """Validate one budget component and reduce it to a standard uncertainty."""
 
     if not isinstance(raw, dict):
@@ -94,6 +96,12 @@ def normalize_component(raw: Any, index: int, measurand: float | None) -> dict[s
     relative = raw.get("relative", False)
     if not isinstance(relative, bool):
         raise CliError(f"{label}: relative must be a JSON boolean")
+    if "unit" in raw:
+        source = checked_unit(raw["unit"], label=f"{label}.unit")
+        destination = "dimensionless" if relative else checked_unit(unit, label="budget unit")
+        if not is_multiplicative(registry, source) or not is_multiplicative(registry, destination):
+            raise CliError(f"{label}: express uncertainty in linear difference units")
+        value = convert(registry, value, source, destination, [], {}).magnitude
     if relative:
         if measurand is None:
             raise CliError(
@@ -156,8 +164,9 @@ def build_budget(spec: dict[str, Any], coverage_override: float | None) -> dict[
     if measurand_value is not None:
         measurand_value = _common.as_finite(measurand_value, label="value")
 
+    registry = build_registry() if any(isinstance(c, dict) and "unit" in c for c in raw_components) else None
     components = [
-        normalize_component(raw, index, measurand_value)
+        normalize_component(raw, index, measurand_value, spec.get("unit"), registry)
         for index, raw in enumerate(raw_components)
     ]
 
@@ -323,8 +332,9 @@ def build_parser() -> argparse.ArgumentParser:
             "distribution-aware divisors and a Welch-Satterthwaite coverage factor."
         )
     )
-    parser.add_argument("--spec", help="JSON file describing the budget")
-    parser.add_argument(
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--spec", help="JSON file describing the budget")
+    source.add_argument(
         "--template",
         action="store_true",
         help="print a worked example spec and exit",
@@ -350,12 +360,9 @@ def main(argv: list[str] | None = None) -> int:
                 TEMPLATE, output=arguments.output, force=arguments.force
             )
             return 0
-        spec = TEMPLATE
-        if arguments.spec:
-            loaded = _common.load_json(arguments.spec)
-            if not isinstance(loaded, dict):
-                raise CliError("the spec file must hold a JSON object")
-            spec = loaded
+        spec = _common.load_json(arguments.spec)
+        if not isinstance(spec, dict):
+            raise CliError("the spec file must hold a JSON object")
         budget = build_budget(spec, arguments.coverage)
         if arguments.format == "markdown":
             _common.emit_text(

@@ -17,7 +17,7 @@ Read [manifest.yaml](manifest.yaml). Then read every file listed under `always_l
 
 Unlike `$research-writing draft section` or `$research-writing figures make`, this mode has no fragment axis. Its variation is identified at runtime, not by loading different content bodies:
 
-- **correspondence task** — `draft` / `audit` / `revise` (revise an existing response) / `triage-only` / `cover-letter` / `revision-package` / `latex-template` / `appeal-like`.
+- **correspondence task** — `draft` / `revise` (revise an existing response) / `cover-letter` / `revision-package` / `latex-template` / `appeal-like`.
 - **decision type** — minor revision, major revision, revise-and-resubmit, transfer after review, or unclear.
 - **user language** — if the user writes Chinese, also produce the 中文核对 block.
 
@@ -29,11 +29,12 @@ unknown. Do not infer the decision from the number, tone, or difficulty of revie
 
 Use `references/intake-and-routing.md` to fix the task mode, minimum inputs, and readiness state before drafting. Route appeal-like cases separately; do not draft an appeal as the default path.
 
-For a local edit or bounded audit, return the revised passage or findings and relevant missing
-facts. Do not expand it into a master tracker, cover letter, or complete revision package unless
+For a local edit, return the requested passage. For an audit or triage request, return the specialist findings and relevant missing facts. Do not expand it into a master tracker, cover letter, or complete revision package unless
 requested. Apply the package workflow below only to the parts needed for the requested output.
 
 ### 3. Run the workflow
+
+Route review of an existing response to `review rebuttal-audit` and comment triage to `review revision-coach` before executing the drafting workflow. Draft or edit replies under the strategy and changes the author confirmed.
 
 In an orchestrated Stage 4, `review revise` writes the manuscript. Use its revised version and change record to write the response and, when requested, produce a marked copy against the baseline. Send further manuscript changes back to `review revise`. When called on its own, edit the manuscript alongside the response if the user requests both. Keep the baseline and use a single manuscript writer.
 

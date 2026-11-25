@@ -1,6 +1,6 @@
 # Paper-type taxonomy
 
-Canonical 5-type vocabulary used by both `nature-polishing` and `nature-writing` (and any future skill on the `paper_type` axis).
+Canonical 5-type vocabulary used by both `$research-writing draft polish` and `$research-writing draft section` (and any future skill on the `paper_type` axis).
 
 ## The five types
 
@@ -35,7 +35,7 @@ Some older notes use a longer taxonomy (mechanism / method / resource / device /
 
 Each skill's `static/fragments/paper_type/<type>.md` adds the **action layer** for that skill on top of this taxonomy:
 
-- `nature-polishing` adds diagnostic rules (what to look for, what to fix).
-- `nature-writing` adds constructive rules (argument chain, drafting order).
+- `$research-writing draft polish` adds diagnostic rules (what to look for, what to fix).
+- `$research-writing draft section` adds constructive rules (argument chain, drafting order).
 
 The taxonomy here is the **shared vocabulary**; the action is skill-specific.

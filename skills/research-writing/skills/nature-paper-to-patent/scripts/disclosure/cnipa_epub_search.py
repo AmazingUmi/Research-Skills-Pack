@@ -21,9 +21,9 @@
 
 用法：
 
-  python scripts/disclosure/cnipa_epub_search.py 词1
-  python scripts/disclosure/cnipa_epub_search.py "短语 含 空格"
-  python scripts/disclosure/cnipa_epub_search.py 词甲 词乙 词丙
+  python scripts/disclosure/cnipa_epub_search.py --allow-external-search 词1
+  python scripts/disclosure/cnipa_epub_search.py --allow-external-search "短语 含 空格"
+  python scripts/disclosure/cnipa_epub_search.py --allow-external-search 词甲 词乙 词丙
 
 **必须**至少有一个非空检索词；**不设默认**。
 
@@ -83,18 +83,21 @@ def _dedupe_hits(hits_lists: list) -> list:
 
 
 def _usage() -> None:
-    print("usage: python scripts/disclosure/cnipa_epub_search.py <term> [more terms...]", file=sys.stderr)
+    print("usage: python scripts/disclosure/cnipa_epub_search.py --allow-external-search <term> [more terms...]", file=sys.stderr)
     print(
         "whitespace splits to multiple terms; one Playwright run per term; merge by pub_number.",
         file=sys.stderr,
     )
-    print('example: python scripts/disclosure/cnipa_epub_search.py "batch 调度 异构"', file=sys.stderr)
+    print('example: python scripts/disclosure/cnipa_epub_search.py --allow-external-search "batch 调度 异构"', file=sys.stderr)
 
 
 def main(argv: list[str] | None = None) -> int:
     _ensure_utf8_stdio()
     argv = argv if argv is not None else sys.argv[1:]
-    terms = _terms_from_argv(argv)
+    if "--allow-external-search" not in argv:
+        print("Confirm the search terms and CNIPA destination before passing --allow-external-search.", file=sys.stderr)
+        return 2
+    terms = _terms_from_argv([arg for arg in argv if arg != "--allow-external-search"])
     if not terms:
         _usage()
         return 2
@@ -126,7 +129,7 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         for kw in terms:
-            html, hits = search_epub_keyword(kw)
+            html, hits = search_epub_keyword(kw, approved=True)
             last_html = html
             all_batches.append(hits)
     except Exception as e:

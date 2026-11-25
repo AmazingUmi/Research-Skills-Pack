@@ -259,7 +259,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="which rendering --format text prints (default plusminus)",
     )
     parser.add_argument("--format", choices=("json", "text"), default="json")
-    parser.add_argument("--output", help="write JSON output to this file")
+    parser.add_argument("--output", help="write the formatted result to this file")
     parser.add_argument(
         "--force", action="store_true", help="overwrite an existing output file"
     )
@@ -312,7 +312,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         document = run(arguments)
         if arguments.format == "text":
-            print(document["renderings"][arguments.style])
+            _common.emit_text(document["renderings"][arguments.style] + "\n",
+                              output=arguments.output, force=arguments.force)
         else:
             _common.emit_json(
                 document, output=arguments.output, force=arguments.force

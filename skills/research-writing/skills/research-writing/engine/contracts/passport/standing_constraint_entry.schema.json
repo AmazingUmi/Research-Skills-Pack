@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "ars://contracts/passport/standing_constraint_entry.schema.json",
   "title": "Material Passport standing constraint entry 1.0",
-  "description": "One entry in Material Passport Schema 9 standing_constraints[]: a run-wide constraint the user stated in their own turn, kept in the user's words. How entries are listed, confirmed, withdrawn, and carried: ../roles/orchestrate/strict/pipeline_orchestrator_agent.md § Standing Constraints.",
+  "description": "One entry in Material Passport Schema 9 standing_constraints[]: a run-wide constraint the user stated in their own turn, kept in the user's words. How entries are listed, confirmed, withdrawn, and carried: ../../../roles/orchestrate/strict/pipeline_orchestrator_agent.md § Standing Constraints.",
   "type": "object",
   "additionalProperties": false,
   "required": [

@@ -71,7 +71,7 @@ delivery:
 
 archive:
   enabled: false
-  root: "CHANGE_ME"
+  root: "CHANGE_ME"  # archive root; notes go under raw/literature/
   write_wiki: false
 ```
 
@@ -88,17 +88,17 @@ Deduplicate by DOI, arXiv ID, OpenAlex ID, then normalized title. Prefer the ric
 | Dimension | Weight |
 |---|---:|
 | Topic fit | 35 |
-| Novelty / contribution | 20 |
-| Method quality | 15 |
-| Source / author signal | 10 |
+| Method quality | 20 |
+| Journal/source quality | 15 |
+| Network relevance | 10 |
 | Practical value | 10 |
 | Archive value | 10 |
 
-Rules: no dimension exceeds its weight; total is the sum; display as `⭐ 8.7/10`; never output impossible scores like `11/10`.
+Reject candidates scoring below 10 on topic fit before ranking. Rules: no dimension exceeds its weight; total is the sum; display as `⭐ 8.7/10`; never output impossible scores like `11/10`.
 
 ## Reading Depth Labels
 
-Every paper must show one of: Full text read, Abstract only, Metadata only, Project page / GitHub read.
+Every paper must show one of: Full text read, Abstract only, Metadata only. Record project-page or code reading separately.
 
 ## Digest Format
 
@@ -138,7 +138,7 @@ Search:
 - Deduplicate by DOI, arXiv ID, OpenAlex ID, and normalized title.
 
 Filter:
-- Score by topic fit 35, novelty 20, method quality 15, source/author signal 10, practical value 10, archive value 10.
+- Score by topic fit 35, method quality 20, journal/source quality 15, network relevance 10, practical value 10, archive value 10. Exclude topic fit below 10, then rank by total score.
 - Select up to {FINAL_SELECTION_COUNT} papers.
 - If fewer are worth reading, send fewer.
 
@@ -146,7 +146,7 @@ Output:
 - Send a concise digest to {DELIVERY_TARGET}.
 - Include reading-depth label for each paper.
 - Do not modify any curated wiki or knowledge base.
-- If archive is enabled, write raw paper notes only to {ARCHIVE_PATH}.
+- If archive is enabled, write raw paper notes only under {ARCHIVE_ROOT}/raw/literature/.
 ```
 
 ## Verification Checklist

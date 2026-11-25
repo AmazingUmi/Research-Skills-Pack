@@ -3,13 +3,13 @@
 ## Contents
 
 - [0. Diagnosis workflow (do this first)](#0-diagnosis-workflow-do-this-first)
-- [1. The "loose / 松散" float page — top-align the glue](#1-the-loose-松散-float-page-top-align-the-glue)
-- [2. Wide-and-short figures can never fill a portrait page — fix at the source](#2-wide-and-short-figures-can-never-fill-a-portrait-page-fix-at-the-source)
+- [1. The "loose / 松散" float page — top-align the glue](#1-the-loose--松散-float-page--top-align-the-glue)
+- [2. Wide-and-short figures can never fill a portrait page — fix at the source](#2-wide-and-short-figures-can-never-fill-a-portrait-page--fix-at-the-source)
 - [3. Do NOT rotate to landscape (Nature house style)](#3-do-not-rotate-to-landscape-nature-house-style)
-- [4. Float backlog → stranded section headings](#4-float-backlog-stranded-section-headings)
-- [5. [H] and placeins — sharp edges](#5-h-and-placeins-sharp-edges)
-- [6. Multi-panel main-text figures — stack, don't cram](#6-multi-panel-main-text-figures-stack-dont-cram)
-- [7. Page-count is not the metric — fullness is](#7-page-count-is-not-the-metric-fullness-is)
+- [4. Float backlog → stranded section headings](#4-float-backlog--stranded-section-headings)
+- [5. [H] and placeins — sharp edges](#5-h-and-placeins--sharp-edges)
+- [6. Multi-panel main-text figures — stack, don't cram](#6-multi-panel-main-text-figures--stack-dont-cram)
+- [7. Page-count is not the metric — fullness is](#7-page-count-is-not-the-metric--fullness-is)
 - [8. Quick checklist](#8-quick-checklist)
 
 

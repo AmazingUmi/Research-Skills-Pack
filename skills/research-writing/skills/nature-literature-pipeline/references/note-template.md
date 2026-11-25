@@ -4,12 +4,6 @@
 
 - [Standardized Frontmatter](#standardized-frontmatter)
 - [Body Structure (6 sections)](#body-structure-6-sections)
-- [核心主张](#核心主张)
-- [方法](#方法)
-- [关键发现](#关键发现)
-- [批判](#批判)
-- [Connection to Research](#connection-to-research)
-- [下一步](#下一步)
 - [File Naming Convention](#file-naming-convention)
 - [Directory Discipline](#directory-discipline)
 - [Bulk Standardization](#bulk-standardization)

@@ -196,7 +196,7 @@ The judge is invoked ONCE per citation with both the alignment question and the 
 
 **Unified judge prompt** (canonical):
 
-any change here MUST bump JUDGE_PROMPT_VERSION in @/engine/scripts/_claim_audit_constants.py so stale judge-cache entries are not served against the new prompt. -->
+<!-- JUDGE-PROMPT-CANONICAL-START -->
 
 > Given this claim from a paper draft, this excerpt from the cited reference, AND the author's declared negative constraints, return ONE verdict.
 >
@@ -317,9 +317,10 @@ Diff streams:
 
 ## Uncited-assertion detector (D4-c)
 
-Three-condition token rule. A sentence in the emitted draft becomes an `uncited_assertion` candidate when ALL THREE of the following hold:
+A sentence becomes an `uncited_assertion` candidate when all four conditions hold:
 
 1. **Quantifier or empirical-claim verb present**: numbers / percentages / explicit quantifiers (`50%`, `two-thirds`, `most`, `several`), OR verbs like `showed`, `demonstrated`, `observed`, `proved`, `confirmed`.
+2. **No citation marker:** a sentence containing `<!--ref:slug-->` goes to citation alignment instead.
 3. **Not a definitional sentence** (sentences containing `refers to` / `is defined as` / `we define` / `for the purposes of` are excluded — definitions don't need refs).
 4. **Not an experiment-backed claim**: a sentence whose owning manifest claim carries `planned_experiment_ids[]` (an own-experiment result — "F1 improved 4.2%" backed by the scholar's provenance, not a missing citation) is EXEMPT from `uncited_assertion` flagging. Such a sentence legitimately has no `<!--ref:slug-->` marker because its evidence is `experiment_provenance[]`, audited by the integrity gate's `experiment_alignment_results[]` (Role Definition, ) — NOT a citation it forgot. Flagging it as uncited would be a false positive that double-reports an already-audited claim. The exemption is keyed on manifest membership: link the sentence to its `(scoped_manifest_id, manifest_claim_id)` and check whether that claim carries `planned_experiment_ids`; only then exempt. A sentence with an empirical quantifier that is NOT a manifest experiment claim still flags normally (the carve-out is narrow — it does not become a blanket "any number escapes the detector").
 

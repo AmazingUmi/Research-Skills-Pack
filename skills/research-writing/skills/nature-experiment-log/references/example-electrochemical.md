@@ -9,7 +9,7 @@
 exp_id: OX-E-260615-001
 date: 2026-06-15
 salt_system: 氧化物体系
-salt_batch: OX-A1-B001
+sample_batch: OX-A1-B001
 salt_composition: "*** (*** wt%)"
 exp_type: 电化学
 test_method: CV

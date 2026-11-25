@@ -39,9 +39,9 @@ Prereq: authenticate with the standard GitHub CLI once (for example, run `gh aut
    - Manual fallback:
      - `gh pr checks <pr> --json name,state,bucket,link,startedAt,completedAt,workflow`
        - If a field is rejected, rerun with the available fields reported by `gh`.
-     - For each failing check, extract the run id from `detailsUrl` and run:
-       - `gh run view <run_id> --json name,workflowName,conclusion,status,url,event,headBranch,headSha`
-       - `gh run view <run_id> --log`
+     - For each failing check, read the repository, run ID, and optional job ID from the Actions URL and run:
+       - `gh run view <run_id> -R <owner/repo> --json name,workflowName,conclusion,status,url,event,headBranch,headSha`
+       - `gh run view <run_id> -R <owner/repo> --job <job_id> --log`. For a run-only link use `--log-failed`.
      - If the run log says it is still in progress, fetch job logs directly:
        - `gh api "/repos/<owner>/<repo>/actions/jobs/<job_id>/logs" > "<path>"`
 4. Scope non-GitHub Actions checks.

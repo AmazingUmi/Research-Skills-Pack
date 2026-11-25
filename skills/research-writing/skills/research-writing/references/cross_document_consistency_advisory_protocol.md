@@ -202,9 +202,9 @@ observation grants revision authority.
 
 ## Pipeline coexistence with tortured-phrase screening
 
-tortured-phrase screening and run inside the **single existing**
+Tortured-phrase screening and cross-document consistency run inside the **single existing**
 mandatory Stage-5 entry checkpoint after the same exact Stage 4.5 PASS. The
-orchestrator runs first and second and surfaces two independent
+orchestrator runs tortured-phrase screening first, then cross-document consistency, and surfaces two independent
 carriers. The exact machine join is:
 
 ```text
@@ -223,7 +223,7 @@ blocks or delays the mandatory checkpoint, requires remediation, or alters
 Stage-5 dispatch after user confirmation.
 
 Any manuscript revision makes both carriers stale. The manuscript must re-enter
-integrity review, obtain a new exact Stage 4.5 PASS, and rerun then
+integrity review, obtain a new exact Stage 4.5 PASS, and rerun both checks in that order
 against the same new accepted bytes. Reusing either carrier or rerunning only one
 is invalid cargo.
 

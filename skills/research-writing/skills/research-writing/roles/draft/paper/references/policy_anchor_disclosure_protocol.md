@@ -18,11 +18,11 @@ This protocol document is the runtime instruction set the LLM follows when the u
 
 ## 1. Inputs
 
-1. **Paper draft** (same as ): manuscript text plus pipeline log if available.
+1. **Paper draft** (same as venue-based disclosure): manuscript text plus pipeline log if available.
 2. **Selector**: `--policy-anchor=<a>` where `a ∈ {prisma-trAIce, icmje, nature, ieee}`. **Selector-mutually-exclusive by default** — supplying both `--policy-anchor` and `--venue` triggers the §5 conflict-resolution flow, which permits exactly one consistent pair (any Nature Portfolio venue + `--policy-anchor=nature`, sharing the canonical `@/references/policy_data/nature_policy.md` source) and rejects every other combination with explicit error. See §5 for the full enumeration.
 3. **Pipeline signal**: `slr_lineage=true|false` set by the upstream pipeline orchestrator when an SLR-mode stage appears in the run history. Drives the §4.3 G2 invariant track gate (concern #1 resolution: explicit `slr_lineage` input).
 4. **Cold-start fallback**: when the renderer runs outside a pipeline (no `slr_lineage` set), the author supplies `mode=<value>` explicitly. Silent fallback to general track on missing input is **forbidden** by §4.3 G2 invariant.
-5. **Phase 2 AI usage categorization**: the same input shape uses. Each AI usage category carries state ∈ `{USED, NOT USED, UNCERTAIN}`.
+5. **Phase 2 AI usage categorization**: the same input shape venue-based disclosure uses. Each AI usage category carries state ∈ `{USED, NOT USED, UNCERTAIN}`.
 6. **Optional `ai_used: true | false`**: explicit author-supplied flag layered on top of category state. Composes with category state per §2 G10 7-row precedence table below.
 7. **Tool identity per AI tool** (concern #2 resolution): auto-detected from session metadata (mirror `disclosure_mode_protocol.md` Phase 4 detection); explicit fallback per tool when session metadata absent or non-Claude tools are involved.
 

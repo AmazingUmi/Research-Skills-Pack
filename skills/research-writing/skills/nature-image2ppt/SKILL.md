@@ -89,8 +89,7 @@ The CLI image contract is provider-neutral at the transport boundary. Select
 provider-specific model whose endpoint implements the OpenAI Images-compatible
 `/images/generations` and/or `/images/edits` schema. Do not infer the image backend
 from the task's language model. Use an explicit backend when provenance matters;
-`auto` uses Codex OAuth only for compatible GPT Image ids and otherwise selects the
-configured API without sending Codex OAuth credentials to third parties.
+`auto` uses the configured OpenAI Images-compatible API. Select `codex-oauth` explicitly to use Codex credentials.
 
 ### 1. Preflight and OCR choice
 
@@ -98,10 +97,7 @@ configured API without sending Codex OAuth credentials to third parties.
 python <image2ppt-root>/cli/image2ppt/cli.py doctor --json
 ```
 
-Use Baidu AI Studio `PADDLE_OCR_TOKEN` when configured. If it is absent, tell the
-user once that the local `builtin-ink` fallback measures text geometry but does
-not recognize characters; offer the configuration path in
-`references/ocr-text-hints-contract.md`. Respect an offline-only choice.
+Prepare uses local `builtin-ink` text geometry by default. Cloud OCR requires `PADDLE_OCR_TOKEN`. For authorized cloud recognition, select `prepare --ocr cloud` or `run hints <run-dir> --ocr cloud`. This sends the original PDF or normalized page images to Baidu AI Studio for this run. See `references/ocr-text-hints-contract.md`.
 
 ### 2. Prepare one run
 
@@ -198,9 +194,7 @@ python <image2ppt-root>/scripts/run_final_image2ppt_qa.py <run-dir> \
   --visual-review-evidence <run-dir>/final/visual-review-evidence.json
 ```
 
-Finalize rebuilds from page manifests, preserves source speaker notes, validates the
-package, and writes the output recorded by `deck_manifest.json`. Final QA reapplies
-manifest arrows, verifies arrow atomicity and compound structure, renders every
+Finalize rebuilds from page manifests, preserves source speaker notes, applies manifest arrows, and validates the package. It leaves the run awaiting final QA. Final QA verifies arrow atomicity and compound structure, renders every
 slide, checks speaker-note integrity, and writes `final/image2ppt_qa.json`.
 
 ## Deliver

@@ -20,7 +20,7 @@ Intake Q&A → scope lock → research canon → evidence table → argument map
 ```
 
 Each step produces a concrete file or decision. Do not skip foundation steps.
-Drafting begins only after foundation review passes the stage threshold (foundation_score > 7.5).
+Drafting begins only after foundation review passes the stage threshold (foundation_score >= 7.5).
 
 ---
 
@@ -159,15 +159,17 @@ Status: same as strength, but updated as drafting progresses.
 - Innovation section contract must forbid: "本研究具有重要的理论和工程意义". Allowed: specific, testable contribution statements.
 - If the proposal is partial-stage (e.g., Part 1 only), load `references/partial-proposal-scope.md` and add a scope-boundary constraint to every section contract.
 
+Before review, fill `05_style_guide.md` from its template with the target language, terminology, voice and supervisor constraints.
+
 ### Step 6: Foundation review
 
-**Input**: all 5 foundation files.
+**Input**: all six foundation files (00–05).
 
 **Process**: run professor with 1-2 specialists (doctoral proposal reviewer + domain expert). Score foundations using evaluation rubric. If `foundation_score < 7.5`, return to the weakest foundation file and fix it before drafting.
 
 **Output**: professor review notes in `qa_logs/foundation_review.md`, updated foundation files if issues found.
 
-**Gate**: do not begin drafting until `foundation_score > 7.5`.
+**Gate**: do not begin drafting until `foundation_score >= 7.5`.
 
 ### Step 7: Draft section by section
 
@@ -177,7 +179,7 @@ Status: same as strength, but updated as drafting progresses.
 1. Read the section contract.
 2. Extract the allowed claims and required evidence.
 3. Draft the section text, citing evidence as you go.
-4. Run section QA (score via evaluation rubric; target: `section_score > 6.5`).
+4. Run section QA (score via evaluation rubric; target: `section_score >= 6.5`).
 5. If score < 6.5, fix the section before moving on. Do not accumulate broken sections.
 
 **Pitfalls**:
@@ -191,7 +193,7 @@ Status: same as strength, but updated as drafting progresses.
 
 **Process**: run full evaluation rubric on the complete proposal. Score all 8 dimensions. Record in `qa_logs/proposal_qa.md`.
 
-**Gate**: `proposal_score > 7.0` for supervisor-facing; `> 8.0` for final polish.
+**Gate**: `proposal_score >= 7.0` for supervisor-facing; `>= 8.0` for final polish.
 
 If score < 7.0: identify the weakest 1-2 dimensions, return to the relevant foundation file or section, fix, re-draft affected sections, re-score.
 

@@ -63,7 +63,7 @@ All quantitative research papers **must** report the following items. Check each
 | A priori power analysis | State target power (typically >= .80), assumed effect size, alpha, required sample size | Power analysis completely absent |
 | Effect size source | Based on prior research, pilot study, or theoretical expectation | Using Cohen's convention without explanation |
 | Tool | Use G*Power, pwr package, etc. | Tool not specified |
-| Post-hoc power | Report observed power for non-significant results | Type II error risk not discussed for non-significant results |
+| Null results | Report the estimate and interval against meaningful effect sizes | Precision or relevant uncertainty omitted |
 | Sensitivity analysis | Report the minimum detectable effect size given *N* | Sensitivity analysis not conducted |
 
 ### 1.6 Missing Data Handling
@@ -80,7 +80,7 @@ All quantitative research papers **must** report the following items. Check each
 | Assumption | Applicable Analysis | Testing Method | Common Omission |
 |-----------|-------------------|---------------|----------------|
 | Normality | *t*-test, ANOVA, regression | Shapiro-Wilk / K-S / Q-Q plot / skewness & kurtosis | Completely untested or only invoking CLT |
-| Homogeneity of variance | Independent *t*-test, ANOVA | Levene's test | Not reported or alternative method not used when violated |
+| Variance model | Independent-group means | Prespecify Welch or justify a pooled-variance model | Unjustified equal variance or Levene pretesting |
 | Linearity | Regression, correlation | Residual plot / scatter plot | Linearity assumed without testing |
 | Independence | Most parametric tests | Durbin-Watson / research design explanation | Nested data not handled |
 | Multicollinearity | Multiple regression | VIF, tolerance, correlation matrix | VIF not reported or reported but not addressed |
@@ -110,7 +110,7 @@ All quantitative research papers **must** report the following items. Check each
 | Post-hoc comparisons | When main effect is significant, are post-hoc tests done (Tukey / Bonferroni / Games-Howell)? |
 | Interaction effects | In factorial designs, are interactions interpreted? Are simple effects tested? |
 | Sphericity assumption | For repeated measures, is Mauchly's test reported + Greenhouse-Geisser / Huynh-Feldt correction? |
-| Assumption testing | Normality, homogeneity of variance (Levene's), independence of between-group observations |
+| Assumption testing | Normality, variance assumptions for the chosen model, independence of between-group observations |
 | Unequal group sizes | When group sizes differ substantially, is Type III SS used? |
 
 ### 2.3 Regression Analysis (Linear / Logistic)

@@ -37,3 +37,5 @@ The files under `references/` are deep references, not defaults. Open them on de
 - turning a claim into search queries and support grades → `references/search-strategy.md`.
 - the exact Nature/CNS journal-family boundary → `references/journal-scope.md`.
 - RIS / EndNote / Zotero RDF export details → `references/ris-endnote.md`.
+
+For the standalone citation script, install the XML parser with `python -m pip install -r requirements.txt` from this mode directory.

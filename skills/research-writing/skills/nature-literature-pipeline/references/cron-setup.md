@@ -17,7 +17,7 @@ Example job configuration:
 
 1. List scheduled jobs and confirm that `<JOB_ID>` exists in the current profile.
 2. Inspect the job's schedule, repeat policy, delivery target, and enabled state.
-3. Run the job manually in a test mode.
+3. Run retrieval and formatting in a local dry run with delivery disabled.
 4. Verify delivery independently from archival.
 5. Confirm that the archive contains the expected note and deduplication marker.
 
@@ -25,13 +25,10 @@ A successful create response is not sufficient: always read the stored job back 
 
 ## Recovery path
 
-If the job is missing or cannot run:
-
-1. Recreate it from the intended configuration.
-2. Run a reduced retrieval query manually.
-3. Deliver a short test digest to `<DELIVERY_TARGET>`.
-4. Archive the result under a generic project-relative path.
-5. Re-list the scheduler and record the new job ID outside the public template.
+1. Match existing jobs in the same profile by ID and by schedule, target, and research profile. Update or re-enable the matching job and verify its stored configuration.
+2. Create a replacement only if the matching job is absent. If the scheduler cannot update a broken job, disable it before activating the replacement. Record the active ID.
+3. Dry-run retrieval and formatting locally. Check the delivery receipt and archive marker for the date, target and profile. Retry only the missing stage; confirm the actual delivery state before repeating a send. Send a separate live test only on request.
+4. Write missing archive entries under `{ARCHIVE_ROOT}/raw/literature/`, deduplicated by paper ID.
 
 Example retrieval themes:
 
@@ -58,7 +55,7 @@ Never publish real chat IDs, message IDs, group names, scheduler IDs, or deliver
 ## Placeholder archive layout
 
 ```text
-<ARCHIVE_ROOT>/literature/
+{ARCHIVE_ROOT}/raw/literature/
 ├── core/
 │   ├── study-a.md
 │   └── study-b.md

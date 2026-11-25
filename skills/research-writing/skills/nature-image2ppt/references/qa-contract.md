@@ -113,7 +113,7 @@ python <image2ppt-root>/scripts/run_image2ppt_qa.py <page-dir> \
 
 ## Final gate
 
-After every local `image2ppt run finalize`, run `run_final_image2ppt_qa.py`. It must report:
+Finalize applies arrow extensions and leaves all pages recorded. Only a passing final review marks the run complete and pages accepted. After every local `image2ppt run finalize`, run `run_final_image2ppt_qa.py`. It must report:
 
 - local deck validation still passes;
 - page count and render count match;

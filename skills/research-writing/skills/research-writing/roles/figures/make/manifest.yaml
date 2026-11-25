@@ -3,9 +3,8 @@ version: 2.8.0
 description: >
   Declarative manifest for the static/dynamic split. MODE.md uses this to
   decide which fragments to load for a given figure request. The main axis is
-  the plotting backend (Python or R). The first plotting use should establish
-  a saved user preference; later tasks reuse that preference unless the user
-  explicitly changes it. The large body of design, API, pattern, and QA
+  the plotting backend (Python or R). Keep the choice in the current task. Persist a
+  cross-project default only on explicit request. The large body of design, API, pattern, and QA
   material stays in on-demand references.
 
 always_load:
@@ -50,23 +49,14 @@ preference:
     For plotting tasks, first honor an explicit Python/R choice, then a clearly
     language-specific input workflow, then a choice established in this task,
     then the saved preference returned by the backend script. If none exists,
-    ask the user once and save the answer. Pause only dependent plotting work.
+    ask once and use the answer for this task. Pause only dependent plotting work.
 
 axes:
   backend:
     detect: |
-      BLOCKING GATE WITH PERSISTED PREFERENCE. Determine the plotting backend
-      from an explicit user choice, a clearly language-specific input
-      file/workflow, a choice established in this task, or the saved preference
-      returned by scripts/nature_figure_backend.py get. If none resolves it, ask
-      exactly one concise question — "Python or R? I will remember this as your
-      default." — and pause dependent plotting steps while continuing independent
-      inspection. Read-only review does not require a backend choice.
-      Save the answer with the backend preference script
-      before proceeding. Only recommend a backend when the user explicitly asks
-      you to choose; in that case use references/backend-selection.md, state the
-      reason, save the selected backend, then proceed. Once selected, the
-      backend is exclusive for all drawing, previewing, exporting, and visual QA.
+      Follow preference.behavior. Review-only tasks require no backend.
+      Save a default only when the user explicitly requests persistence.
+      Use the chosen backend for drawing, previewing, exporting, and visual QA.
     values:
       python:  static/fragments/backend/python.md
       r:       static/fragments/backend/r.md

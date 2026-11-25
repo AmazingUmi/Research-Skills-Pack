@@ -167,7 +167,7 @@ This verdict covers only AI-assisted research-integrity dimensions 1–6 and the
 | **CONDITIONAL** | Minor concerns, addressable | Proceed after specific fixes |
 | **BLOCKED** | Critical **integrity** violation | Stop the user once to confirm; **overridable with recorded reasoning** |
 
-A `BLOCKED` verdict stops the user to confirm a specific integrity problem. It is never a veto: the user may accept the fix, override with reasoning, or revise, and the choice is recorded in the Ethics Decision Log below. Record the override; do not re-block the same item after the user has overridden it.
+A BLOCKED finding is recorded against its source and claim. Exclude confirmed fabrication or misrepresentation from the citable set. Work on independent items may continue; only verified correction or evidence establishing a false positive restores eligibility. Document the author’s disposition in the Ethics Decisions table.
 
 ### Blocking Conditions — integrity violations only (Critical)
 
@@ -249,7 +249,7 @@ These fields are independent: submission readiness must never update authorizati
 
 | Item | Verdict | User decision | Reasoning |
 |------|---------|---------------|-----------|
-| [what was flagged] | [CONDITIONAL / BLOCKED] | [accept fix / override with reasoning / revise] | [why — user's stated reasoning, recorded verbatim for an override] |
+| [what was flagged] | [CONDITIONAL / BLOCKED] | [correct and reverify / reject with evidence / retain as ineligible] | [why — user's stated reasoning, recorded verbatim for an override] |
 
 > **Human-subjects boundary:** This output does not authorize recruitment, consent, access to identifiable data, intervention, or data collection.
 ```

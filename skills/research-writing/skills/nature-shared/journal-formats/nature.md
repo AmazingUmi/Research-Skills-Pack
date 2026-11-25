@@ -217,7 +217,7 @@ For flagship Nature, the initial cover letter is **optional**. If supplied:
   restating results or methods
 - make the figure and legend understandable in isolation where possible
 
-Use the Nature-specific figure reference in `nature-figure` for final dimensions,
+Use the Nature-specific figure reference in `$research-writing figures make` for final dimensions,
 editable formats, accessibility, image integrity and the distinction between
 main-figure and Extended Data uploads.
 
@@ -262,8 +262,8 @@ contact the handling editor rather than silently converting or omitting it.
 - make supporting data and central code available to editors and referees when
   requested
 - route exact repository, accession, restriction and materials checks to
-  `nature-data`
-- route Nature's exact statistical checklist to `nature-statistics`
+  `$research-writing draft data-availability`
+- route Nature's exact statistical checklist to `$research-writing draft stats-report`
 - require a completed reporting summary for life sciences, behavioural and
   social sciences, and ecology, evolution and environmental sciences
 - check for field-specific physical-science reporting summaries, including

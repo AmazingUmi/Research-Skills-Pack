@@ -89,27 +89,32 @@ bc = cugraph.betweenness_centrality(G)
 
 ### scikit-learn to cuML
 ```python
-# Before (CPU)
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler
+# Reuse identical stratified rows and evaluate both models on held-out data.
+import numpy as np
+import cupy as cp
+from sklearn.ensemble import RandomForestClassifier as CpuForest
+from sklearn.metrics import balanced_accuracy_score
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler as CpuScaler
+from cuml.ensemble import RandomForestClassifier as GpuForest
+from cuml.preprocessing import StandardScaler as GpuScaler
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-model = RandomForestClassifier(n_estimators=100)
-model.fit(X_train, y_train)
+X_train, X_test, y_train, y_test = train_test_split(
+    np.asarray(X, dtype=np.float32), np.asarray(y), test_size=0.2,
+    stratify=y, random_state=42,
+)
+cpu_scaler = CpuScaler().fit(X_train)
+params = dict(n_estimators=100, max_depth=12, random_state=42)
+cpu_model = CpuForest(**params).fit(cpu_scaler.transform(X_train), y_train)
+cpu_score = balanced_accuracy_score(y_test, cpu_model.predict(cpu_scaler.transform(X_test)))
 
-# After (GPU) — match parameters and held-out quality; algorithms need not be identical
-from cuml.ensemble import RandomForestClassifier
-from cuml.preprocessing import StandardScaler
-from cuml.model_selection import train_test_split
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-model = RandomForestClassifier(n_estimators=100)
-model.fit(X_train, y_train)
+X_gpu = cp.asarray(X_train)
+gpu_scaler = GpuScaler().fit(X_gpu)
+gpu_model = GpuForest(**params, output_type="cupy").fit(gpu_scaler.transform(X_gpu), cp.asarray(y_train))
+gpu_pred = gpu_model.predict(gpu_scaler.transform(cp.asarray(X_test)))
+gpu_score = balanced_accuracy_score(y_test, cp.asnumpy(gpu_pred))
+# Example tolerance. Set the acceptable difference for the task before running.
+assert abs(gpu_score - cpu_score) <= 0.02, (cpu_score, gpu_score)
 
 # Or zero-code-change: python -m cuml.accel your_script.py
 ```

@@ -68,7 +68,7 @@ illustrative and require separate validation.
 
 ## Executed checks and limits
 
-The isolated suite runs eight native tests, including all 173 Python fenced blocks
+The upstream K-Dense suite ran eight native tests, including all 173 Python fenced blocks
 with explicit synthetic contexts (some blocks only import or explain a workflow).
 Assertions cover design shapes, OLS interval width, GLM mean uncertainty and robust
 covariance, AME derivatives, ZIP mixture probabilities, ordinal thresholds, multinomial

@@ -3,7 +3,7 @@
 Dataview 查询入口，自动汇总所有实验日志。
 
 ```dataview
-TABLE date, salt_system, exp_type, material, anomaly
+TABLE date, salt_system, exp_type, default(sample_batch, salt_batch) AS "样品批次", material, anomaly
 FROM "实验日志"
 WHERE exp_id
 SORT date DESC

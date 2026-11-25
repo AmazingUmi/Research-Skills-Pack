@@ -27,7 +27,7 @@ Verbatim snapshot of the 17-item PRISMA-trAIce checklist from the GitHub canonic
 
 | Tier | Behaviour when item FAILs |
 |---|---|
-| Mandatory (M) | **Block**: pipeline halts; user must backfill, retreat a stage, or use the 3-round override ladder (see [`@/references/compliance_checkpoint_protocol.md#override-ladder-3-round-friction`](./compliance_checkpoint_protocol.md#override-ladder-3-round-friction)) |
+| Mandatory (M) | **Block**: pipeline halts; user must backfill, retreat a stage, or record an eligible reporting limitation (see [`@/references/compliance_checkpoint_protocol.md#override-ladder`](./compliance_checkpoint_protocol.md#override-ladder)) |
 | Highly Recommended (HR) | **Warn**: surfaced at checkpoint; user can skip |
 | Recommended (R) | **Info**: logged in compliance_report, shown as dashboard bullet |
 | Optional (O) | **Info**: same as R |

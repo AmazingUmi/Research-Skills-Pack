@@ -48,6 +48,8 @@
 
 复审中缺少可决定结论的材料时，保留已完成的核对，标明对应意见和所缺材料，在阶段 3′ 等作者补充后复核受影响项。真实外审逐项记录能否证实回复中的改动。
 
+进入阶段 4.5 前，若复审为 Minor Revision，逐项记录剩余、部分解决、恶化或新增问题的修订位置及复核结果，或作者逐项签署的留置理由。缺少处置则保留在 3′ 检查点。
+
 返修次数：阶段 4 和 4′ 各一轮，4′ 之后直接进入 4.5，不再回到审稿。仍未解决的问题写进“已知局限”。
 
 ### 阶段 1 的研究任务
@@ -116,7 +118,7 @@
 
 ## 7. 可选观察与严格模式
 
-- **协作深度观察。** [`agents/collaboration_depth_agent.md`](agents/collaboration_depth_agent.md) 在完整和简要检查点、以及过程记录时观察用户的协作方式（委托程度、警觉性等），只作参考，从不阻断，不在强制检查点运行。
+- **协作深度观察。** [`agents/collaboration_depth_agent.md`](agents/collaboration_depth_agent.md) 仅在作者要求此项反馈时，在完整或简要检查点以及过程记录中观察协作方式（委托程度、警觉性等），只作参考，从不阻断，不在强制检查点运行。
 - **主张与引文对齐审计。** 用户要求时，在阶段 4 → 5 之间由 [`agents/claim_ref_alignment_audit_agent.md`](agents/claim_ref_alignment_audit_agent.md) 抽样审计引用是否真正支持主张。
 - **严格模式。** 需要可复核的阶段状态、Material Passport、断点重置或引文来源终审时，按 [`strict/pipeline_orchestrator_agent.md`](strict/pipeline_orchestrator_agent.md) 执行，状态与交接字段见 `@/engine/handoff_schemas.md`，断点重置见 [`strict/passport_as_reset_boundary.md`](strict/passport_as_reset_boundary.md)。严格模式依赖 `@/engine/scripts/` 下的脚本，脚本无法运行时报告失败，不以默认模式冒充。
 

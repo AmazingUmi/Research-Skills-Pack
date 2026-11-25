@@ -15,6 +15,8 @@ exports/proposal_final.pdf
 
 **.docx 必须用 python-docx 脚本生成，禁止用 pandoc**。pandoc 输出的 .docx 格式粗糙（标题蓝色、无中文字体、无段落格式），不可直接交付。使用 `scripts/build_proposal_docx.py`，该脚本实现以下格式：Times New Roman 12pt + 宋体，Heading 黑体或宋体加粗黑色，1.5 倍行距，四边 1 英寸页边距，表格 10pt 带网格。Load `pdf` only when PDF is requested.
 
+导出依赖 `python-docx`；含 LaTeX 公式时另需 `latex2mathml`。图片相对 Markdown 所在目录解析，嵌入的图片与 Word 原生公式可在导出后复查。
+
 ## Pre-delivery checks
 
 - No unresolved TODOs

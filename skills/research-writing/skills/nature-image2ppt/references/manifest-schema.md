@@ -33,6 +33,7 @@ Key fields:
 {
   "schema_version": 1,
   "run_id": "job-id",
+  "ocr": "local",
   "input_type": "image|images|pdf|pptx",
   "max_concurrent_pages": 6,
   "image_backend": {
@@ -45,8 +46,8 @@ Key fields:
     "input_context_policy": "generate with prompt; before editing, view_image each input, then use prompt plus absolute local referenced_image_paths",
     "save_path_policy": "use only an explicit valid local result/output_hint path, then image2ppt image import; never scan for a newest file",
     "fallback_command": "image2ppt image generate/edit",
-    "fallback_order": ["codex-oauth", "openai-compatible-api"],
-    "fallback_selection_policy": "auto uses codex-oauth only for GPT Image model ids with compatible auth; all other model ids use openai-compatible-api",
+    "fallback_order": ["openai-compatible-api"],
+    "fallback_selection_policy": "auto uses openai-compatible-api; codex-oauth requires explicit selection",
     "fallback_policy": {
       "on": [
         "tool-unavailable",
@@ -73,7 +74,7 @@ For `backend_id: "builtin-imagegen"`, these fields are required and have fixed m
 - `save_path_policy`: permits only an explicit valid local result path, including `output_hint`, followed by `image2ppt image import`; newest-file directory scanning is forbidden.
 - `fallback_command`: the CLI surface used only after the fallback policy matches.
 - `fallback_order`: the two permitted CLI producers, retained for provenance compatibility.
-- `fallback_selection_policy`: model-aware routing inside the CLI: `auto` uses Codex OAuth only for compatible GPT Image ids and otherwise selects the configured OpenAI Images-compatible API. An explicit CLI `--backend` overrides `auto`.
+- `fallback_selection_policy`: `auto` selects the configured OpenAI Images-compatible API. An explicit CLI `--backend` overrides `auto`.
 - `fallback_policy.on`: the only events that permit leaving the built-in tool: it is unavailable/not callable, its call errors, an edit input is unreadable, or it returns no valid local image.
 - `fallback_policy.missing_optional_parameters`: always `false`; absent optional controls never authorize fallback.
 

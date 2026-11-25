@@ -99,16 +99,16 @@ Score each dimension 0-10. Anchors below are for Chinese doctoral proposals in m
 
 ```text
 < 6.0    不可交付，必须重构
-6.0-7.0  内部草稿
-7.0-8.0  可给导师看
-> 8.0    正式版本打磨
+6.0 ≤ score < 7.0  内部草稿
+7.0 ≤ score < 8.0  可给导师看
+≥ 8.0    正式版本打磨
 ```
 
 Stage thresholds:
 
 ```text
-foundation_score > 7.5 before formal drafting
-section_score > 6.5 to keep a draft section
-proposal_score > 7.0 for supervisor-facing draft
-proposal_score > 8.0 for final polish
+foundation_score >= 7.5 before formal drafting
+section_score >= 6.5 to keep a draft section
+proposal_score >= 7.0 for supervisor-facing draft
+proposal_score >= 8.0 for final polish
 ```

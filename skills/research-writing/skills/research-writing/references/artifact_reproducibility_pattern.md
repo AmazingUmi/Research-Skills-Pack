@@ -66,6 +66,7 @@ repro_lock:
     s2_snapshot_available: false           # whether a response cache exists
 
   cross_model:
+    enabled: false                         # this pack has no secondary-model dispatch
     secondary_model_id: null               # secondary model id if enabled
 ```
 
@@ -80,7 +81,7 @@ field with no honest value is a reason to set the whole block to `null`, not to 
 ### schema_version
 
 `"1.0"` currently supported. Schema evolution policy: breaking changes bump major,
-additions bump minor. Old readers fail loudly on unknown versions — `check_repro_lock.py`
+additions bump minor. Old readers fail loudly on unknown versions — `repro_lock_validation.py`
 will exit 1 if it encounters an unrecognized version, forcing the user to upgrade their
 tooling or audit the change manually.
 
@@ -129,12 +130,7 @@ reproducible.
 - An `experiment_provenance[]` entry nests its own lock, and its key is always required. When any
   field has no honest value for the experiment, the entry carries `repro_lock: null` with a
   `repro_lock_reason` instead of placeholders (see the entry schema, ).
-- `check_repro_lock.py` can be run standalone on any passport file. It is not wired into
-  the CI lint suite by default — it validates on-demand against specific passport files. A
-  CI test runs it on the shipped `@/engine/examples/passport_with_experiment_provenance.yaml`.
-- `check_repro_lock.py` uses `@/engine/scripts/repro_lock_validation.py`, and entries use the JSON
-  entry schema. The two agree on required keys and value rules, checked by a drift test over
-  a fixed set of values. They differ on extra keys: only the entry schema rejects them.
+- From the installed skill root run `python engine/scripts/repro_lock_validation.py engine/examples/passport_with_repro_lock.yaml` to check a passport-level lock; run `python engine/scripts/check_experiment_provenance.py engine/examples/passport_with_experiment_provenance.yaml` for per-experiment locks.
 
 ## Red flags when reading a populated repro_lock
 
@@ -143,7 +139,7 @@ reproducible.
   suspicious until a signed attestation mechanism exists. No validator rejects this value;
   it is for the reader to catch.
 - `prompts.hash_timing` anything other than `"skill-load"` — this is an unknown variant
-  with undefined semantics. `check_repro_lock.py` and the entry schema both reject it, so
+  with undefined semantics. `repro_lock_validation.py` and the entry schema both reject it, so
   seeing one means the passport skipped those checks.
 - Empty or stub hashes (`"sha256:"` prefix with no content, or a short placeholder string
   like `"sha256:abc123"`) — the generator was broken or the author filled in a placeholder.

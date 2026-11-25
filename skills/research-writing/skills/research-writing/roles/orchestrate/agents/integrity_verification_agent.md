@@ -235,6 +235,8 @@ Check internal data consistency within the report:
 
 Reads the `figure_table_trace[]` block in the visualization_agent's Figure Package (see `@/roles/figures/make/ars-visualization/references/vlm_figure_verification.md`). This **inherits** the C1 data-cross-referencing layer — it does not re-render figures (that is the VLM checklist's job) and does not re-verify raw data against the original source (that is C1). Its genuinely new coverage is the *interpretation* and *linkage* a faithful-rendering check cannot see, the visual analog of the/prose partial-evidence trap.
 
+When a Figure Package is supplied as YAML or JSON, run `python engine/scripts/check_figure_trace.py --package figures.yaml --figure fig-3` from the skill root, using the actual package path and all claim-bearing figure IDs identified in the manuscript. Record the package path and reported SHA-256 in the checkpoint. On resume pass that digest with `--expected-sha256`; if the package changed, repeat the affected checks. Legacy figures without a Figure Package and untraced standalone tables retain the trace-unavailable note. This structural check precedes the evidence assessment below.
+
 For each `figure_table_trace[]` entry (figures, and any manuscript table that has an entry):
 
 ```
@@ -449,9 +451,10 @@ See `references/plagiarism_detection_protocol.md` for the complete protocol defi
 ```
 Perform sampled originality checks on body text paragraphs:
 1. Extract 1-2 characteristic sentences per paragraph (containing specific data, proper nouns, or unique arguments)
-2. WebSearch key fragments of characteristic sentences (8-12 words, in quotes)
+2. Default to comparing supplied materials locally. Only after explicit authorization for the specific provider and excerpt scope, WebSearch authorized fragments of characteristic sentences (8-12 words, in quotes)
 3. Compare search results and assign grades:
-   - ORIGINAL: No related matches
+   - NO_LOCAL_MATCH: no match in supplied materials; NOT_CHECKED if no comparison material was provided
+   - NO_INDEXED_MATCH: no match in the explicitly authorized public search
    - COMMON_KNOWLEDGE: Multiple sources express the same fact differently
    - PARAPHRASE: Semantically similar but clearly different wording, with citation
    - CLOSE_MATCH: Highly similar wording, only a few words substituted
@@ -470,7 +473,7 @@ Revised paragraphs: In Mode 2, paragraphs newly added or substantially modified 
 ```
 Prerequisite: User provides author name(s)
 
-1. WebSearch for author's existing publications
+1. Use supplied publications locally. Search for additional publications only within the authorized external scope.
 2. Compare current paper with existing publications:
    - Methodology descriptions
    - Results narratives
@@ -713,7 +716,7 @@ The following patterns are PROHIBITED in integrity reports:
    whole C2 check when a correction changed the body's findings, numbers, or scope
 4. All pass -> PASS
 5. Still issues -> fix again (max 3 rounds)
-6. Still not passed after 3 rounds -> notify user, list unverifiable items
+6. Still not passed after 3 rounds -> notify user, list unverifiable items. Continue unaffected sections only under the recorded disposition. Keep confirmed false or misrepresented citations out of the citable set until corrected and reverified.
 ```
 
 ---
@@ -747,7 +750,7 @@ The following patterns are PROHIBITED in integrity reports:
 
 | Grade | Paragraph Count | Proportion |
 |-------|----------------|-----------|
-| ORIGINAL | X | X% |
+| NO_INDEXED_MATCH | X | X% |
 | COMMON_KNOWLEDGE | X | X% |
 | PARAPHRASE | X | X% |
 | CLOSE_MATCH | X | X% |
@@ -860,7 +863,7 @@ After the author responds, attach the validated
 
 ## Tool Limitation Disclaimer
 
-> This verification report's originality check (Phase D) uses WebSearch for heuristic comparison and is not professional plagiarism detection software (such as Turnitin / iThenticate). Coverage is limited to publicly searchable literature, with a sampling rate of [Z]%, and there is a risk of missed detection. These results serve as preliminary screening; it is recommended to use professional plagiarism detection tools for complete duplicate checking before formal submission.
+> Identify the actual local comparison set and, only if authorized, the provider and excerpt scope used for public search. Coverage is limited to publicly searchable literature, with a sampling rate of [Z]%, and there is a risk of missed detection. These results serve as preliminary screening; it is recommended to use professional plagiarism detection tools for complete duplicate checking before formal submission.
 
 ## Verification Audit Trail
 [List the verification process for each reference and originality comparison: search terms -> results -> determination]

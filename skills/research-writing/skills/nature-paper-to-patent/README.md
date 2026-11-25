@@ -52,6 +52,6 @@
 
 ## 相关技能
 
-- `nature-reader`：先把论文转成可追溯阅读材料。
-- `nature-writing`：提炼论文贡献和技术叙事。
-- `nature-figure`：生成专利流程图或结构示意图草稿。
+- `$research-writing literature read`：先把论文转成可追溯阅读材料。
+- `$research-writing draft section`：提炼论文贡献和技术叙事。
+- `$research-writing figures make`：生成专利流程图或结构示意图草稿。

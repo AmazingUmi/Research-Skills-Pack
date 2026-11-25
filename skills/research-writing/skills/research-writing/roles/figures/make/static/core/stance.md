@@ -23,6 +23,12 @@ Prefer **unified method families across all panels** over maximal hue separation
 - When the user asks for broad `Nature` style rather than ML/NMI-specific style, read `references/nature-2026-observations.md` before choosing layout.
 - When the user references `figures4papers` or the older `scientific-figure-making` skill, treat this skill as the successor and open `references/demos.md` for the third-party demo map, copyright boundary, and original reimplementation guidance.
 
+## Internal handoff and public provenance
+
+Record workspace-relative source and figure paths, figure IDs and data references
+in the internal figure manifest so the writer and verifier can reopen the inputs.
+For public captions, manuscripts and reports use shareable identifiers.
+
 ## User-facing privacy rule
 
 Do not disclose private local paths, private filenames, chat-attachment names, internal reference filenames, template identifiers, or the provenance of private working materials in user-facing replies, generated code comments, figure legends, reports, or manuscript text. Use generic descriptions such as "the provided R template collection", "a private working draft", or "the internal figure contract". If the user provides a private plotting template collection, use it only as an internal adaptation source and do not reveal its path, filenames, or provenance. Only reveal an exact path or source file when the user explicitly asks for that audit trail.

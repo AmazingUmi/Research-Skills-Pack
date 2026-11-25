@@ -16,8 +16,7 @@ command above in the Python environment that will execute the CLI, then require 
 successful `doctor --json` result before preparing an input. Prefer a dedicated
 environment over modifying the operating system Python.
 
-Required packages are pypdfium2, Pillow, NumPy, Requests, PyYAML, and OpenAI. The
-OpenAI package supports the optional image-generation fallback; OCR uses Requests.
+Local reconstruction uses pypdfium2, Pillow, NumPy, defusedxml, and PyYAML. Cloud OCR additionally requires Requests and a token. The OpenAI-compatible image backend requires the OpenAI SDK and an API key. Use `doctor --check-ocr` and `doctor --check-api` to check those optional capabilities. To check Codex credentials, pass `--backend codex-oauth` to `doctor` or `setup` on that invocation. A saved backend preference alone leaves the credential check pending.
 The builder writes OOXML directly and does not require `python-pptx`.
 
 Run without installation:

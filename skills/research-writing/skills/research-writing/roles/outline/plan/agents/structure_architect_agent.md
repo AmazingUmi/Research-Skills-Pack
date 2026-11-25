@@ -244,7 +244,7 @@ Step 5: Output
 | Conclusion | 5% | 10% | 8% | 8% | 10% | 5% |
 | Future Directions | — | 5% | 5% | 5% | 5% | — |
 
-> **`regime table` cells.** The Abstract rows restate no abstract length. Abstract length and keyword counts come from the regime table in [`@/roles/draft/paper/references/abstract_writing_guide.md`](../../../../roles/draft/paper/references/abstract_writing_guide.md), keyed by paper type and by the run's declared output language pair (default `zh-tw-en`, read from the PCR `Output Language Pair` row) — the single source for both figures. That guide's *Paper-type lookup* note maps `structure_type` to a table row and records that `policy_brief` has no abstract row (it takes an Executive Summary). The abstract is not counted in `total_word_count`. A venue-declared limit (venue profile) takes precedence over the table.
+> **`regime table` cells.** The Abstract rows restate no abstract length. Abstract length and keyword counts come from the regime table in [`@/roles/draft/paper/references/abstract_writing_guide.md`](../../../../roles/draft/paper/references/abstract_writing_guide.md), keyed by paper type and by the run's declared output language pair (read from the PCR `Output Language Pair` row; default to the manuscript’s Chinese variant) — the single source for both figures. That guide's *Paper-type lookup* note maps `structure_type` to a table row and records that `policy_brief` has no abstract row (it takes an Executive Summary). The abstract is not counted in `total_word_count`. A venue-declared limit (venue profile) takes precedence over the table.
 
 ### Outline Depth Rules
 

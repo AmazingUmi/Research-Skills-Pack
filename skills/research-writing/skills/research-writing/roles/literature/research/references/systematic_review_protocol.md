@@ -2,10 +2,10 @@
 
 Full PRISMA-compliant systematic literature review with optional meta-analysis. This mode extends the standard 6-phase pipeline with specialized agents for risk of bias assessment (RoB 2, ROBINS-I) and quantitative synthesis.
 
-See `agents/risk_of_bias_agent.md` and `agents/meta_analysis_agent.md` for detailed agent definitions.
-See `references/systematic_review_toolkit.md` for the Cochrane/PRISMA/GRADE reference guide.
+See [risk of bias](../agents/risk_of_bias_agent.md) and [meta-analysis](../agents/meta_analysis_agent.md) for detailed agent definitions.
+See `systematic_review_toolkit.md` for the Cochrane/PRISMA/GRADE reference guide.
 
-## 5-Phase Pipeline
+## Six-phase pipeline
 
 ```
 User: "Systematic review of [topic]" / "Meta-analysis of [topic]"
@@ -32,9 +32,12 @@ User: "Systematic review of [topic]" / "Meta-analysis of [topic]"
      |
 === Phase 2: INVESTIGATION (PRISMA-Compliant Search + RoB) ===
      |
-     |-> [bibliography_agent] -> PRISMA Flow Diagram + Source Corpus
+     |-> [bibliography_agent] -> complete search exports across all protocol subtopics
      |   - Search >= 2 databases with documented strategy
-     |   - Dual-pass screening (title/abstract -> full text)
+     |-> literature screen or existing team decision ledger
+     |   - Confirm protocol, pilot or document waiver, independent decisions, adjudication and exclusion QC
+     |   - Join every decision by record ID, retaining exclusion reasons and full-text locations
+     |   - Publish final counts only after decisions and retrieval reconcile; document actual reviewer independence
      |   - PRISMA 2020 flow diagram with counts at each stage
      |   - Excluded studies with reasons documented
      |

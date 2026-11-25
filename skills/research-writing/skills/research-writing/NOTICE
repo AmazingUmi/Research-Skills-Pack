@@ -1,0 +1,67 @@
+Research Writing
+================
+
+The combined research-writing skill is distributed under CC BY-NC 4.0.
+See LICENSE and the component attributions and texts in licenses/.
+The other standalone Nature skills are distributed separately.
+
+Modifications. Material from every source has been rearranged into the
+role structure derived from Paper Orchestra (orchestrate, outline, literature, figures,
+draft, review). File locations, cross-references, metadata and hand-off
+fields have changed. Runtime adapters, evaluation suites, tests, release
+tooling and several optional features have been removed. The router,
+role files and the mode files for ARS-derived modes are newly written in
+Chinese. In ARS material, product names, paths, version and issue
+annotations were rewritten or removed, contract-specific sections were moved
+into strict-mode files, environment variables were renamed from ARS_* to
+RW_*, and only the scripts the retained documents use were kept. Nature
+Skills and K-Dense modes have been adapted for language selection, evidence
+scope, role handoffs and figure review. SOURCES.md in the repository lists the pinned
+upstream revisions and the changes.
+
+1. PaperOrchestra
+   Authors: Yiwen Song, Yale Song, Tomas Pfister, Jinsung Yoon.
+   Upstream: https://github.com/google-research/paper-orchestra
+   Reference commit: d9bae997e793a015ed38bb1605be9eb58c00284f
+   Paper: https://arxiv.org/abs/2604.05018
+   License: Apache-2.0 (licenses/Apache-2.0-PaperOrchestra.txt; previous
+   local notice in licenses/PaperOrchestra-NOTICE.txt).
+   The role structure, the assembly flow of the orchestrate role and the
+   hand-off conventions derive from the local Paper Orchestra adaptation.
+
+2. Academic Research Skills (ARS) and ARS-Codex
+   Copyright (c) 2026 Cheng-I Wu (Imbad0202).
+   Upstream: https://github.com/Imbad0202/academic-research-skills
+     commit fd5ff1b858374219b4d342e38587b66e18f61cbd
+   Codex adapter: https://github.com/Imbad0202/academic-research-skills-codex
+     v3.24.2, commit 82725acb393c4410ac6f47634a7f51b40a162fa4
+   License: CC BY-NC 4.0 (LICENSE). Citation: licenses/ARS-CITATION.cff.
+   Agent prompts, references, templates, contracts and scripts from the
+   deep-research, academic-paper, academic-paper-reviewer,
+   academic-pipeline, sr-screener and experiment-agent workflows.
+   This package is not endorsed by or affiliated with the ARS author.
+
+3. Nature Skills
+   Upstream: https://github.com/Yuan1z0825/nature-skills
+     commit c6701dbea29afa7c596d029b957b7edc92130ea5
+   License: Apache-2.0 (licenses/Apache-2.0-Nature.txt), except where a
+   skill states otherwise: nature-downloader is MIT (baihe26, license kept in
+   its directory). Other contributor MIT notices: licenses/MIT-Nature-contributors.txt.
+   The figures4papers note in licenses/figures4papers-upstream-notice.md
+   explains why those upstream examples are referenced, not bundled.
+   Merged into research-writing: nature-academic-search, nature-citation, nature-data,
+   nature-downloader, nature-figure, nature-paper-card, nature-polishing,
+   nature-reader, nature-ref-verifier, nature-response, nature-reviewer,
+   nature-statistics, nature-writing, nature-shared.
+   Kept as separate skills: nature-proposal-writer, nature-paper2ppt,
+   nature-image2ppt, nature-paper-to-patent, nature-literature-pipeline,
+   nature-experiment-log, nature-shared.
+
+4. K-Dense scientific agent skills
+   Upstream: https://github.com/K-Dense-AI/scientific-agent-skills
+     v2.72.0, commit 526ebce143bc326f44471554e33d66a19c840360
+   License: MIT (licenses/K-Dense-MIT.md).
+   Included: experimental-design, scientific-critical-thinking,
+   statistical-analysis, scientific-visualization.
+
+Repository source inventory: https://github.com/AmazingUmi/Research-Skills-Pack/blob/main/skills/SOURCES.md

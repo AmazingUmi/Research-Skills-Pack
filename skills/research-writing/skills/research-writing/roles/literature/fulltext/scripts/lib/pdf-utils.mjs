@@ -12,7 +12,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { evalJs } from "./cdp-utils.mjs";
-import { STATUS } from "./status-codes.mjs";
+import { STATUS, classifyWall } from "./status-codes.mjs";
 import { classifyFullTextContent } from "./provider-utils.mjs";
 
 const DEFAULT_MAX_BYTES = 200 * 1024 * 1024; // 200 MB guard
@@ -37,6 +37,16 @@ export function shouldRejectHtmlResponse(meta, rejectHtml = false) {
   return Boolean(rejectHtml && isHtmlResponse(meta));
 }
 
+// This function also runs inside the browser fetch expression. Read bounded text
+// without parsing a browser document or loading any of the response's resources.
+function htmlPageHint(html) {
+  const title = (html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || "";
+  const bodyHint = html.replace(/^[\s\S]*?<body\b[^>]*>/i, "")
+    .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, " ")
+    .replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 1000);
+  return { title, bodyHint };
+}
+
 /**
  * Fetch a URL inside the target tab's authenticated context.
  * Returns { ok, status, size, head, contentType, url } or { ok:false, err }.
@@ -57,17 +67,28 @@ export async function fetchToBuffer(
     const ab=await r.arrayBuffer();
     const b=new Uint8Array(ab);
     if(b.length>${maxBytes}){return JSON.stringify({ok:false,err:'pdf_too_large',size:b.length});}
+    const contentType=r.headers.get('content-type')||'';
+    let title='', bodyHint='';
+    if (/html/i.test(contentType) || /^\\s*<(?:!doctype html|html|head)/i.test(new TextDecoder().decode(b.slice(0,64)))) {
+      ({title,bodyHint}=(${htmlPageHint.toString()})(new TextDecoder().decode(b.slice(0,32768))));
+    }
     window['${varName}']=b;
-    return JSON.stringify({ok:r.ok,status:r.status,size:b.length,head:Array.from(b.slice(0,64)),contentType:r.headers.get('content-type')||'',contentDisposition:r.headers.get('content-disposition')||'',url:r.url||location.href});
+    return JSON.stringify({ok:r.ok,status:r.status,size:b.length,head:Array.from(b.slice(0,64)),contentType,contentDisposition:r.headers.get('content-disposition')||'',url:r.url||location.href,title,bodyHint});
   }catch(e){return JSON.stringify({ok:false,err:String(e).slice(0,200)})}})()`;
   const raw = await evalJs(proxy, target, js, 120000);
   const meta = JSON.parse(raw || "{}");
 
-  if (!meta.ok || !meta.size) {
-    return { ok: false, err: meta.err || "empty response", varName };
+  const wall = (isHtmlResponse(meta) || meta.status === 403) && classifyWall(meta.url || url, meta.title, (meta.bodyHint || "") + (meta.status === 403 ? " 403" : ""));
+  if (wall) {
+    await evalJs(proxy, target, `delete window['${varName}']`).catch(() => {});
+    return { ok: false, wall: { ...wall, url: meta.url || url, tab: target, next_action: "Open the reported URL in this tab and complete the access check before retrying" } };
   }
   if (meta.err === "pdf_too_large") {
-    return { ok: false, err: STATUS.PDF_TOO_LARGE, size: meta.size, varName };
+    return { ok: false, err: STATUS.PDF_TOO_LARGE, size: meta.size };
+  }
+  if (!meta.ok || !meta.size) {
+    await evalJs(proxy, target, `delete window['${varName}']`).catch(() => {});
+    return { ok: false, err: meta.err || (meta.status ? `HTTP ${meta.status}` : "empty response") };
   }
   if (requirePdf) {
     const headBytes = meta.head || [];
@@ -149,7 +170,7 @@ export async function streamToDisk(
  */
 export async function fetchToFile(proxy, target, url, outPath, { onProgress, maxBytes } = {}) {
   const meta = await fetchToBuffer(proxy, target, url, { requirePdf: true, maxBytes });
-  if (!meta.ok) return { ok: false, err: meta.err };
+  if (!meta.ok) return meta;
   const res = await streamToDisk(
     proxy,
     target,
@@ -168,7 +189,7 @@ export async function fetchToFile(proxy, target, url, outPath, { onProgress, max
  */
 export async function fetchAnyToFile(proxy, target, url, outPath, { onProgress, maxBytes, rejectHtml = false } = {}) {
   const meta = await fetchToBuffer(proxy, target, url, { requirePdf: false, maxBytes });
-  if (!meta.ok) return { ok: false, err: meta.err };
+  if (!meta.ok) return meta;
   if (shouldRejectHtmlResponse(meta, rejectHtml)) {
     await evalJs(proxy, target, `delete window['${meta.varName}']`).catch(() => {});
     return { ok: false, err: "HTML response rejected" };
@@ -195,7 +216,7 @@ export async function fetchAnyToFile(proxy, target, url, outPath, { onProgress, 
 
 export async function fetchNativeToFile(proxy, target, url, outPath, { allowedFormats = ["caj", "html", "jats_xml"], onProgress, maxBytes } = {}) {
   const meta = await fetchToBuffer(proxy, target, url, { requirePdf: false, maxBytes });
-  if (!meta.ok) return { ok: false, err: meta.err };
+  if (!meta.ok) return meta;
   const classification = classifyFullTextContent({ contentType: meta.contentType, head: meta.head });
   if (!classification.valid || !allowedFormats.includes(classification.format)) {
     await evalJs(proxy, target, `delete window['${meta.varName}']`).catch(() => {});

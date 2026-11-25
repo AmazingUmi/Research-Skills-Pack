@@ -83,7 +83,7 @@ A config template is provided in `templates/literature-push-template.md`.
 - **Score validation**: Each dimension capped, total recalculated — no 11/10 allowed
 - **Triple de-duplication**: DOI / arXiv ID / OpenAlex ID
 - **Graceful degradation**: Semantic Scholar down → auto-switch to OpenAlex + Crossref + arXiv
-- **Read-only archive**: Daily pipeline writes to `raw/` literature directory only; never modifies wiki/knowledge base without user approval
+- **Read-only archive**: Daily pipeline writes to `{ARCHIVE_ROOT}/raw/literature/` only; never modifies wiki/knowledge base without user approval
 
 ## Related Skills
 
@@ -108,5 +108,5 @@ A config template is provided in `templates/literature-push-template.md`.
 1. **Keyword drift**: Review keywords monthly — research directions evolve
 2. **Score inflation**: Subagents may inflate scores; always validate arithmetic
 3. **Duplicate creep**: Classic papers will reappear; maintain a dedup index
-4. **Wiki safety**: Pipeline writes to `raw/` only; wiki integration is manual
+4. **Wiki safety**: Pipeline writes to `{ARCHIVE_ROOT}/raw/literature/` only; wiki integration is manual
 5. **Cron locality**: Hermes cron is local, not cloud — machine must be running

@@ -10,14 +10,14 @@
 
 ## 必做时机
 
-生成交底书全文**之前或生成过程中**必须执行；检索结论写入第一章 **1.1 现有技术** 及与本案的**区别论述**。
+先列出拟检索的具体技术词和接收网站。只有用户明确授权发送这些词至该网站时，才运行联网查新并传入 `--allow-external-search`。授权前只整理本地材料，把外部查新标为待办。更换网站或扩展关键词时核对授权范围；遇站点访问挑战时转人工。将实际检索结论写入第一章 **1.1 现有技术**。
 
 ## 检索渠道（**优先国知局公布公告站，再降级 WebSearch**）
 
 ### A. 中国专利公布公告（**优先**，官方站点）
 
-1. **站点**：[国家知识产权局 中国专利公布公告](http://epub.cnipa.gov.cn/)（**仅** `epub.cnipa.gov.cn`）。
-2. **工具**（本技能 `scripts/disclosure/`）：**`cnipa_epub_search.py`** —— **一步**完成公布站检索与结果解析（Playwright 过站点 WAF）；结果页 HTML **仅在内存中处理，不落盘**。成功时终端含 **`EPUB_NOTE:`**（ASCII，如 `html_bytes=… disk=0`）与 **`EPUB_HITS_JSON:`** 一行（JSON 数组：标题、公开号、链接、**`abstract`** 等）。
+1. **站点**：[国家知识产权局 中国专利公布公告](https://epub.cnipa.gov.cn/)（**仅** `epub.cnipa.gov.cn`）。
+2. **工具**（本技能 `scripts/disclosure/`）：**`cnipa_epub_search.py`** —— **一步**完成公布站检索与结果解析；结果页 HTML **仅在内存中处理，不落盘**。成功时终端含 **`EPUB_NOTE:`**（ASCII，如 `html_bytes=… disk=0`）与 **`EPUB_HITS_JSON:`** 一行（JSON 数组：标题、公开号、链接、**`abstract`** 等）。
 3. **国知局检索词（生成阶段必做，须在拼 Bash 之前完成）**
 
    - **拆分责任在 Agent**：在**生成/构造命令阶段**，从本案技术方案、专利点或用户主题中归纳 **2～8 个与方案相关度高的检索单位**，**仅用 ASCII 空格分隔**，再写入 `cnipa_epub_search.py` 的参数。每一单位宜为 **有检索意义的语义块**，例如：**专业术语**、**名词短语**、**名动组合（如「批量调度」「异构调度」）**、**业内固定搭配**；**不要**拆成过碎的单字、泛义双字（如单独 `检索`、`增强`、`系统`、`方法` 等泛词），也**不要**把无关联词硬凑成一串。
@@ -26,9 +26,9 @@
    - 示意（须按本案替换；**三次调用、每次一词**）：
 
      ```bash
-     python3 …/cnipa_epub_search.py 知识库
-     python3 …/cnipa_epub_search.py 检索增强
-     python3 …/cnipa_epub_search.py 大语言模型
+     python3 …/cnipa_epub_search.py --allow-external-search 知识库
+     python3 …/cnipa_epub_search.py --allow-external-search 检索增强
+     python3 …/cnipa_epub_search.py --allow-external-search 大语言模型
      ```
 
    - **脚本不做**自动分词或自动拆长中文；若确需**整句一次** AND 检索，改用 **`cnipa_epub_crawler.py`** 单传一句。
@@ -39,7 +39,7 @@
    pip install -r scripts/disclosure/requirements-cnipa.txt
    python -m playwright install chromium
    # Agent：对上一节每个检索单位各执行一次（示例仅展示首轮）
-   python3 scripts/disclosure/cnipa_epub_search.py 词甲
+   python3 scripts/disclosure/cnipa_epub_search.py --allow-external-search 词甲
    ```
 
    - **合并责任在 Agent**：每次调用解析 **stdout** 上**唯一一行** **`EPUB_HITS_JSON:`** 后的 JSON 数组；在推理中按 **`pub_number`** 为主键去重合并（无则 **`link`**，再否则可用标题前缀），得到**一份**总表后再写入查新笔记与 1.1。
@@ -61,7 +61,7 @@
 
 ### B. Google 学术与 Google Patents（**降级 / 补充**）
 
-在 **A 不可用或结果不足**时启用，与历史约定一致：
+仅在用户授权的渠道及词表范围内，**A 不可用或结果不足**时启用，与历史约定一致：
 
 1. **中文文献与学术**：[Google 学术搜索](https://scholar.google.com)（`scholar.google.com`）。
    - 用**中文关键词**、技术方案核心术语、应用场景；可组合 2–3 组查询。

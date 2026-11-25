@@ -138,7 +138,7 @@ scope the input does not contain.
 Usage:
     python3 scripts/check_acronyms.py --input FILE
         [--scopes body,abstract_en,abstract_zh] [--allow ABBR ...]
-        [--allow-file FILE] [--lang en|zh-TW] [--json-out FILE]
+        [--allow-file FILE] [--lang en|zh-TW|zh-CN] [--json-out FILE]
 
 Prints the Markdown report in ``--lang`` and writes the JSON report to
 ``--json-out``, which may be neither the input nor the allowlist file. The
@@ -167,7 +167,7 @@ from typing import Any
 CHECKER = "ars-acronym-check/1.0"
 SCOPES = ("body", "abstract_en", "abstract_zh")
 RULES = ("undefined", "defined_after_use", "defined_again")
-LANGS = ("en", "zh-TW")
+LANGS = ("en", "zh-TW", "zh-CN")
 SUPPORTED_SUFFIXES = (".md", ".markdown", ".txt")
 
 # Acronyms most journals accept without a definition. Discipline lists belong
@@ -216,19 +216,19 @@ _CAPTION_WORD = (r"(?i:(?:(?:Supplementary|Supplemental|Suppl?\.|Extended\s+Data
                  r"|Online)\s*)?(?:Figure|Fig\.?|Table|Box|Scheme|Plate|Chart|Exhibit))")
 _ZH_NUMERAL = "[一二三四五六七八九十百零〇]+"
 _CAPTION = re.compile(rf"^\s*{_EMPH}(?:{_CAPTION_WORD}\s*(?P<id>{_CAPTION_ID})"
-                      rf"|附?[圖表]\s*(?P<zh>{_CAPTION_ID}|{_ZH_NUMERAL}))"
+                      rf"|附?[图圖表]\s*(?P<zh>{_CAPTION_ID}|{_ZH_NUMERAL}))"
                       rf"{_EMPH}(?:[.:：](?!\d)|\s*\||(?P<dash>\s*[–—]|\s+-\s)|\s*$)")
 # Range ends after a caption dash (see _caption_label).
 _RANGE_ANY = re.compile(rf"\s*(?:[A-Z]?[.-]?\d"
-                        rf"|(?:{_CAPTION_WORD}|附?[圖表])\s*(?:{_CAPTION_ID}|{_ZH_NUMERAL})(?![A-Za-z0-9]))")
+                        rf"|(?:{_CAPTION_WORD}|附?[图圖表])\s*(?:{_CAPTION_ID}|{_ZH_NUMERAL})(?![A-Za-z0-9]))")
 _SUBFIGURE = re.compile(rf"{_ARABIC_ID}[A-Za-z]|(?![IVXLC])[A-Z]")
 _RANGE_LETTER = re.compile(r"\s*[A-Za-z](?![A-Za-z0-9-])")  # not "C-reactive"
 _RANGE_ROMAN = re.compile(r"\s*([IVXLCDM]+)(?![A-Za-z0-9-])")  # not "X-ray"
 _STANDARD_ROMAN = re.compile(r"(?=[MDCLXVI])M{0,3}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})")
 _ROMAN_VALUES = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
 _RANGE_ZH = re.compile(rf"\s*{_ZH_NUMERAL}")
-_NOTE = re.compile(rf"^\s*{_EMPH}(?:Notes?{_EMPH}[.:]|(?:註|注|資料來源)[：:])")
-_KEYWORDS = re.compile(rf"^\s*{_EMPH}(?:Keywords|Key words|關鍵詞|關鍵字){_EMPH}\s*[:：]", re.I)
+_NOTE = re.compile(rf"^\s*{_EMPH}(?:Notes?{_EMPH}[.:]|(?:註|注|資料來源|资料来源)[：:])")
+_KEYWORDS = re.compile(rf"^\s*{_EMPH}(?:Keywords|Key words|關鍵詞|關鍵字|关键词|关键字){_EMPH}\s*[:：]", re.I)
 
 _COMMENT_OR_BACKTICKS = re.compile(r"<!--|`+")
 # A link reference definition ("[RCT]: https://example.org"), which is not shown.
@@ -262,7 +262,7 @@ _ROMAN_JOIN = (rf"(?:(?:{_SPACE})?[,&–—/-](?:{_SPACE})?(?:(?:and|or){_SPACE}
                rf"|{_SPACE}(?:and|or|to|through){_SPACE})")
 _NUMBERING_BEFORE = re.compile(
     rf"(?:{_NUMBERING_WORD}(?:{_SPACE}|-)(?:[IVXLC]+{_STAGE_SUFFIX}{_ROMAN_JOIN})*|第(?:{_SPACE})?)\Z")
-_NUMBERING_AFTER = re.compile(rf"(?:{_SPACE})?[期級型類]")
+_NUMBERING_AFTER = re.compile(rf"(?:{_SPACE})?[期級级型類类]")
 # An author-year citation: items whose author part is a run of names (capitalized
 # words, a bracketed group abbreviation, CJK, "&", "and", "et al.", or a name
 # particle), then one or more dates and an optional page, paragraph, chapter, or
@@ -314,10 +314,10 @@ _PARAGRAPH_BREAK = re.compile(r"\n[ \t]*\n")
 _CLAUSE_BREAK = re.compile(r"[.;:!?。；：！？,，、]")
 _CJK_RUN = re.compile(rf"[{_CJK}]+$")
 _CJK_GAP = re.compile(rf"(?<=[{_CJK}])\s+(?=[{_CJK}])")  # a wrap or space inside Chinese text
-_LIST_JOINER = re.compile(r"[\W_]+|[與和及或]")  # "PCA/ICA", "ARIMA+LSTM", "PCA與ICA"
+_LIST_JOINER = re.compile(r"[\W_]+|[與与和及或]")  # "PCA/ICA", "ARIMA+LSTM", "PCA與ICA", "PCA与ICA"
 _LIST_WORDS = {"and", "or", "vs", "versus"}  # joining words; "&" and "vs." split off as marks
 _WORDLIKE = re.compile(rf"[A-Za-z]{{3,}}|[{_CJK}]")  # not a symbol or number ("R²", "df", "p", "3.2")
-_NOT_EXPANSION_ZH = ("見", "詳見", "參見", "參閱")
+_NOT_EXPANSION_ZH = ("見", "詳見", "參見", "參閱", "见", "详见", "参见", "参阅")
 
 
 def _zh(*leads: str) -> str:
@@ -327,23 +327,23 @@ def _zh(*leads: str) -> str:
 
 # Leads read across a wrap, as definitions do: "that\nis", "e. g.", "包\n括".
 _EXAMPLE_LEAD = re.compile(r"(?:e\.\s*g\.|eg|see|cf\.|for\s+example|for\s+instance|such\s+as|including)"
-                           rf"(?![A-Za-z0-9])|{_zh('例如', '比如', '諸如', '包括')}")
+                           rf"(?![A-Za-z0-9])|{_zh('例如', '比如', '諸如', '诸如', '包括')}")
 # Leads read as if absent (see _lead). Case-sensitive, so the acronyms IE and AKA stay.
 _RESTATEMENT_LEAD = re.compile(
     r"\s*(?:(?:[Ii]\.\s*e\.|ie|[Vv]iz\.|[Nn]amely|[Tt]hat\s+is(?:\s+to\s+say)?|[Ii]n\s+other\s+words)"
-    rf"(?![A-Za-z0-9])|(?:{_zh('亦即', '也就是', '即')})(?:\s*為)?)[,，:：]?\s*")
+    rf"(?![A-Za-z0-9])|(?:{_zh('亦即', '也就是', '即')})(?:\s*[為为])?)[,，:：]?\s*")
 _NAMING_LEAD = re.compile(
     r"\s*(?:(?:(?:(?:[Hh]ere(?:in)?after|[Hh]enceforth|[Aa]lso)\s+)?(?:[Rr]eferred\s+to\s+as|[Kk]nown\s+as"
     r"|[Cc]alled|[Tt]ermed|[Aa]bbreviated(?:\s+(?:as|to))?)|[Hh]ere(?:in)?after|[Hh]enceforth"
     r"|[Aa]\.?k\.?a\.?)(?![A-Za-z0-9])"
-    rf"|(?:{_zh('以下簡稱', '以下稱', '下稱', '簡稱', '又稱', '亦稱', '或稱', '稱為', '縮寫', '英文縮寫', '英文簡稱')})"
-    r"(?:\s*為)?)[,，:：]?\s*")
+    rf"|(?:{_zh('以下簡稱', '以下稱', '下稱', '簡稱', '又稱', '亦稱', '或稱', '稱為', '縮寫', '英文縮寫', '英文簡稱', '以下简称', '以下称', '下称', '简称', '又称', '亦称', '或称', '称为', '缩写', '英文缩写', '英文简称')})"
+    r"(?:\s*[為为])?)[,，:：]?\s*")
 # A cross-reference before an acronym, read as if absent when it names a target (see _cross_reference).
 # Case-sensitive, as the leads above are, so the acronyms SEE and CF stay. "見" alone leads one only
 # before a part, a page, a place in the text, or a Latin letter or digit ("見第二節", "見表1"), since
 # it also starts words ("見習醫學生").
-_CROSS_REFERENCE = re.compile(rf"(?:[Ss]ee(?:\s+also)?(?![A-Za-z0-9])|[Cc]f\.)|{_zh('參見', '詳見', '參閱')}"
-                              r"|見(?=\s*[第表圖附章節註頁上下前後本A-Za-z0-9])")
+_CROSS_REFERENCE = re.compile(rf"(?:[Ss]ee(?:\s+also)?(?![A-Za-z0-9])|[Cc]f\.)|{_zh('參見', '詳見', '參閱', '参见', '详见', '参阅')}"
+                              r"|[见見](?=\s*[第表圖附章節註頁图节注页上下前後后本A-Za-z0-9])")
 _QUOTE_CHARS = r"\s'\"‘’“”「」『』"
 _QUOTES = re.compile(rf"^[{_QUOTE_CHARS}]+|[{_QUOTE_CHARS}]+$")
 _WRAPPERS = re.compile(rf"^[{_QUOTE_CHARS}*_]+|[{_QUOTE_CHARS}*_]+$")  # quotation and emphasis marks
@@ -355,7 +355,7 @@ _OTHER_ABSTRACT = {"resumen", "résumé", "resumo", "zusammenfassung", "sommario
                    "abstrak", "özet"}
 _EXCLUDED_SECTIONS = {
     "references", "reference list", "bibliography", "works cited", "literature cited",
-    "參考文獻", "參考資料", "引用文獻", "keywords",
+    "參考文獻", "參考資料", "引用文獻", "参考文献", "参考资料", "引用文献", "关键词", "關鍵詞", "keywords",
 }
 # Occurrence kinds that make an acronym a coverage limit in its scope.
 _LIMIT_REASONS = {"unread_definition": "unread_definition_form",
@@ -978,6 +978,32 @@ _TEXT = {
             "unknown_scope": "指定的範圍不是 body、abstract_en 或 abstract_zh",
             "unreadable_allowlist": "免定義清單檔無法讀取",
             "no_requested_scope_in_input": "輸入檔裡沒有任何指定的範圍",
+        },
+    },
+    "zh-CN": {
+        "title": "### 缩写检查（仅供参考，无需回复）",
+        "coverage": "范围：{scopes}（{state}）",
+        "states": {"checked": "完整", "partial": "部分"},
+        "absent": "文件中没有：{scopes}。",
+        "limits": "未检查：",
+        "limit": "- {scope}第 {line} 行：{acronym}（{why}）",
+        "limit_reasons": {"unread_definition_form": "这个检查读不到的定义写法",
+                          "unconfirmed_definition": "括号前各字的字首拼不出这个缩写"},
+        "section": "- 第 {line} 行：「{heading}」段落（不是这个检查会读的范围）",
+        "none": "没有发现问题。",
+        "header": "| 范围 | 行 | 问题 | 缩写 | 次数 |",
+        "not_checked": "未检查：{reason}。",
+        "scope_names": _ZH_SCOPES,
+        "scope_cells": _ZH_SCOPES,
+        "rules": {"undefined": "未定义", "defined_after_use": "定义晚于首次使用",
+                  "defined_again": "重复定义"},
+        "join": "、",
+        "reasons": {
+            "unsupported_format": "输入文件须为 Markdown 或纯文本",
+            "unreadable_input": "无法按 UTF-8 读取输入文件",
+            "unknown_scope": "指定的范围不是 body、abstract_en 或 abstract_zh",
+            "unreadable_allowlist": "无法读取缩略语豁免清单",
+            "no_requested_scope_in_input": "输入文件未包含指定的检查范围",
         },
     },
 }

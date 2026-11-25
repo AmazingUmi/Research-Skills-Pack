@@ -11,6 +11,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
+from support import requires_renderer
 from support import SKILL_ROOT, complete_visual_review_evidence, filled_arrow_manifest, write_json
 
 
@@ -20,6 +21,7 @@ class IsolatedLifecycleTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
+    @requires_renderer
     def test_full_lifecycle_from_isolated_skill_copy_without_external_command(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             isolated_parent = Path(tmp) / "isolated-skills"
@@ -63,8 +65,10 @@ class IsolatedLifecycleTests(unittest.TestCase):
             env.pop("PYTHONPATH", None)
 
             cli = [sys.executable, str(isolated / "cli" / "image2ppt" / "cli.py")]
-            doctor = self.run_ok([*cli, "doctor", "--json"], env=env, cwd=isolated)
+            doctor = subprocess.run([*cli, "doctor", "--json"], env=env, cwd=isolated, text=True, capture_output=True, check=False)
             doctor_payload = json.loads(doctor.stdout)
+            if not doctor_payload["fonts"]["ready"] or not doctor_payload["rendering"]["ready"]:
+                self.skipTest("isolated render comparison requires system fonts and a renderer on its PATH")
             self.assertTrue(doctor_payload["ok"], doctor_payload)
             self.assertEqual(Path(doctor_payload["skill_root"]).resolve(), isolated.resolve())
             self.assertEqual(doctor_payload["ocr"]["selection"], "builtin-ink")

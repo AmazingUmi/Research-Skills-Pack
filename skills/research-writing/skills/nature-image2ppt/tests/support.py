@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
+import unittest
 import subprocess
 import sys
 from pathlib import Path
@@ -15,6 +17,12 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 from runtime_paths import image2ppt_command, image2ppt_runtime_script
+
+
+requires_renderer = unittest.skipUnless(
+    shutil.which("soffice") or shutil.which("libreoffice") or (sys.platform == "win32" and shutil.which("powershell")),
+    "requires LibreOffice or Windows PowerPoint for real render comparison",
+)
 
 
 def write_json(path: Path, payload: dict) -> None:

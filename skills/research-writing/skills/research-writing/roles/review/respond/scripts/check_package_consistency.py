@@ -41,7 +41,8 @@ def read_latex_project(path: Path, ancestors: tuple[Path, ...] = ()) -> str:
         chain = " -> ".join(str(item) for item in (*ancestors, path))
         raise ValueError(f"cyclic LaTeX include detected: {chain}")
 
-    text = strip_comments(read_text(path))
+    source = re.sub(r"(?ms)^% BEGIN REDLINE LEGEND$.*?^% END REDLINE LEGEND$", "", read_text(path))
+    text = strip_comments(source)
 
     def expand(match: re.Match[str]) -> str:
         raw_target = match.group(1).strip()
@@ -134,7 +135,9 @@ def strip_revision_markup(text: str) -> str:
     text = remove_single_argument_macros(text, DELETION_MACROS)
     text = unwrap_single_argument_macros(text, MARKUP_MACROS)
     text = re.sub(r"\\color\s*\{[^{}]*\}", "", text)
-    text = re.sub(r"\\textcolor\s*\{[^{}]*\}\s*\{([^{}]*)\}", r"\1", text)
+    # Discard the color argument, then unwrap the following balanced group.
+    text = re.sub(r"\\textcolor\s*\{[^{}]*\}(?=\s*\{)", r"\\revised", text)
+    text = unwrap_single_argument_macros(text, ("revised",))
     return text
 
 
@@ -203,8 +206,13 @@ def check_clean_marked(
     clean_name: str,
     marked_name: str,
 ) -> list[Finding]:
-    clean = normalize_latex(clean_text)
-    marked = normalize_latex(marked_text)
+    def document_body(source: str) -> str:
+        content = source.partition(r"\begin{document}")
+        body = content[2].partition(r"\end{document}")[0] if content[1] else source
+        return re.sub(r"% BEGIN REDLINE LEGEND\n.*?% END REDLINE LEGEND[^\n]*", "", body, flags=re.S)
+
+    clean = normalize_latex(document_body(clean_text))
+    marked = normalize_latex(document_body(marked_text))
     if clean == marked:
         return []
     return [

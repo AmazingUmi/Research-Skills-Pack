@@ -12,9 +12,9 @@
 - Turn top papers into Chinese or English deep-reading digests for delivery.
 - Maintain DOI, arXiv ID, topic tags, and read status to reduce duplicate reading.
 
-## Relationship With `nature-academic-search`
+## Relationship With `$research-writing literature search`
 
-`nature-academic-search` is for one-off search and citation checks; `nature-literature-pipeline` is for continuous subscription and periodic delivery. The former answers "find papers now"; the latter answers "keep watching this area."
+`$research-writing literature search` is for one-off search and citation checks; `nature-literature-pipeline` is for continuous subscription and periodic delivery. The former answers "find papers now"; the latter answers "keep watching this area."
 
 ## Typical Requests
 
@@ -42,5 +42,5 @@
 
 ## Related Skills
 
-- `nature-academic-search`: one-off multi-source search, citation metrics, and strict external-citation audit.
-- `nature-reader`: turn candidate papers into full Chinese-English reading materials.
+- `$research-writing literature search`: one-off multi-source search, citation metrics, and strict external-citation audit.
+- `$research-writing literature read`: turn candidate papers into full Chinese-English reading materials.

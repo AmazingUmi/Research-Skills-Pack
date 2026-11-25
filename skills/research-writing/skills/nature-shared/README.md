@@ -1,31 +1,24 @@
 # `nature-shared/` - nature-* 技能的共享支持包
 
-这个目录是一个可安装但不应单独触发的支持包。它保存多个 `nature-*` 技能共同依赖的公共定义与参考材料，避免在不同技能目录中重复维护同一套内容。安装整套技能时，它会与其他技能一起被发现和更新。
-
-同级技能会通过 `manifest.yaml` 中的相对路径引用这里的文件，例如：
-
-```yaml
-always_load:
-  - ../nature-shared/core/reader-workflow.md
-```
+随 `nature-paper2ppt` 一并安装。合并技能 `research-writing` 使用内置副本。下表也列出了对应的写作模式。
 
 ## 当前内容
 
 | 文件 | 使用方 |
 |---|---|
-| `core/reader-workflow.md` | `nature-polishing`, `nature-writing` |
-| `core/paper-type-taxonomy.md` | `nature-polishing`, `nature-writing` |
-| `core/ethics.md` | `nature-polishing`, `nature-writing` |
-| `core/research-compliance.md` | `nature-writing` 及需要 Nature Portfolio 专项合规检查的技能 |
-| `core/terminology-ledger.md` | `nature-polishing`, `nature-writing`, `nature-reader`, `nature-paper2ppt` |
-| `core/consistency-sweep.md` | `nature-polishing`, `nature-reviewer`, `nature-response`, `nature-statistics` |
-| `core/main-text-discipline.md` | `nature-writing`, `nature-polishing`, `nature-response` |
-| `core/nature-results-discussion.md` | `nature-writing`, `nature-polishing` 通用的 Nature / Nature Portfolio Results claim 递进与 Discussion 综合（来自 NMI 与旗舰 Nature 已发表论文语料归纳，非官方规则） |
-| `core/discussion-argument-language.md` | `nature-writing`, `nature-polishing` 通用的 Discussion 功能链、反向漏斗、证据强度与情态动词、局限和未来工作审计（写作指导，非期刊官方规则） |
-| `core/nature-introduction.md` | `nature-writing`, `nature-polishing` 通用的 Nature / Nature Portfolio 问题漏斗、精确 gap 与 Introduction–Results 对齐（最初来自 NMI 语料归纳，非官方规则） |
-| `core/nature-abstract.md` | `nature-writing`, `nature-polishing` 通用的 Nature / Nature Portfolio 发现中心型摘要证据链、claim 层级与数字取舍（最初来自 NMI 语料归纳，非官方规则） |
-| `journal-formats/nat-comms.md` | `nature-polishing`, `nature-writing` |
-| `journal-formats/nature.md` | `nature-writing` 及需要旗舰 `Nature Article` 精确投稿规则的技能 |
+| `core/reader-workflow.md` | `research-writing draft polish`, `research-writing draft section` |
+| `core/paper-type-taxonomy.md` | `research-writing draft polish`, `research-writing draft section` |
+| `core/ethics.md` | `research-writing draft polish`, `research-writing draft section` |
+| `core/research-compliance.md` | `research-writing draft section` 及需要 Nature Portfolio 专项合规检查的技能 |
+| `core/terminology-ledger.md` | `research-writing draft polish`, `research-writing draft section`, `research-writing literature read`, `nature-paper2ppt` |
+| `core/consistency-sweep.md` | `research-writing draft polish`, `research-writing review nature`, `research-writing review respond`, `research-writing draft stats-report` |
+| `core/main-text-discipline.md` | `research-writing draft section`, `research-writing draft polish`, `research-writing review respond` |
+| `core/nature-results-discussion.md` | `research-writing draft section`, `research-writing draft polish` 通用的 Nature / Nature Portfolio Results claim 递进与 Discussion 综合（来自 NMI 与旗舰 Nature 已发表论文语料归纳，非官方规则） |
+| `core/discussion-argument-language.md` | `research-writing draft section`, `research-writing draft polish` 通用的 Discussion 功能链、反向漏斗、证据强度与情态动词、局限和未来工作审计（写作指导，非期刊官方规则） |
+| `core/nature-introduction.md` | `research-writing draft section`, `research-writing draft polish` 通用的 Nature / Nature Portfolio 问题漏斗、精确 gap 与 Introduction–Results 对齐（最初来自 NMI 语料归纳，非官方规则） |
+| `core/nature-abstract.md` | `research-writing draft section`, `research-writing draft polish` 通用的 Nature / Nature Portfolio 发现中心型摘要证据链、claim 层级与数字取舍（最初来自 NMI 语料归纳，非官方规则） |
+| `journal-formats/nat-comms.md` | `research-writing draft polish`, `research-writing draft section` |
+| `journal-formats/nature.md` | `research-writing draft section` 及需要旗舰 `Nature Article` 精确投稿规则的技能 |
 | `journal-formats/nature-machine-intelligence.md` | NMI 投稿的写作、润色、图表、数据与统计工作流 |
 
 `scripts/check_consistency.py` 为一致性扫描提供机械初筛，可报告术语变体、同值不同精度和等值长度单位混用。输出是待人工核对的风险提示，不会自动改稿。

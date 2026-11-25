@@ -50,8 +50,7 @@ Read into your working memory:
   of events, which would blow context on every resume)
 
 Compute the current `ethics_status` using the strict-precedence derivation
-rules in `docs/specs/2026-05-02-session-resume-design.md` "Ethics trust
-model" section. `ethics_status` is never read from frontmatter — it is
+rules in `../references/study_state_protocol.md`. `ethics_status` is never read from frontmatter — it is
 always derived from the per-item state in the Ethics Checklist Status
 YAML block.
 

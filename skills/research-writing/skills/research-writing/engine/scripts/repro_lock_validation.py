@@ -1,21 +1,8 @@
 #!/usr/bin/env python3
 """Canonical repro_lock field set — single source of truth (#260).
 
-The `repro_lock` block is declared in two places:
-  1. The standalone passport-level validator (`scripts/check_repro_lock.py`).
-  2. The nested `repro_lock` sub-shape inside
-     `contracts/passport/experiment_provenance_entry.schema.json`
-     (each experiment_provenance[] entry carries its own lock, #260 D1).
-
-Without a single source, the two copies silently diverge over time. This
-module holds the canonical required-field constants and value rules.
-`check_repro_lock.py` imports them. `check_experiment_provenance.py` does not:
-it reads the JSON schema. A drift test
-(`scripts/test_repro_lock_validation_drift.py`) compares the two on required
-keys, supported values, and a fixed set of wrong and edge-case values (#1050).
-See ../references/artifact_reproducibility_pattern.md for the field-by-field rationale.
-
-This module is pure data + a stateless validate function — no I/O, no CLI.
+Validate the passport-level reproducibility lock or import validate_block for an
+individual lock. The entry-level JSON Schema mirrors these value constraints.
 """
 from __future__ import annotations
 
@@ -129,3 +116,31 @@ def validate_block(lock: dict[str, Any]) -> list[str]:
                 errors.append(f"repro_lock.{name}.{field} = {sub[field]!r}, must be {wanted}")
 
     return errors
+
+def main() -> int:
+    import argparse
+    from pathlib import Path
+    import sys
+    import yaml
+
+    parser = argparse.ArgumentParser(description="Validate a passport's top-level reproducibility lock.")
+    parser.add_argument("passport", type=Path)
+    args = parser.parse_args()
+    try:
+        passport = yaml.safe_load(args.passport.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, yaml.YAMLError) as exc:
+        parser.exit(2, f"Cannot read passport: {exc}\n")
+    if not isinstance(passport, dict) or "repro_lock" not in passport:
+        parser.exit(1, "Missing repro_lock\n")
+    lock = passport["repro_lock"]
+    if lock is None:
+        print("repro_lock explicitly opted out", file=sys.stderr)
+        return 0
+    errors = validate_block(lock) if isinstance(lock, dict) else ["repro_lock must be a mapping or null"]
+    for error in errors:
+        print(error, file=sys.stderr)
+    return int(bool(errors))
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

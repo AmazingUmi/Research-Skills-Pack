@@ -150,4 +150,4 @@ The three reference adapters have pytest coverage under `scripts/adapters/tests/
 
 - [`@/engine/handoff_schemas.md`](../../../../engine/handoff_schemas.md) Schema 9: the `literature_corpus[]` field lives inside the Material Passport.
 - [`@/roles/orchestrate/strict/passport_as_reset_boundary.md`](../../strict/passport_as_reset_boundary.md): `literature_corpus[]` is consumed across reset boundaries like any other passport field.
-- this skill agents that consume `literature_corpus[]` are **deferred** to . As of , the field is a defined input port with no runtime consumer; adapters produce it, future `research-writing` versions read it.
+- Role agents that consume `literature_corpus[]` directly are optional downstream consumers; see [`literature_corpus_consumers.md`](../literature_corpus_consumers.md) for current consumer status.

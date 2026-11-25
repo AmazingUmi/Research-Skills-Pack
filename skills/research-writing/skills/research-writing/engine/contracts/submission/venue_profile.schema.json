@@ -45,6 +45,16 @@
       "minimum": 1,
       "description": "Abstract word ceiling (B2). Same ±2% tolerance class as word_limit."
     },
+    "abstract_limits": {
+      "type": ["object", "null"],
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "en": {"type": "integer", "minimum": 1},
+        "zh": {"type": "integer", "minimum": 1}
+      },
+      "description": "Per-language ceilings for bilingual abstracts, English words and Chinese characters (Latin terms counted as words). These override the scalar abstract_word_limit for that language."
+    },
     "keyword_range": {
       "type": [
         "object",

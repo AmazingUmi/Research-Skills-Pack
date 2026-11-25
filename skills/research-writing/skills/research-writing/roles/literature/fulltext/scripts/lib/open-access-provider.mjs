@@ -19,10 +19,12 @@ function httpsForFtp(url = "") {
   return String(url).replace(/^ftp:\/\/ftp\.ncbi\.nlm\.nih\.gov\//i, "https://ftp.ncbi.nlm.nih.gov/");
 }
 
-async function tryCandidates(article, candidates, { outDir, fetchImpl }) {
+async function tryCandidates(article, candidates, { outDir, fetchImpl, attemptedUrls }) {
   const attempts = [];
   for (const candidate of rankOaCandidates(candidates)) {
     const url = httpsForFtp(candidate.url);
+    if (attemptedUrls.has(url)) continue;
+    attemptedUrls.add(url);
     let response;
     try {
       response = await fetchImpl(url, { headers: { Accept: "application/pdf, text/html, application/xml" }, signal: AbortSignal.timeout(60000) });
@@ -45,7 +47,6 @@ async function tryCandidates(article, candidates, { outDir, fetchImpl }) {
       accessMode: "open_access",
       oaEvidence: candidate,
       ...saved,
-      oaAttempts: attempts,
     }, attempts };
   }
   return { downloaded: null, attempts };
@@ -66,17 +67,19 @@ export async function downloadOpenAccessArticle(article, {
   email = "",
   outDir,
   fetchImpl = fetch,
+  previousAttempts = [],
 } = {}) {
   const pmcLookup = article.pmcid
     ? { pmcid: article.pmcid, checked: true }
     : await findPmcidByDoi(article.doi, fetchImpl).catch((error) => ({ pmcid: "", checked: false, error: String(error?.message || error).slice(0, 120) }));
   const pmcid = pmcLookup.pmcid;
-  const allAttempts = [];
+  const allAttempts = [...previousAttempts];
+  const attemptedUrls = new Set(previousAttempts.map((item) => item.url).filter(Boolean));
   if (pmcid) {
     const pmc = await findPmcCandidates(pmcid, { fetchImpl }).catch(() => []);
-    const attempt = await tryCandidates(article, pmc, { outDir, fetchImpl });
+    const attempt = await tryCandidates(article, pmc, { outDir, fetchImpl, attemptedUrls });
     allAttempts.push(...attempt.attempts);
-    if (attempt.downloaded) return attempt.downloaded;
+    if (attempt.downloaded) return { ...attempt.downloaded, oaAttempts: allAttempts };
   }
 
   let unpaywallRecord = null;
@@ -94,9 +97,9 @@ export async function downloadOpenAccessArticle(article, {
   const publisher = article.publisherPdfUrl && isOpenLicense(article.license)
     ? [{ source: "publisher_oa", url: article.publisherPdfUrl, format: "pdf", version: "publishedVersion", license: article.license }]
     : [];
-  const attempt = await tryCandidates(article, [...unpaywall, ...publisher], { outDir, fetchImpl });
+  const attempt = await tryCandidates(article, [...unpaywall, ...publisher], { outDir, fetchImpl, attemptedUrls });
   allAttempts.push(...attempt.attempts);
-  if (attempt.downloaded) return attempt.downloaded;
+  if (attempt.downloaded) return { ...attempt.downloaded, oaAttempts: allAttempts };
   const confirmedOa = Boolean(pmcid || unpaywallRecord?.is_oa || isOpenLicense(article.license));
   const confirmedClosed = Boolean(unpaywallChecked && unpaywallRecord?.is_oa === false);
   return {

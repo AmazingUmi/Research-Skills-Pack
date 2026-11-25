@@ -1,6 +1,6 @@
 <!-- Mode file: literature/ref-verify. Ported from Nature Skills `nature-ref-verifier`; loaded by the research-writing router, not registered as a skill. -->
 
-# this mode — 学术参考文献多源验证技能
+# Reference Verifier — 学术参考文献多源验证模式
 
 需要处理批量差异、反复出现的字段错误、DOI/标题冲突、作者顺序异常、页码漂移或
 报告措辞时，读取 `references/common-patterns.md`。其他任务不要预加载该文件；

@@ -11,7 +11,7 @@
 
 | Artifact | Produced by | Convention |
 |---|---|---|
-| Anchored draft | `ars_anchorize_draft.py` (in place) | every block carries `<!--block:BNNNN-->`; IDs never renumbered |
+| Anchored draft | `ars_anchorize_draft.py` (on the private working copy) | every block carries `<!--block:BNNNN-->`; IDs never renumbered |
 | Block manifest | same run, sidecar | `<draft>.block-manifest.json` — `base_draft_hash` + `{block_id, old_hash, first_line_excerpt}` per block; the ONLY legitimate hash source for a patch |
 | Immutable roadmap | editorial synthesizer / confirmed standalone adapter | `revision-roadmap/1.0`, exact draft + block-manifest bindings |
 | Claim surface manifest | deterministic registry builder | `claim-surface-manifest/1.0`, exact Claim Intent + UTF-8 surface bindings |
@@ -24,15 +24,16 @@
 | Apply report | same run, sidecar | `<output>.apply-report.json`, format 1.3 — exact patch/pre/post bindings, replayed authorization witness, per-op claim/collateral declarations, structural and byte-preservation facts |
 | Revision-Evidence Bundle | orchestrator | `revision-evidence-bundle/1.0`, continuous chain from exact integrity PASS through every write/no-op round to final draft |
 
-The apply report shares the revised draft's lifecycle: it is a **required input to re-review and the final integrity gate** — re-reviewers read it to see exactly which blocks changed (`ops_applied[]`, `fresh_block_ids`, `pure_move_pairs`) and which are machine-guaranteed untouched. Consumers verify report-to-artifact freshness by the §11 ORDERED-CHAIN rule (which supersedes the old single-report `output_draft_hash`-vs-handed-draft check — that rule is wrong for multi-round sequences and misses base-link breaks): with reports ordered as applied, the FIRST report's `base_draft_hash` must equal the original (pre-revision) draft's hash prefix, each subsequent report's `base_draft_hash` its predecessor's `output_draft_hash`, and the LAST report's `output_draft_hash` — and only the last's — the handed revised draft's hash prefix. Any broken link means some patch ran against a different text than the chain claims (a rewritten-after-apply draft breaks the last link; a wrong base skews every diff-supported judgment) — treat the affected report(s) as stale and re-derive provenance before relying on them (the same report-to-artifact freshness class as the submission verifier's `STALE-REPORT` guard in `@/engine/scripts/verify_submission_package.py`; at the re-review stage the chain is checker-enforced as `apply_chain_witness`, `manifest_hash_mismatch` on breakage).
+The apply report shares the revised draft's lifecycle: it is a **required input to re-review and the final integrity gate** — re-reviewers read it to see exactly which blocks changed (`ops_applied[]`, `fresh_block_ids`, `pure_move_pairs`) and which are machine-guaranteed untouched. Consumers verify report-to-artifact freshness by the §11 ORDERED-CHAIN rule (which supersedes the old single-report `output_draft_hash`-vs-handed-draft check — that rule is wrong for multi-round sequences and misses base-link breaks): with reports ordered as applied, the FIRST report's `base_draft_hash` must equal the anchored pre-revision working draft's hash prefix (the strict manifest’s `original_manuscript`), each subsequent report's `base_draft_hash` its predecessor's `output_draft_hash`, and the LAST report's `output_draft_hash` — and only the last's — the handed revised draft's hash prefix. Any broken link means some patch ran against a different text than the chain claims (a rewritten-after-apply draft breaks the last link; a wrong base skews every diff-supported judgment) — treat the affected report(s) as stale and re-derive provenance before relying on them (the same report-to-artifact freshness class as the submission verifier's `STALE-REPORT` guard in `@/engine/scripts/verify_submission_package.py`; at the re-review stage the chain is checker-enforced as `apply_chain_witness`, `manifest_hash_mismatch` on breakage).
+
+Keep the source SHA-256 from before anchoring alongside the full working SHA-256. The first integrity receipt, `original_manuscript`, roadmap and block manifest must bind the exact anchored working bytes. For an unanchored legacy manuscript, verify that working copy before starting the patch chain. A receipt or surface map for the unanchored source cannot be reused against changed bytes. Subsequent rounds take the preceding output as their base.
 
 ## Manual command sequence (one revision round)
 
 ```bash
-# 1. Anchorize / refresh the manifest (idempotent; safe on legacy drafts).
-#    Run at EVERY round entry, and rewrite nothing afterwards until apply —
-#    any rewrite (including a finalizer pass) invalidates the manifest.
-python @/engine/scripts/ars_anchorize_draft.py draft.md
+# 1. At round entry, use a fresh working path and the previous round’s output
+#    as input (the frozen source on round one). Keep both paths for replay.
+python @/engine/scripts/ars_anchorize_draft.py original.md --output draft.md
 
 # 1a. Acronym check: read-only, on the anchored draft. A report with
 #     findings goes to the writer with the round's authority artifacts

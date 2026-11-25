@@ -56,6 +56,8 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     argv = ["doctor"]
     if args.check_api:
         argv.append("--check-api")
+    if args.backend:
+        argv.extend(["--backend", args.backend])
     if args.check_ocr:
         argv.append("--check-ocr")
     if args.json:
@@ -95,6 +97,8 @@ def cmd_setup(args: argparse.Namespace) -> int:
     doctor_args = ["doctor", "--json"]
     if args.check_api:
         doctor_args.append("--check-api")
+    if args.backend:
+        doctor_args.extend(["--backend", args.backend])
     doctor = subprocess.run(
         [sys.executable, str(RUNTIME_DIR / "runtime_env.py"), *doctor_args],
         text=True,
@@ -108,8 +112,9 @@ def cmd_setup(args: argparse.Namespace) -> int:
             "stdout": doctor.stdout,
             "stderr": doctor.stderr,
         }
+    doctor_ok = doctor.returncode == 0 and doctor_payload.get("ok") is True
     payload = {
-        "setup": "ok" if config.returncode == 0 and doctor.returncode == 0 else "needs_attention",
+        "setup": "ok" if config.returncode == 0 and doctor_ok else "needs_attention",
         "config": {
             "ok": config.returncode == 0,
             "stdout": config.stdout,
@@ -117,11 +122,14 @@ def cmd_setup(args: argparse.Namespace) -> int:
         },
         "doctor": doctor_payload,
     }
-    return print_json(payload)
+    print_json(payload)
+    if args.check_api or args.backend:
+        return 0 if payload["setup"] == "ok" else 1
+    return config.returncode
 
 
 def cmd_prepare(args: argparse.Namespace) -> int:
-    argv = []
+    argv = ["--ocr", args.ocr]
     if args.out_root:
         argv.extend(["--out-root", args.out_root])
     if args.job_dir:
@@ -265,6 +273,14 @@ def cmd_next(args: argparse.Namespace) -> int:
             "next_command": f"{cli_prog()} run status {run_dir}",
             "agent_focus": "Wait for dispatched workers, then record completed page results. Do not reset slow active workers; use `run reset` only after failure, terminal state, cancellation, or lost-worker verification.",
         }
+        return print_json(payload) if args.json else _print_next_text(payload)
+
+    if state.get("status") in {"awaiting_final_qa", "final_qa_failed", "complete"}:
+        complete = state["status"] == "complete"
+        payload = {"run_dir": str(run_dir), "stage": "complete" if complete else "final_qa",
+                   "run_status": state["status"],
+                   "next_command": "" if complete else f"{sys.executable} {RUNTIME_DIR.parents[2] / 'scripts/run_final_image2ppt_qa.py'} {run_dir}",
+                   "agent_focus": "Final deck accepted." if complete else "Review the final renders and supply the visual review evidence."}
         return print_json(payload) if args.json else _print_next_text(payload)
 
     payload = {
@@ -447,6 +463,7 @@ Use '<command> --help' for exact arguments:
 """,
     )
     sub = parser.add_subparsers(dest="command", metavar="command", required=True)
+    image_backends = ["auto", "codex-oauth", "openai-compatible-api"]
 
     setup = sub.add_parser(
         "setup",
@@ -456,8 +473,7 @@ Use '<command> --help' for exact arguments:
 Use this after installing the CLI, or when checking whether the local runtime can run.
 It creates/checks the active project/override/user config.yaml, preserves existing values,
 and runs doctor.
-It does not call npx, does not install the Skill, and does not require API credentials
-unless --check-api is passed.
+Use --check-api or --backend to include image credentials in the diagnostic.
 """,
         formatter_class=HELP_FORMATTER,
         epilog="""Examples:
@@ -466,6 +482,7 @@ unless --check-api is passed.
 """,
     )
     setup.add_argument("--check-api", action="store_true", help="Require CLI fallback credentials in doctor.")
+    setup.add_argument("--backend", choices=image_backends, help="Check this image backend during setup. Select codex-oauth to read Codex credentials.")
     setup.set_defaults(func=cmd_setup)
 
     doctor = sub.add_parser(
@@ -474,7 +491,7 @@ unless --check-api is passed.
         description="""Check the local image2ppt environment.
 
 Doctor reports the CLI Python path, importable dependencies, config home/file,
-and CLI fallback readiness when --check-api is passed. It cannot detect the
+and CLI fallback readiness when --check-api or --backend is passed. It cannot detect the
 Agent-only image_gen.imagegen tool and does not perform a network API probe.
 """,
         formatter_class=HELP_FORMATTER,
@@ -482,9 +499,11 @@ Agent-only image_gen.imagegen tool and does not perform a network API probe.
   image2ppt doctor
   image2ppt doctor --json
   image2ppt doctor --check-api
+  image2ppt doctor --backend codex-oauth
 """,
     )
-    doctor.add_argument("--check-api", action="store_true", help="Require Codex OAuth or OpenAI-compatible API credentials for the CLI fallback.")
+    doctor.add_argument("--check-api", action="store_true", help="Require image backend readiness. Checking Codex credentials requires --backend codex-oauth.")
+    doctor.add_argument("--backend", choices=image_backends, help="Check this image backend for this invocation. Select codex-oauth to read Codex credentials.")
     doctor.add_argument("--check-ocr", action="store_true", help="Require a configured PaddleOCR token without performing a network request.")
     doctor.add_argument("--json", action="store_true", help="Print machine-readable JSON.")
     doctor.add_argument("--timeout", type=int, help="Reserved timeout value for future network probes.")
@@ -512,7 +531,7 @@ variables still win at runtime. API keys are masked in command output.
     config.add_argument("--model", help="Default provider image model id.")
     config.add_argument(
         "--image-backend",
-        choices=["auto", "codex-oauth", "openai-compatible-api"],
+        choices=image_backends,
         help="Default transport backend for image generate/edit calls.",
     )
     config.add_argument("--image-user-agent", help="Optional User-Agent for the OpenAI-compatible API only.")
@@ -555,6 +574,7 @@ contract. The standalone CLI default is image2ppt-image-cli.
             "to pin a provider-neutral OpenAI Images-compatible transport."
         ),
     )
+    prepare.add_argument("--ocr", choices=("local", "cloud"), default="local", help="Cloud sends the original PDF or page images to PaddleOCR for this run.")
     prepare.add_argument("--no-text-hints", action="store_true", help="Skip per-page text hint generation after preparing pages.")
     prepare.set_defaults(func=cmd_prepare)
 
@@ -665,11 +685,12 @@ Use this when a parent Agent selects image_gen.imagegen or when forcing other ba
         formatter_class=HELP_FORMATTER,
     )
     run_hints.add_argument("run", metavar="RUN", help="Run directory or deck_manifest.json path.")
+    run_hints.add_argument("--ocr", choices=("local", "cloud"), help="Set the OCR choice for this run before regenerating hints.")
     run_hints.add_argument("--timeout", type=int, default=300, help="OCR job timeout in seconds.")
     run_hints.add_argument("--no-overlay", action="store_true", help="Skip the labeled overlay images.")
     run_hints.set_defaults(func=lambda args: run_script(
         "deck_text_hints.py",
-        [args.run, "--timeout", str(args.timeout)] + (["--no-overlay"] if args.no_overlay else []),
+        [args.run, "--timeout", str(args.timeout)] + (["--ocr", args.ocr] if args.ocr else []) + (["--no-overlay"] if args.no_overlay else []),
     ))
 
     finalize = run_sub.add_parser(
@@ -794,14 +815,12 @@ comparison image.
         help="Generate/edit images and process image assets.",
         description="""Unified image generation/editing and deterministic image-file handling.
 
-Use generate/edit with an explicit or configured transport backend. In auto mode,
-Codex OAuth is selected only for GPT Image model ids; provider-specific model ids
-use the OpenAI Images-compatible API. Use process-sheet for deterministic asset-
+Use generate/edit with an explicit or configured transport backend. Auto uses the configured OpenAI Images-compatible API. Use process-sheet for deterministic asset-
 sheet splitting inside page directories.
 """,
         formatter_class=HELP_FORMATTER,
         epilog="""Backend selection:
-  auto uses Codex OAuth only for GPT Image model ids with compatible auth.
+  auto uses the configured OpenAI Images-compatible API.
   codex-oauth explicitly uses ~/.codex/auth.json or CODEX_AUTH_FILE.
   openai-compatible-api explicitly uses the active config.yaml or OPENAI_API_KEY,
   OPENAI_BASE_URL, and IMAGE2PPT_IMAGE_MODEL. Third-party endpoints never receive

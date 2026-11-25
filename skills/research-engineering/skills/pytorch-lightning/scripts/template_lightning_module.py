@@ -143,10 +143,9 @@ class TemplateLightningModule(L.LightningModule):
         Returns:
             Predictions
         """
-        x, y = batch
+        x = batch[0] if isinstance(batch, (list, tuple)) else batch
         logits = self(x)
-        preds = torch.argmax(logits, dim=1)
-        return preds
+        return torch.argmax(logits, dim=1)
 
     def configure_optimizers(self):
         """

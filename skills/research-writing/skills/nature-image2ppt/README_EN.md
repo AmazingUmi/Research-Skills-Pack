@@ -45,7 +45,7 @@
 - Copying or synchronizing the skill does not install Python packages; install them in the same Python environment that runs the CLI and require `doctor --json` to pass.
 - Use Microsoft PowerPoint on Windows or LibreOffice for rendered checks; follow the result of `python cli/image2ppt/cli.py doctor --json`.
 - Image generation and editing can use Codex OAuth or an `openai-compatible-api` Base URL, API key, and arbitrary provider model ID; third-party endpoints never receive Codex OAuth credentials.
-- Online text recognition uses a Baidu AI Studio `PADDLE_OCR_TOKEN`. Copy `config.example.yaml` to the adjacent `config.yaml` and fill the Token there; Git ignores the real configuration and it must never be committed.
+- Local geometry is the default. Specify `--ocr cloud` to send the original PDF or page images to Baidu for this run. Online text recognition uses a Baidu AI Studio `PADDLE_OCR_TOKEN`. Copy `config.example.yaml` to the adjacent `config.yaml` and fill the Token there; Git ignores the real configuration and it must never be committed.
 - The complete implementation is synchronized from [Paul-Jeo/Image2PPT](https://github.com/Paul-Jeo/Image2PPT), with its MIT License retained in this skill directory.
 
 ## Boundaries
@@ -59,5 +59,5 @@
 ## Related Skills
 
 - `nature-paper2ppt`: author a new research-presentation deck from paper content.
-- `nature-figure`: generate or redraw publication-quality scientific figures and schematics.
-- `nature-reader`: first build full reading material and figure-text alignment for a scanned paper.
+- `$research-writing figures make`: generate or redraw publication-quality scientific figures and schematics.
+- `$research-writing literature read`: first build full reading material and figure-text alignment for a scanned paper.

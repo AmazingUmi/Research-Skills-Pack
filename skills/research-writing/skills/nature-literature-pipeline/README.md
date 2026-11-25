@@ -12,9 +12,9 @@
 - 把 Top 文献整理成可推送的中文/英文精读摘要。
 - 维护 DOI、arXiv ID、主题标签和已读状态，减少重复阅读。
 
-## 与 `nature-academic-search` 的关系
+## 与 `$research-writing literature search` 的关系
 
-`nature-academic-search` 适合一次性检索和引用核查；`nature-literature-pipeline` 适合持续订阅和周期性推送。前者回答“现在帮我找”，后者回答“持续帮我盯”。
+`$research-writing literature search` 适合一次性检索和引用核查；`nature-literature-pipeline` 适合持续订阅和周期性推送。前者回答“现在帮我找”，后者回答“持续帮我盯”。
 
 ## 典型请求
 
@@ -42,5 +42,5 @@
 
 ## 相关技能
 
-- `nature-academic-search`：一次性多源检索、引用指标和严格他引审计。
-- `nature-reader`：把候选论文做成全文中英对照阅读材料。
+- `$research-writing literature search`：一次性多源检索、引用指标和严格他引审计。
+- `$research-writing literature read`：把候选论文做成全文中英对照阅读材料。

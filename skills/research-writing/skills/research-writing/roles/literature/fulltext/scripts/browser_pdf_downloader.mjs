@@ -4,6 +4,7 @@ import path from "node:path";
 import {
   DEFAULT_PROXY,
   healthCheck,
+  currentWall,
   proxyGet,
   proxyEval,
   proxyPostUrl,
@@ -76,6 +77,13 @@ async function main() {
   } else if (args.url) {
     await proxyPostUrl(args.proxy, "/navigate", args.url, { target }, 60000);
     await waitForComplete(args.proxy, target);
+  }
+
+  const wall = await currentWall(args.proxy, target);
+  if (wall) {
+    console.log(JSON.stringify(wall));
+    process.exitCode = 2;
+    return;
   }
 
   // FIX: fetch the *requested* URL, not location.href — the page may have

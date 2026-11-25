@@ -1,83 +1,40 @@
-"""Result-URL safety tests for paddle_text_hints.py (no network access)."""
-
-from __future__ import annotations
-
-import importlib.util
+"""Offline result-address and transport checks."""
 import sys
-import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-RUNTIME = Path(__file__).parents[1] / "cli" / "image2ppt" / "runtime"
-
-for _sibling in ("deck_run_state", "page_text_metrics", "text_hints"):
-    sys.modules.setdefault(_sibling, MagicMock())
-
-
-def load_module(name: str, path: Path):
-    spec = importlib.util.spec_from_file_location(name, path)
-    assert spec and spec.loader
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[name] = module
-    spec.loader.exec_module(module)
-    return module
-
-
-PADDLE = load_module("nature_image2ppt_paddle_url_test", RUNTIME / "paddle_text_hints.py")
-
-
-def _post_response(job_id: str) -> MagicMock:
-    response = MagicMock(status_code=200)
-    response.json.return_value = {"data": {"jobId": job_id}}
-    return response
-
-
-def _status_response(json_url: str) -> MagicMock:
-    response = MagicMock()
-    response.json.return_value = {"data": {"state": "done", "resultUrl": {"jsonUrl": json_url}}}
-    return response
+RUNTIME = Path(__file__).resolve().parents[1] / "cli" / "image2ppt" / "runtime"
+sys.path.insert(0, str(RUNTIME))
+import paddle_text_hints as paddle
 
 
 class ResultUrlSafetyTests(unittest.TestCase):
-    def setUp(self):
-        handle = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-        handle.write(b"png")
-        handle.close()
-        self.page = Path(handle.name)
-        self.addCleanup(self.page.unlink, missing_ok=True)
+    def test_plaintext_and_non_public_addresses_are_rejected_before_connect(self):
+        for url, ip in [("http://example.test/file", "8.8.8.8"),
+                        ("https://example.test/file", "127.0.0.1"),
+                        ("https://example.test/file", "100.100.100.200")]:
+            with self.subTest(url=url, ip=ip), patch.object(paddle.socket, "getaddrinfo",
+                    return_value=[(2, 1, 6, "", (ip, 443))]), patch.object(paddle.http.client, "HTTPSConnection") as connect:
+                with self.assertRaises(RuntimeError):
+                    paddle.fetch_result_text(url)
+                connect.assert_not_called()
 
-    def test_submit_and_fetch_rejects_non_http_result_url(self):
-        status = _status_response("file:///etc/hosts")
-        with (
-            patch.object(PADDLE.requests, "post", return_value=_post_response("job-1")),
-            patch.object(PADDLE.requests, "get", side_effect=[status, AssertionError("must not fetch result")]) as getter,
-        ):
-            with self.assertRaisesRegex(RuntimeError, "non-http"):
-                PADDLE.submit_and_fetch(self.page, "token", "model", timeout=60)
-        self.assertEqual(getter.call_count, 1)
-
-    def test_submit_and_fetch_rejects_local_result_url_host(self):
-        status = _status_response("http://127.0.0.1/result.jsonl")
-        with (
-            patch.object(PADDLE.requests, "post", return_value=_post_response("job-1")),
-            patch.object(PADDLE.requests, "get", side_effect=[status, AssertionError("must not fetch result")]) as getter,
-        ):
-            with self.assertRaisesRegex(RuntimeError, "local"):
-                PADDLE.submit_and_fetch(self.page, "token", "model", timeout=60)
-        self.assertEqual(getter.call_count, 1)
-
-    def test_submit_and_fetch_accepts_https_result_url(self):
-        jsonl = MagicMock(text='{"result": {"layoutParsingResults": [{"prunedResult": {"page": 1}}]}}')
-        status = _status_response("https://results.example.com/job-1.jsonl")
-        with (
-            patch.object(PADDLE.requests, "post", return_value=_post_response("job-1")),
-            patch.object(PADDLE.requests, "get", side_effect=[status, jsonl]) as getter,
-        ):
-            pages = PADDLE.submit_and_fetch(self.page, "token", "model", timeout=60)
-        self.assertEqual(pages, [{"page": 1}])
-        self.assertEqual(getter.call_count, 2)
-
-
-if __name__ == "__main__":
-    unittest.main()
+    def test_tls_host_and_connection_address_are_bound_and_redirects_rejected(self):
+        for status in (200, 302):
+            with self.subTest(status=status), patch.object(paddle.socket, "getaddrinfo",
+                    return_value=[(2, 1, 6, "", ("8.8.8.8", 443))]) as dns, patch.object(
+                    paddle.http.client, "HTTPSConnection") as connect, patch.object(paddle.socket, "create_connection") as dial:
+                conn = connect.return_value
+                conn.getresponse.return_value.status = status
+                conn.getresponse.return_value.read.return_value = b"fixture"
+                if status == 200:
+                    self.assertEqual(paddle.fetch_result_text("https://result.test/path?q=1"), "fixture")
+                else:
+                    with self.assertRaisesRegex(RuntimeError, "redirects"):
+                        paddle.fetch_result_text("https://result.test/path?q=1")
+                connect.assert_called_once_with("result.test", 443, timeout=60)
+                conn.request.assert_called_once_with("GET", "/path?q=1")
+                conn._create_connection(("result.test", 443), 60)
+                dial.assert_called_once_with(("8.8.8.8", 443), 60)
+                dns.assert_called_once()

@@ -8,6 +8,7 @@ import unittest
 import zipfile
 from pathlib import Path
 
+from support import requires_renderer
 from support import (
     build_deck,
     build_page,
@@ -90,6 +91,7 @@ class ManifestArrowTests(unittest.TestCase):
             self.assertEqual(before, after)
             self.assertTrue(inspect([read_json(manifest)], out)["passed"])
 
+    @requires_renderer
     def test_page_profile_qa_merges_into_standard_validation(self) -> None:
         with tempfile.TemporaryDirectory() as name:
             page = Path(name)
@@ -131,6 +133,7 @@ class ManifestArrowTests(unittest.TestCase):
             self.assertTrue((page / "render" / "rendered.png").is_file())
             self.assertFalse((page / "render" / "slide_01.png").exists())
 
+    @requires_renderer
     def test_final_profile_qa_revalidates_benchmark_deck(self) -> None:
         with tempfile.TemporaryDirectory() as name:
             run = Path(name)

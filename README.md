@@ -21,8 +21,8 @@ Send either prompt to your agent (e.g. Codex or Claude Code). Replace the reposi
 
 ```text
 Import the research skill packs from https://github.com/AmazingUmi/Research-Skills-Pack into this project's project-level skills directory (use your host's project skills path, such as .agents/skills/, .codex/skills/, or .claude/skills/):
-1. Fetch the repository (or ask me for a local path if network access is unavailable) and copy all skill directories under skills/research-writing/skills/ and skills/research-engineering/skills/ (or only the specific skills I name; include nature-shared whenever importing any standalone nature-* skill).
-2. Copy each directory containing SKILL.md intact with all subdirectories and files. Do not rename skill directories, and do not flatten or separately register internal role/mode files inside research-writing.
+1. Fetch the repository (or ask me for a local path if network access is unavailable) and copy all skill directories under skills/research-writing/skills/ and skills/research-engineering/skills/ (or only the specific skills I name; include nature-shared when importing nature-paper2ppt).
+2. Copy each directory containing SKILL.md intact, including NOTICE and license files. Exclude generated __pycache__/, *.pyc, and .pytest_cache/ entries. Do not rename skill directories, and do not flatten or separately register internal role/mode files inside research-writing.
 3. Check for existing skill directories with the same name before writing, and ask for confirmation before overwriting any conflict.
 4. Verify that every installed skill directory has a readable SKILL.md, then report the exact install path and list of imported skills.
 ```
@@ -31,8 +31,8 @@ Import the research skill packs from https://github.com/AmazingUmi/Research-Skil
 
 ```text
 Import the research skill packs from https://github.com/AmazingUmi/Research-Skills-Pack into my user-level global skills directory (use your host's global skills path, such as ~/.agents/skills/, ~/.codex/skills/, or ~/.claude/skills/):
-1. Fetch the repository (or ask me for a local path if network access is unavailable) and copy all skill directories under skills/research-writing/skills/ and skills/research-engineering/skills/ (or only the specific skills I name; include nature-shared whenever importing any standalone nature-* skill).
-2. Copy each directory containing SKILL.md intact with all subdirectories and files. Do not rename skill directories, and do not flatten or separately register internal role/mode files inside research-writing.
+1. Fetch the repository (or ask me for a local path if network access is unavailable) and copy all skill directories under skills/research-writing/skills/ and skills/research-engineering/skills/ (or only the specific skills I name; include nature-shared when importing nature-paper2ppt).
+2. Copy each directory containing SKILL.md intact, including NOTICE and license files. Exclude generated __pycache__/, *.pyc, and .pytest_cache/ entries. Do not rename skill directories, and do not flatten or separately register internal role/mode files inside research-writing.
 3. Check for existing skill directories with the same name before writing, and ask for confirmation before overwriting any conflict.
 4. Verify that every installed skill directory has a readable SKILL.md, then report the exact install path and list of imported skills.
 ```

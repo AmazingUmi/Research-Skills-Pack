@@ -37,7 +37,7 @@
 | [`nature-paper-to-patent`](skills/nature-paper-to-patent/SKILL.md) | 专利草稿与技术交底书 |
 | [`nature-literature-pipeline`](skills/nature-literature-pipeline/SKILL.md) | 多源检索、打分、精读和归档的定时文献推送 |
 | [`nature-experiment-log`](skills/nature-experiment-log/SKILL.md) | 标准化实验日志，产出可作为 `research-writing` 大纲角色的输入 |
-| [`nature-shared`](skills/nature-shared/SKILL.md) | 上述 Nature 技能的共用参考，随它们一起导入 |
+| [`nature-shared`](skills/nature-shared/SKILL.md) | nature-paper2ppt 读取的共享参考，随该技能导入 |
 
 ## 导入
 

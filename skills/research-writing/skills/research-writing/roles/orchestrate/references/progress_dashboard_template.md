@@ -35,4 +35,4 @@ Users can say "status" or "pipeline status" at any time to view:
 +=============================================+
 ```
 
-See `templates/pipeline_status_template.md` for the output template.
+Render the [status template](../templates/pipeline_status_template.md) from the [stage-to-role table](../ROLE.md#2-阶段与角色调用). The example above illustrates one run.

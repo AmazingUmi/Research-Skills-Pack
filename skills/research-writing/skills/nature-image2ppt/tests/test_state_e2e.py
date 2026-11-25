@@ -7,6 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from support import requires_renderer
 from support import (
     SCRIPTS,
     build_page,
@@ -23,6 +24,7 @@ class Image2PPTStateEndToEndTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
+    @requires_renderer
     def test_local_page_jobs_record_and_finalize(self) -> None:
         with tempfile.TemporaryDirectory() as name:
             run = Path(name)
@@ -167,6 +169,8 @@ class Image2PPTStateEndToEndTests(unittest.TestCase):
                 ]
             )
             self.run_ok([*image2ppt_command(), "run", "finalize", str(run)])
+            self.assertEqual(json.loads((run / "final/run_summary.json").read_text())["status"], "awaiting_final_qa")
+            self.assertFalse(json.loads((run / "page_jobs.json").read_text())["pages"][0]["accepted"])
             pending_final_qa = subprocess.run(
                 [sys.executable, str(SCRIPTS / "run_final_image2ppt_qa.py"), str(run)],
                 text=True,
@@ -199,6 +203,12 @@ class Image2PPTStateEndToEndTests(unittest.TestCase):
             self.assertTrue((run / "final" / "image2ppt_qa.json").is_file())
             report_text = (run / "final" / "image2ppt_qa.json").read_text(encoding="utf-8")
             self.assertTrue(json.loads(report_text)["passed"])
+            failed = subprocess.run([sys.executable, str(SCRIPTS / "run_final_image2ppt_qa.py"), str(run),
+                                     "--visual-review-status", "failed"], capture_output=True)
+            self.assertEqual(failed.returncode, 2)
+            self.assertEqual(json.loads((run / "final/run_summary.json").read_text())["status"], "final_qa_failed")
+            self.assertFalse(json.loads((run / "page_jobs.json").read_text())["pages"][0]["accepted"])
+
 
 
 if __name__ == "__main__":

@@ -70,6 +70,8 @@ Every material artifact produced by the pipeline carries a version label. These 
 
 ## Tracked State Structure
 
+For an older snapshot, preserve its stored stage keys and actual history. Resolve `3p` and `4p` as 3′ and 4′ for display and next dispatch. A historical mode label does not grant permission to repeat that mode or invent completed stages. If a stage is absent, show it as unrecorded; verify the current manuscript and required receipts on resume. Use the stage-to-role table for new dispatches.
+
 ```json
 {
   "run_id": "run-42",
@@ -77,13 +79,13 @@ Every material artifact produced by the pipeline carries a version label. These 
   "language": "en",
   "pipeline_version": "2.6",
   "entry_point": 1,
-  "current_stage": "2.5",
-  "pipeline_state": "awaiting_confirmation",
+  "current_stage": "4.5",
+  "pipeline_state": "running",
   "consecutive_continue_count": 0,
   "stages": {
     "1": {
       "name": "RESEARCH",
-      "skill": "literature",
+      "skill": "outline",
       "status": "completed",
       "mode": "socratic",
       "outputs": ["RQ Brief", "Methodology Blueprint", "Bibliography (22 sources)", "Synthesis Report"],
@@ -97,7 +99,7 @@ Every material artifact produced by the pipeline carries a version label. These 
       "team_notes": null,
       "dialogue_log_ref": "turns #3..#15"
     },
-    "2": { "name": "WRITE", "skill": "draft", "status": "completed", "mode": "plan -> full", "outputs": ["Paper Draft (5,200 words, IMRaD)"], "...": "same standard fields as stage \"1\"" },
+    "2": { "name": "WRITE", "skill": "draft", "status": "completed", "mode": "full", "contributors": ["outline plan", "literature verify", "figures make"], "outputs": ["Paper Draft (5,200 words, IMRaD)"], "...": "same standard fields as stage \"1\"" },
     "2.5": {
       "name": "INTEGRITY",
       "agent": "integrity_verification_agent",
@@ -121,7 +123,7 @@ Every material artifact produced by the pipeline carries a version label. These 
       "name": "REVIEW",
       "skill": "review",
       "status": "completed",
-      "mode": "full",
+      "mode": "panel",
       "outputs": ["5 Review Reports (Journal-Fit Reviewer + R1 + R2 + R3 + Devil's Advocate)", "Editorial Decision: Major Revision", "Revision Roadmap (5 items)"],
       "decision": "major_revision",
       "started_at": "conversation turn #32",
@@ -135,9 +137,9 @@ Every material artifact produced by the pipeline carries a version label. These 
     },
     "4": {
       "name": "REVISE",
-      "skill": "draft",
+      "skill": "review",
       "status": "completed",
-      "mode": "revision",
+      "mode": "revise",
       "revision_round": 1,
       "items_addressed": 5,
       "items_total": 5,
@@ -154,7 +156,7 @@ Every material artifact produced by the pipeline carries a version label. These 
     "3p": { "name": "RE-REVIEW", "skill": "review", "status": "completed", "mode": "re-review", "decision": "accept", "outputs": ["Re-Review Report", "Editorial Decision: Accept"], "...": "same standard fields as stage \"3\"" },
     "4p": {
       "name": "RE-REVISE",
-      "skill": "draft",
+      "skill": "review",
       "status": "skipped",
       "mode": null,
       "reason": "Stage 3' decision was Accept",
@@ -290,7 +292,6 @@ Every material artifact produced by the pipeline carries a version label. These 
       "dialogue_log_ref": "turns #3..#15",
       "zone": "Zone 2",
       "scores": { "delegation_intensity": 4, "cognitive_vigilance": 3, "cognitive_reallocation": 2 },
-      "cross_model_divergence": null,
       "advisory_only": true
     }
   ]
@@ -381,7 +382,7 @@ Check whether prerequisite materials for entering the specified stage are availa
 | Stage 3' (external feedback) | Original and revised drafts and original external feedback for [point-by-point verification](../references/external_review_protocol.md#step-4-self-verification-completeness-check) | Response to Reviewers when available. Record any checks that require a missing reply |
 | Stage 3' (requested fresh review) | Revised draft and standard `review panel` inputs | Prior context supplied by the author |
 | Stage 4' | Re-Review Report (Decision: Major) | Revised Draft |
-| Stage 4.5 | Current final candidate (accepted draft, revised draft or formatting-only candidate) | -- |
+| Stage 4.5 | Current final candidate (accepted draft, revised draft or formatting-only candidate). After a simulated Minor decision, require the [disposition for every outstanding review item](../../review/panel/MODE.md#re-review), tied to that version or individually retained by the author | -- |
 | Stage 5 | **Integrity Report (Final) — verdict: PASS, or FAIL with a recorded Integrity Check FAIL Loop resolution** | -- |
 | Stage 6 | None (Final Paper already delivered at Stage 5) | Pipeline state history + dialogue_log_ref ranges |
 
@@ -395,13 +396,13 @@ warning: "string or null"
 
 ### 7. append_observer_report(stage_id, checkpoint_type, report)
 
-Append a Collaboration Depth Observer report (added , behind `measures: collaboration_depth`). This is the **only** way to write `collaboration_depth_history[]`, which is append-only. The tracker MUST reject any caller other than `collaboration_depth_agent` and MUST reject any write that would turn the observer output into a blocking condition (e.g. attempting to set `current_stage` or `pipeline_state` in the same request).
+Append a Collaboration Depth Observer report when the author requested `measures: collaboration_depth`. This is the **only** way to write `collaboration_depth_history[]`, which is append-only. The tracker MUST reject any caller other than `collaboration_depth_agent` and MUST reject any write that would turn the observer output into a blocking condition (e.g. attempting to set `current_stage` or `pipeline_state` in the same request).
 
 | Parameter | Description |
 |-----------|-------------|
 | stage_id | Stage the observer scored, or `"pipeline"` for the whole-pipeline pass during Stage 6 record compilation |
 | checkpoint_type | "FULL", "SLIM", or "pipeline_completion" (MANDATORY checkpoints MUST NOT call this function) |
-| report | Object with `timestamp`, `dialogue_log_ref`, `zone`, `scores`, `cross_model_divergence`, and always `advisory_only: true` |
+| report | Object with `timestamp`, `dialogue_log_ref`, `zone`, `scores`, and always `advisory_only: true` |
 
 **Preconditions:**
 - Caller identity is `collaboration_depth_agent`
@@ -412,42 +413,7 @@ Violations are rejected with reason, consistent with the State Update Protocol.
 
 ### 8. generate_dashboard()
 
-Produce the Progress Dashboard. Format as follows:
-
-```
-+=============================================+
-|   Academic Pipeline v2.0 Status             |
-+=============================================+
-| Topic: [topic]                              |
-+---------------------------------------------+
-
-  Stage 1   RESEARCH          [status] [details]
-  Stage 2   WRITE             [status] [details]
-  Stage 2.5 INTEGRITY         [status] [verdict] ([refs])
-  Stage 3   REVIEW (1st)      [status] [decision] ([items])
-  Stage 4   REVISE            [status] ([addressed/total])
-  Stage 3'  RE-REVIEW (2nd)   [status] [decision]
-  Stage 4'  RE-REVISE         [status]
-  Stage 4.5 FINAL INTEGRITY   [status] [verdict]
-  Stage 5   FINALIZE          [status]
-
-+---------------------------------------------+
-| Integrity:                                  |
-|   Pre-review: [verdict] ([issues])          |
-|   Final: [verdict] ([issues])               |
-+---------------------------------------------+
-| Review:                                     |
-|   Round 1: [decision] ([items] required)    |
-|   Round 2: [decision]                       |
-+=============================================+
-```
-
-**Simplified version (appended to checkpoint notification after stage completion):**
-```
-Pipeline: [v]RES -> [v]WRT -> [v]INT -> [v]REV -> [..]REVISE -> [ ]RE-REV -> [ ]RE-REV' -> [ ]F-INT -> [ ]FIN
-```
-
----
+Render the [dashboard template](../templates/pipeline_status_template.md) from the stage-to-role table and actual recorded states. Show skipped and optional stages.
 
 ## Material Gap Detection
 

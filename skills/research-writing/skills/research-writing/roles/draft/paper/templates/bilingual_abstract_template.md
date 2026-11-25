@@ -1,15 +1,13 @@
 # Bilingual Abstract Template
 
 ## Usage
-Use this template when writing bilingual abstracts in the run's declared output language pair (default `zh-tw-en`: Traditional Chinese L1 + English L2). Each version must be independently composed — not a translation of the other.
+Use this template when writing bilingual abstracts in the run's declared output language pair (select the Chinese script from the manuscript language). Each version must be independently composed — not a translation of the other.
 
 ---
 
 ## Pair Binding
 
-The headings and column labels below are **pair-derived**: the L2 heading is the second language of the run's `output_language_pair` entry and the L1 heading is its first language. For the default entry `zh-tw-en` they render exactly as written here — `## English Abstract` (L2) and `## Chinese Abstract (zh-TW)` (L1), with the quality-checklist columns labelled `EN` (L2) and `zh-TW` (L1). The derived L1 heading label is the registry entry's short language name (`Chinese` for `Traditional Chinese (zh-TW)`), as in `abstract_bilingual_agent.md`; the registry's full name is never rendered.
-
-For any other registry entry, substitute that entry's declared L2 and L1 language names in the headings and in the checklist column labels. The structure, the five components, and the keyword line do not change. When the field is absent the default entry applies and this template is used unchanged.
+The example below uses `zh-cn-en`: English Abstract, Chinese Abstract (zh-CN), and keywords keyed by `en` and `zh_cn`. For `zh-tw-en`, use the legacy Chinese Abstract heading, 關鍵詞, and the `zh_tw` key. Older locale-qualified headings remain valid input. With an older handoff infer the pair from the recorded manuscript language.
 
 Registry and language roles: [`@/references/output_language_pair.md`](../../../../references/output_language_pair.md). Abstract length and keyword counts: the regime table in [`@/roles/draft/paper/references/abstract_writing_guide.md`](../references/abstract_writing_guide.md). Enter a token only from that registry; an unsupported value fails visibly and names the registry rather than falling back to the default.
 
@@ -35,7 +33,7 @@ Registry and language roles: [`@/references/output_language_pair.md`](../../../.
 
 ---
 
-## Chinese Abstract (zh-TW)
+## Chinese Abstract (zh-CN)
 
 ### [Paper Title in Chinese]
 
@@ -49,7 +47,7 @@ Registry and language roles: [`@/references/output_language_pair.md`](../../../.
 
 [**Research Significance** — 1-2 sentences: Explain the research contribution, practical implications, or theoretical value.]
 
-**Keywords**: [Keyword 1], [Keyword 2], [Keyword 3], [Keyword 4], [Keyword 5], [Keyword 6] (optional), [Keyword 7] (optional)
+**关键词**: [Keyword 1], [Keyword 2], [Keyword 3], [Keyword 4], [Keyword 5], [Keyword 6] (optional), [Keyword 7] (optional)
 
 *Target: the L1 length of this run's row in the regime table of [`abstract_writing_guide.md`](../references/abstract_writing_guide.md)*
 
@@ -57,7 +55,7 @@ Registry and language roles: [`@/references/output_language_pair.md`](../../../.
 
 ## Quality Checklist
 
-| Check | EN | zh-TW |
+| Check | EN | zh-CN |
 |-------|:--:|:-----:|
 | Covers all 5 components (Background, Purpose, Method, Findings, Implications) | ☐ | ☐ |
 | Within the regime table's range (`abstract_writing_guide.md`) for the run's pair and paper type | ☐ | ☐ |

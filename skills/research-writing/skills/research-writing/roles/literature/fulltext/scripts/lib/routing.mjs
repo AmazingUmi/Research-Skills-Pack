@@ -31,15 +31,15 @@ export function isChineseLiterature({ title = "", language = "", sourceUrl = "",
   return looksChinese(title);
 }
 
-export function chooseDirectUrlRoute({ pdfUrl = "", title = "", language = "", sourceUrl = "", route = "" } = {}) {
-  if (isCnkiUrl(pdfUrl)) return { provider: "cnki", mode: "direct", reason: "explicit_cnki_url" };
-  if (route === "cnki" || isChineseLiterature({ title, language, sourceUrl })) {
-    return { provider: "cnki", mode: "title_search", reason: route === "cnki" ? "explicit_override" : "chinese_literature" };
+export function chooseDirectUrlRoute({ pdfUrl = "", route = "", openAccess = false } = {}) {
+  if (!openAccess && route !== "open_access" && isCnkiUrl(pdfUrl)) {
+    return { provider: "cnki", mode: "direct", reason: "explicit_cnki_url" };
   }
   return { provider: "direct_url", mode: "direct", reason: "explicit_pdf_url" };
 }
 
 export function chooseRoute(article = {}) {
+  if (article.openAccess) return { provider: "open_access", reason: "explicit_oa_only" };
   if (article.routeOverride) return { provider: article.routeOverride, reason: "explicit_override" };
   if (isChineseLiterature(article)) return { provider: "cnki", reason: "chinese_literature" };
   const publisher = classifyPublisher(article);

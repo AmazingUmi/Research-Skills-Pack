@@ -36,7 +36,7 @@ No authenticated external scientific service was invoked.
 
 ## Execution evidence and limits
 
-The per-skill isolated suite passes 113 tests. A separate native smoke run passes
+The upstream K-Dense validation reported 113 tests. A separate native smoke run passes
 114 numerical/API checks and confirms five relevant released source files match the
 installed wheels byte-for-byte. Documented command-line workflows and all six help
 commands were executed. These are synthetic numerical checks, not measurement

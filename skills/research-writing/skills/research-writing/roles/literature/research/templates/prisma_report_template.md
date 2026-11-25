@@ -112,7 +112,7 @@ Example: "The Effect of [Intervention] on [Outcome] in [Population]: A Systemati
 
 ### 2.4 Selection Process [PRISMA Item 8]
 
-[Describe the study selection process:]
+[Use the completed screening ledger or team records. Describe the actual decision process and any deviations, including a waived pilot or a single reviewer.]
 - Number of reviewers at each stage
 - How independence was maintained
 - How disagreements were resolved

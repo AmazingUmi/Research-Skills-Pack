@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import posixpath
 import re
 import sys
 
@@ -31,6 +32,7 @@ DEFAULT_SLIDE_CX = 12192000
 DEFAULT_SLIDE_CY = 6858000
 
 NS = {
+    "r": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
     "p": "http://schemas.openxmlformats.org/presentationml/2006/main",
     "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
 }
@@ -92,9 +94,54 @@ def local_name(tag: str) -> str:
     return tag.rsplit("}", 1)[-1]
 
 
-def slide_number_from_path(path: str) -> int:
-    match = re.search(r"slide(\d+)\.xml$", path)
-    return int(match.group(1)) if match else 0
+def relationships(zf, part):
+    folder, filename = posixpath.split(part)
+    rels = posixpath.join(folder, "_rels", filename + ".rels")
+    if rels not in zf.namelist():
+        return {}
+    result = {}
+    for rel in parse_xml(zf.read(rels), rels):
+        if rel.get("TargetMode") == "External":
+            continue
+        target = posixpath.normpath(posixpath.join(folder, rel.attrib["Target"])).lstrip("/")
+        result[rel.attrib["Id"]] = (rel.attrib["Type"].rsplit("/", 1)[-1], target)
+    return result
+
+
+def ordered_slides(zf):
+    part = "ppt/presentation.xml"
+    root = parse_xml(zf.read(part), part)
+    rels = relationships(zf, part)
+    for slide in root.findall("./p:sldIdLst/p:sldId", NS):
+        kind, path = rels[slide.attrib[f"{{{NS['r']}}}id"]]
+        if kind != "slide":
+            raise ValueError(f"Unexpected slide relationship: {path}")
+        yield path
+
+
+def placeholder_bounds(zf, slide_path):
+    # A slide placeholder inherits from the layout by idx, then the master by type.
+    def parent_part(part, kind):
+        return next((path for typ, path in relationships(zf, part).values() if typ == kind), None)
+
+    def placeholders(part):
+        if part:
+            root = parse_xml(zf.read(part), part)
+            for shape in root.findall(".//p:sp", NS):
+                marker = shape.find("./p:nvSpPr/p:nvPr/p:ph", NS)
+                if marker is not None:
+                    yield marker, shape_bounds(shape)
+
+    layout = parent_part(slide_path, "slideLayout")
+    master = parent_part(layout, "slideMaster") if layout else None
+    by_type = {ph.get("type", "obj"): bounds for ph, bounds in placeholders(master) if bounds}
+    inherited = {}
+    for ph, bounds in placeholders(layout):
+        kind = ph.get("type", "obj")
+        master_kind = ("title" if kind == "ctrTitle" else "body" if kind in
+                       {"obj", "subTitle", "chart", "tbl", "pic", "media", "dgm", "clipArt"} else kind)
+        inherited[ph.get("idx", "0")] = bounds or by_type.get(master_kind)
+    return inherited
 
 
 def get_slide_size(zf: zipfile.ZipFile) -> tuple[int, int]:
@@ -188,7 +235,7 @@ def transformed_bounds(bounds, transform):
     return x, y, right-x, bottom-y
 
 
-def extract_shapes(root: ET.Element) -> list[ShapeInfo]:
+def extract_shapes(root: ET.Element, inherited=None) -> list[ShapeInfo]:
     shapes: list[ShapeInfo] = []
 
     def visit(node, transform):
@@ -198,7 +245,12 @@ def extract_shapes(root: ET.Element) -> list[ShapeInfo]:
         elif name in {"sp", "pic", "graphicFrame"}:
             bounds = shape_bounds(node)
             if bounds is None:
-                return
+                ph = node.find(".//p:ph", NS)
+                if ph is not None:
+                    bounds = (inherited or {}).get(ph.get("idx", "0"))
+            if bounds is None:
+                # Text content is still auditable when placement cannot be resolved.
+                bounds = (0, 0, 0, 0)
             xfrm = node.find(".//a:xfrm", NS)
             if xfrm is None:
                 xfrm = node.find(".//p:xfrm", NS)
@@ -267,11 +319,9 @@ def add_image_findings(findings: list[Finding], slide_no: int, shapes: list[Shap
             continue
         fraction = (shape.width * shape.height) / max(slide_area, 1)
         if shape.cropped:
-            crop_sum = sum((shape.crop_values or {}).values())
-            severity = "high" if crop_sum >= 25000 else "medium"
             findings.append(
                 Finding(
-                    severity,
+                    "medium",
                     slide_no,
                     "image_crop_applied",
                     f"Image has PPT crop settings {shape.crop_values}; confirm axes, legends, panel labels, and scale bars are preserved",
@@ -324,16 +374,12 @@ def audit_pptx(path: Path) -> dict:
     slide_summaries: list[dict] = []
     with zipfile.ZipFile(path) as zf:
         slide_cx, slide_cy = get_slide_size(zf)
-        slide_paths = sorted(
-            (name for name in zf.namelist() if re.match(r"ppt/slides/slide\d+\.xml$", name)),
-            key=slide_number_from_path,
-        )
+        slide_paths = ordered_slides(zf)
         media_count = len([name for name in zf.namelist() if name.startswith("ppt/media/")])
         notes_count = len([name for name in zf.namelist() if name.startswith("ppt/notesSlides/notesSlide") and name.endswith(".xml")])
-        for slide_path in slide_paths:
-            slide_no = slide_number_from_path(slide_path)
+        for slide_no, slide_path in enumerate(slide_paths, start=1):
             root = parse_xml(zf.read(slide_path), slide_path)
-            shapes = extract_shapes(root)
+            shapes = extract_shapes(root, placeholder_bounds(zf, slide_path))
             add_bounds_findings(findings, slide_no, shapes, slide_cx, slide_cy)
             add_text_findings(findings, slide_no, shapes)
             add_image_findings(findings, slide_no, shapes, slide_cx, slide_cy)

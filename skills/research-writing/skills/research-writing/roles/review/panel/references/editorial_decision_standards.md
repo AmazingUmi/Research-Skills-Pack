@@ -1,5 +1,7 @@
 # Editorial Decision Standards — Criteria for Editorial Decision Making
 
+**Seat independence.** In a single shared context report a non-blind review. For each issue cite the manuscript evidence, severity and feasible repair. Skip all voting, consensus labels and seat-count decision thresholds below in this configuration; distinguish unresolved disagreement in prose.
+
 This document defines the explicit criteria for Accept / Minor Revision / Major Revision / Reject decisions, for use by `eic_agent` and `editorial_synthesizer_agent`.
 
 ---

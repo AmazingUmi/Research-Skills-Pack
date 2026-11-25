@@ -8,7 +8,7 @@
 
 - 从模糊研究方向搭建 research canon、问题链和章节契约。
 - 修改已有段落，使论证顺序、贡献边界和证据支撑更清楚。
-- 将已有草稿扩写为 proposal、论文章节、综述框架或项目说明。
+- 将已有草稿扩写为 开题报告、申请书的文献综述章节或研究计划。
 - 在写作后执行内容、语言、引用和格式层面的 QA。
 
 ## 三种模式
@@ -41,7 +41,7 @@
 
 - 不会替作者虚构实验结果、参考文献、合作基础或可行性证据。
 - 对缺失事实会标记 `AUTHOR_INPUT_NEEDED`，而不是用流畅文字掩盖。
-- 如果只是句子级英文润色，优先使用 `nature-polishing`。
+- 如果只是句子级英文润色，优先使用 `$research-writing draft polish`。
 
 ## 完整参考资料
 
@@ -50,13 +50,13 @@
 - `compose`、`revise`、`hybrid` 三种模式的完整流程；
 - foundation 文件、项目状态、章节范围和已批准框架内写作；
 - 动态专家分派、评分、停止规则和自动校验；
-- 中文科研写作清理、综述结构与批判性方法；
+- 中文科研写作清理、申请书综述章节结构与证据比较；
 - 引用编号级联、修订交接、导出归档和完整填写示例。
 
 完整文件索引和加载条件见 [`SKILL.md`](SKILL.md#reference-文件索引)。reference 应按当前任务选择性加载，避免把整套资料一次性注入上下文。
 
 ## 相关技能
 
-- `nature-writing`：Nature 风格手稿章节起草。
-- `nature-polishing`：英文稿件润色、重构和翻译。
-- `nsfc-proposal`：国家自然科学基金申请书的专项写作。
+- `$research-writing draft section`：Nature 风格手稿章节起草。
+- `$research-writing draft polish`：英文稿件润色、重构和翻译。
+- `$research-writing outline`：论文研究问题界定与研究设计。

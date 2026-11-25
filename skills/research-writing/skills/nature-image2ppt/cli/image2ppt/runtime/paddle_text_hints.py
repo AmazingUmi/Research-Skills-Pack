@@ -16,7 +16,9 @@ default; this script is the content-aware alternative.
 from __future__ import annotations
 
 import argparse
+import http.client
 import ipaddress
+import socket
 import json
 import os
 import sys
@@ -53,19 +55,29 @@ USAGE_NOTE = (
 )
 
 
-def _require_public_result_url(status: dict) -> None:
-    """The completed job's result URL must be plain http(s) to a non-local host before it is fetched."""
-    url = status["resultUrl"]["jsonUrl"]
-    parsed = urllib.parse.urlparse(url)
-    if parsed.scheme not in {"http", "https"}:
-        raise RuntimeError(f"PaddleOCR returned a non-http(s) result URL: {url}")
-    hostname = (parsed.hostname or "").lower()
+def fetch_result_text(url: str) -> str:
+    """Fetch only a globally routable HTTPS result, pinning DNS through the TLS connection."""
+    parsed = urllib.parse.urlsplit(url)
+    if parsed.scheme != "https" or not parsed.hostname or parsed.username is not None or parsed.password is not None:
+        raise RuntimeError("PaddleOCR result requires HTTPS without embedded credentials")
+    host = parsed.hostname
+    port = parsed.port or 443
+    addresses = [row[4][0] for row in socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)]
+    if not addresses or any(not ipaddress.ip_address(addr).is_global or ipaddress.ip_address(addr).is_multicast
+                            for addr in addresses):
+        raise RuntimeError("PaddleOCR result host resolves outside the public Internet")
+    # Keep the original hostname for SNI, certificate verification and the Host header.
+    connection = http.client.HTTPSConnection(host, port, timeout=60)
+    connection._create_connection = lambda _target, *args: socket.create_connection((addresses[0], port), *args)
     try:
-        ip = ipaddress.ip_address(hostname)
-    except ValueError:
-        ip = None
-    if hostname == "localhost" or (ip is not None and (ip.is_private or ip.is_loopback or ip.is_link_local)):
-        raise RuntimeError(f"PaddleOCR returned a local result URL host: {url}")
+        resource = urllib.parse.urlunsplit(("", "", parsed.path or "/", parsed.query, ""))
+        connection.request("GET", resource)
+        response = connection.getresponse()
+        if response.status != 200:
+            raise RuntimeError(f"PaddleOCR result fetch failed (HTTP {response.status}); redirects are disabled")
+        return response.read().decode("utf-8")
+    finally:
+        connection.close()
 
 
 def submit_and_fetch(file_path: Path, token: str, model: str, timeout: int) -> list[dict]:
@@ -78,7 +90,7 @@ def submit_and_fetch(file_path: Path, token: str, model: str, timeout: int) -> l
             headers=headers,
             data={"model": model, "optionalPayload": json.dumps(optional)},
             files={"file": handle},
-            timeout=60,
+            timeout=60, allow_redirects=False,
         )
     if response.status_code != 200:
         raise RuntimeError(f"PaddleOCR job submit failed ({response.status_code}): {response.text[:300]}")
@@ -87,7 +99,10 @@ def submit_and_fetch(file_path: Path, token: str, model: str, timeout: int) -> l
 
     started = time.time()
     while True:
-        status = requests.get(f"{JOB_URL}/{job_id}", headers=headers, timeout=60).json()["data"]
+        status = requests.get(f"{JOB_URL}/{urllib.parse.quote(str(job_id), safe='')}", headers=headers, timeout=60, allow_redirects=False)
+        if status.status_code != 200:
+            raise RuntimeError(f"PaddleOCR job status failed ({status.status_code})")
+        status = status.json()["data"]
         state = status["state"]
         if state == "done":
             break
@@ -97,11 +112,9 @@ def submit_and_fetch(file_path: Path, token: str, model: str, timeout: int) -> l
             raise RuntimeError(f"PaddleOCR job timed out after {timeout}s (state={state})")
         time.sleep(5)
 
-    _require_public_result_url(status)
-    jsonl = requests.get(status["resultUrl"]["jsonUrl"], timeout=60)
-    jsonl.raise_for_status()
+    jsonl = fetch_result_text(status["resultUrl"]["jsonUrl"])
     pages = []
-    for line in jsonl.text.strip().split("\n"):
+    for line in jsonl.strip().split("\n"):
         if not line.strip():
             continue
         for result in json.loads(line)["result"]["layoutParsingResults"]:

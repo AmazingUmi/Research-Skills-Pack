@@ -11,12 +11,15 @@ required for a full validation claim, or validate the measurement model.
 from __future__ import annotations
 
 import argparse
+from functools import partial
 import math
 import sys
+from tokenize import TokenError
 from typing import Any
 
 import _common
 from _common import CliError
+from convert_units import build_registry, checked_unit
 
 
 def parse_variable(text: str) -> dict[str, Any]:
@@ -98,7 +101,7 @@ def normalize_variables(records: list[Any]) -> list[dict[str, Any]]:
             "dof": _common.as_degrees_of_freedom(
                 record.get("dof"), label=f"{name}.dof"
             ),
-            "unit": record.get("unit") if isinstance(record.get("unit"), str) else None,
+            "unit": checked_unit(record["unit"], label=f"{name}.unit") if "unit" in record else None,
         }
         if entry["standard_uncertainty"] < 0:
             raise CliError(f"{name}: standard uncertainty must not be negative")
@@ -108,11 +111,50 @@ def normalize_variables(records: list[Any]) -> list[dict[str, Any]]:
     return normalized
 
 
+def evaluate_model(tree, variables, magnitudes, functions, registry, output_unit):
+    if registry is None:
+        return _common.reduce_expression(tree, magnitudes, functions)
+
+    # Keep the same native input scales for analytic derivatives and sampled arrays.
+    quantity = registry.Quantity
+
+    def as_quantity(value):
+        # Re-wrapping a Pint quantity can copy an uncertainties.Variable.
+        # Its identity links the derivative to the original measurement input.
+        return value if isinstance(value, quantity) else quantity(value)
+
+    def dimensional_function(name, *args):
+        values = [as_quantity(arg) for arg in args]
+        if name == "sqrt":
+            return values[0] ** 0.5
+        if name in {"abs", "fabs", "hypot", "atan2"}:
+            unit = values[0].units
+            result = functions[name](*(v.m_as(unit) for v in values))
+            return quantity(result, "radian" if name == "atan2" else unit)
+        if name in {"degrees", "radians"}:
+            source, target = ("radian", "degree") if name == "degrees" else ("degree", "radian")
+            angle = values[0]
+            if angle.units == registry.dimensionless:
+                angle = quantity(angle.magnitude, source)
+            return angle.to(target)
+        return functions[name](*(v.m_as("dimensionless") for v in values))
+
+    from pint.errors import PintError
+    handlers = {name: partial(dimensional_function, name) for name in functions}
+    try:
+        inputs = {v["name"]: quantity(magnitudes[v["name"]], v["unit"]) for v in variables}
+        result = _common.reduce_expression(tree, inputs, handlers)
+        return as_quantity(result).m_as(output_unit)
+    except (PintError, TokenError, ValueError, TypeError) as exc:
+        raise CliError(f"invalid units in measurement model: {exc}") from exc
+
+
 def gum_framework(
     tree: Any,
     variables: list[dict[str, Any]],
     correlations: dict[tuple[str, str], float],
     coverage_probability: float,
+    registry=None, output_unit=None,
 ) -> dict[str, Any]:
     """Evaluate the model and propagate uncertainty by first-order expansion."""
 
@@ -136,7 +178,7 @@ def gum_framework(
         entry["name"]: ufloat(entry["value"], entry["standard_uncertainty"])
         for entry in variables
     }
-    result = _common.reduce_expression(tree, handles, _common.scalar_functions())
+    result = evaluate_model(tree, variables, handles, _common.scalar_functions(), registry, output_unit)
     value = float(getattr(result, "nominal_value", result))
     derivatives = getattr(result, "derivatives", {})
 
@@ -300,6 +342,7 @@ def monte_carlo(
     coverage_probability: float,
     trials: int,
     seed: int,
+    registry=None, output_unit=None,
 ) -> dict[str, Any]:
     """Propagate the input distributions by Monte Carlo sampling."""
 
@@ -324,7 +367,7 @@ def monte_carlo(
             entry["name"]: _draw(rng, entry, trials) for entry in variables
         }
 
-    drawn = _common.reduce_expression(tree, samples, _common.array_functions())
+    drawn = evaluate_model(tree, variables, samples, _common.array_functions(), registry, output_unit)
     drawn = np.asarray(drawn, dtype=float)
     if drawn.shape != (trials,):
         drawn = np.broadcast_to(drawn, (trials,)).astype(float)
@@ -556,7 +599,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--spec", help="JSON file holding the whole model")
     parser.add_argument("--measurand", help="name of the output quantity")
-    parser.add_argument("--unit", help="unit label for the report only")
+    parser.add_argument("--unit", help="target unit for unit-bearing inputs, otherwise a display label")
     parser.add_argument(
         "--coverage",
         type=_common.probability,
@@ -608,6 +651,8 @@ def run(arguments: argparse.Namespace) -> dict[str, Any]:
     if not expression:
         raise CliError("supply --expression or a spec file containing 'expression'")
 
+    if not isinstance(spec.get("variables", []), list):
+        raise CliError("variables must be a JSON list")
     records: list[Any] = list(spec.get("variables", []))
     records += [parse_variable(item) for item in arguments.variable]
     variables = normalize_variables(records)
@@ -653,10 +698,17 @@ def run(arguments: argparse.Namespace) -> dict[str, Any]:
     if not 0 < coverage < 1:
         raise CliError("coverage probability must be strictly between 0 and 1")
 
-    framework = gum_framework(tree, variables, correlations, coverage)
+    output_unit = arguments.unit or spec.get("unit")
+    registry = None
+    if any(entry["unit"] is not None for entry in variables):
+        if not all(entry["unit"] for entry in variables):
+            raise CliError("declare a unit for every input, using dimensionless for ratios")
+        output_unit = checked_unit(output_unit, label="output unit")
+        registry = build_registry()
+    framework = gum_framework(tree, variables, correlations, coverage, registry, output_unit)
     document: dict[str, Any] = {
         "measurand": arguments.measurand or spec.get("measurand"),
-        "unit": arguments.unit or spec.get("unit"),
+        "unit": output_unit,
         "expression": expression,
         "gum_framework": framework,
         "correlations": [
@@ -667,7 +719,7 @@ def run(arguments: argparse.Namespace) -> dict[str, Any]:
     sampling = None
     if not arguments.no_monte_carlo:
         sampling = monte_carlo(
-            tree, variables, correlations, coverage, arguments.trials, arguments.seed
+            tree, variables, correlations, coverage, arguments.trials, arguments.seed, registry, output_unit
         )
         document["monte_carlo"] = sampling
         document["validation"] = validate_linearization(

@@ -110,7 +110,7 @@ protocol, then
 until complete, `build_outputs.py --stage ft`. A full-text merge or report also remains incomplete
 while title/abstract decisions or QC rechecks are pending; it cannot produce final counts or methods text.
 It also checks that the current advances equal retrieved plus not-retrieved, with no overlap or
-duplicates. Changing a TA decision invalidates `ft_preparation.json`: prepare again, regenerate
+duplicates and verifies each retrieved PDF’s SHA-256 before merging or reporting. A changed or missing PDF requires a new retrieval revision. Changing a TA decision invalidates `ft_preparation.json`: prepare again, regenerate
 the FT workflow and merge results for that retrieval revision before reporting.
 
 ### Review identity and protocol amendments

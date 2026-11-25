@@ -166,9 +166,17 @@ def decoded_streams(data: bytes) -> tuple[list[bytes], list[str]]:
         # while stripping could accidentally remove a legitimate compressed
         # byte that happens to equal CR or LF.
         payload = data[match.end() : end]
-        header = data[max(0, match.start() - 2048) : match.start()]
-        dictionary_start = header.rfind(b"<<")
-        dictionary = header[dictionary_start:] if dictionary_start >= 0 else header
+        # Walk the delimiters of the immediately preceding stream dictionary.
+        # DecodeParms (and other entries) can contain nested dictionaries.
+        header = data[cursor:match.start()]
+        tokens = list(re.finditer(rb"<<|>>", header))
+        depth = 0
+        dictionary = b""
+        for token in reversed(tokens):
+            depth += 1 if token.group() == b">>" else -1
+            if depth == 0:
+                dictionary = header[token.start():]
+                break
         if b"/FlateDecode" in dictionary:
             try:
                 payload = zlib.decompress(payload)

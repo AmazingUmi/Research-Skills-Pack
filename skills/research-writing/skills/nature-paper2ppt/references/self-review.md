@@ -7,7 +7,7 @@
 - [Severity rules](#severity-rules)
 - [Programmatic checks when using python-pptx](#programmatic-checks-when-using-python-pptx)
 - [Rendered preview policy](#rendered-preview-policy)
-- [Step 9 — final verification](#step-9-final-verification)
+- [Step 9 — final verification](#step-9--final-verification)
 
 
 Open this reference for step 8 (self-review/corrective revision loop) and step 9 (final verification).
@@ -78,7 +78,7 @@ Use `low` for cosmetic issues that do not affect comprehension:
 When generating with python-pptx, perform a lightweight audit in code after the first draft and again after revision. Run the bundled audit script whenever a real PPTX exists:
 
 ```bash
-python skills/nature-paper2ppt/scripts/audit_pptx_quality.py \
+python skills/research-writing/skills/nature-paper2ppt/scripts/audit_pptx_quality.py \
   output/final_presentation_cn.pptx \
   --report output/pptx_audit.md \
   --fail-on high
@@ -89,7 +89,7 @@ If the script reports high-severity findings, treat the deck as not ready. Fix t
 The script checks common structural and language issues directly from PPTX XML:
 
 - shapes outside the slide canvas,
-- suspicious image crop settings,
+- image crop settings for visual review (cropped white margins are acceptable; confirmed loss of evidence blocks delivery),
 - main evidence images that are too small for presentation use,
 - repeated near-miss alignment between objects,
 - text-heavy shapes likely to overflow,

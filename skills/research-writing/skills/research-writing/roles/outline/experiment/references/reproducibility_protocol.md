@@ -17,7 +17,7 @@ Defines how validate mode verifies reproducibility of code experiments by re-run
 |------|----------|-----------------|
 | **Deterministic** | Same seed, same data, same code, same environment | Exact match required |
 | **Stochastic** | Random elements (different seed, dropout, data augmentation) | Statistical equivalence within default tolerance |
-| **Environment-sensitive** | Results depend on hardware, OS, driver, or library version | Document environment, compare with wider tolerance, do not compare timing metrics |
+| **Environment-sensitive** | Results depend on hardware, OS, driver, or library version | Document the environment and use the agreed tolerance for each endpoint |
 
 Ask user: "Is this experiment deterministic, stochastic, or environment-sensitive (for example hardware/OS dependent)?"
 
@@ -29,8 +29,15 @@ Ask user: "Is this experiment deterministic, stochastic, or environment-sensitiv
 
 ### Step 3: Compare
 
+For a runtime, throughput, or speedup claim, record the workload, environment,
+repetitions, summary statistic and tolerance before comparison. Re-run the
+baseline and candidate under matched conditions. Report both measurements and
+the speedup or difference. If the primary timing endpoint is missing or the
+runs are incomparable, record `CANNOT_VERIFY` for that claim even when the
+numerical outputs agree.
+
 **Deterministic comparison:**
-- For each numeric metric: `abs(original - rerun)` must be exactly 0
+- For each deterministic numeric output: `abs(original - rerun)` must be exactly 0
 - For output files: byte-for-byte comparison (`diff` or hash)
 - Any difference = `MISMATCH`
 
@@ -44,7 +51,7 @@ Ask user: "Is this experiment deterministic, stochastic, or environment-sensitiv
 - Record environment details first: hardware, OS, major library/toolchain versions
 - For each numeric metric: `abs(original - rerun) / max(abs(original), abs(rerun), epsilon)` must be < threshold
 - Default threshold: 10% relative difference unless the user specifies a tighter benchmark tolerance
-- Compare structure and artifact presence; do not compare wall-clock timing metrics
+- Compare structure and artifact presence. Compare time when it is a declared endpoint.
 
 **File comparison:**
 - Size within 10% tolerance (stochastic outputs may vary)
@@ -69,7 +76,7 @@ Use `epsilon = 1e-12` to avoid division-by-zero when a baseline metric is `0`.
 | Numeric metrics | Exact (0 diff) | < 5% relative, symmetric denominator | < 10% relative, symmetric denominator |
 | Output file size | Exact | < 10% | < 20% |
 | Output file content | Byte-for-byte | Structure + spot check | Structure + spot check |
-| Timing metrics | Not compared (always varies) | Not compared | Not compared |
+| Timing metrics | Use the declared benchmark tolerance for a timed endpoint. | Same | Same |
 
 ## Edge Cases
 

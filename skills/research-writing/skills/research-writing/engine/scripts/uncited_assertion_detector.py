@@ -39,7 +39,12 @@ expects.
 from __future__ import annotations
 
 import re
+import sys
+from pathlib import Path
 from typing import Any, Iterable
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from scripts._claim_audit_constants import (
     RE_BARE_NUMERIC_YEAR,

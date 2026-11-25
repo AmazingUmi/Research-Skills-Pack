@@ -34,11 +34,11 @@ For each statistical result, assess:
 | r (correlation) | .10 | .30 | .50 |
 | Odds Ratio | 1.5 | 2.5 | 4.3 |
 
-- Always report: "statistically significant with [small/medium/large] effect"
+- Report the estimated effect, interval, and relevant practical threshold, including precise near-zero effects.
 - Warn if significant but small effect: "statistically significant but practically small — consider whether this difference matters in context"
 
 **Confidence Interval:**
-- Does CI include 0 (or 1 for OR)? → result is not significant regardless of p-value
+- Does CI include 0 (or 1 for OR)? → report the interval and check consistency with a test of the same estimand, level and sidedness
 - Width: narrow CI = precise estimate; wide CI = uncertain estimate
 - Asymmetric CI around point estimate → possible skewness
 
@@ -47,7 +47,7 @@ For each statistical result, assess:
 | Test | Assumption | Red Flag |
 |------|-----------|----------|
 | t-test | Normality | n < 30 per group and no normality test reported |
-| t-test | Equal variance | No Levene's test and group sizes differ > 2:1 |
+| t-test | Equal variance | Pooled-variance test without justification; prespecify Welch and skip Levene pretesting |
 | ANOVA | Normality + homogeneity | Same as t-test; additionally check sphericity for RM |
 | Chi-squared | Expected frequencies >= 5 | Any cell < 5 → for 2x2 tables use Fisher's exact; for larger tables use an exact/Monte Carlo approach or collapse categories with justification |
 | Regression | Linearity, normality of residuals, homoscedasticity | No diagnostic plots reported |
@@ -64,8 +64,8 @@ For each statistical result, assess:
 
 | Level | Criteria |
 |-------|---------|
-| `SOLID` | Significant with medium+ effect size, assumptions met, no fallacies detected |
-| `CAUTION` | One or more: borderline p, small effect, unchecked assumptions, uncorrected comparisons |
+| `SOLID` | Design supports the inference and interval is sufficiently precise for the stated claim, including a precise null result |
+| `CAUTION` | One or more: imprecise estimate, unchecked assumptions, or unaccounted multiplicity |
 | `RED_FLAG` | Multiple issues: non-significant reframed as trend, violated assumptions, detected fallacy |
 
 ---

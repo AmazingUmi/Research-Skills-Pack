@@ -57,14 +57,8 @@ Reduce the chance of triggering them by using a conservative access pattern:
 
 When a publisher verification page appears:
 
-1. First, **attempt automatic verification** via the built-in anti-bot module (`scripts/lib/anti-bot.mjs`). The module tries: simple click challenges, ScienceDirect robot check, Cloudflare Turnstile, slider CAPTCHA (including CNKI Geetest-style), and reCAPTCHA checkbox.
-2. If auto-verification succeeds, continue the download from the resolved page.
-3. If auto-verification fails:
-   a. Stop automated actions on that tab.
-   b. Record the paper with status `verification_auto_failed`. Use `sciencedirect_robot_check` only when no automatic interaction was possible.
-   c. Tell the user which paper and tab need manual attention.
-   d. After the user says the verification is complete, continue from the same tab and try the visible article/PDF route once.
-   e. If verification immediately reappears, mark `do_not_auto_retry` and move on.
+1. Stop at the challenge and keep the current tab open. Record `publisher_verification_waiting_user` or `sciencedirect_robot_check`.
+2. Ask the user to complete the challenge. Resume once from that tab after confirmation. If challenged again, mark `do_not_auto_retry`.
 
 Create or update `publisher_verification.tsv` when publisher checks interrupt a batch. Use this header:
 
@@ -107,7 +101,7 @@ The agent may click a saved-login confirmation button only when all conditions a
 1. The page is on an expected institutional, library, federation, or database domain for the user's configured route.
 2. The user has explicitly authorized this action in the current conversation, for example: "可以点这个机构登录确认按钮".
 3. The visible action is clearly a login/confirm/continue button, such as 登录, 登 录, 确认登录, 继续登录, Continue, Proceed, or Sign in.
-4. There is no visible QR-only login, SMS/OTP field, push-approval prompt, password reset prompt, consent-to-share-new-data prompt, or account/security warning. (Slider CAPTCHAs and simple robot checks are now auto-attemptable — see Boundaries in `../MODE.md`.)
+4. There is no visible QR-only login, SMS/OTP field, push-approval prompt, password reset prompt, consent-to-share-new-data prompt, or account/security warning.
 5. The agent does not read, reveal, copy, store, type, or modify credentials.
 ```
 
@@ -138,7 +132,7 @@ Use the bundled script when a PDF URL opens in Chrome but direct shell download 
 
 ```powershell
 $node = "$env:LOCALAPPDATA\OpenAI\Codex\bin\node.exe"
-& $node "$env:USERPROFILE\.agents\skills\this mode\scripts\browser_pdf_downloader.mjs" `
+& $node "$env:USERPROFILE\.agents\skills\research-writing\roles\literature\fulltext\scripts\browser_pdf_downloader.mjs" `
   --url "https://www.sciencedirect.com/science/article/pii/SXXXXXXXXXXXXXXXX/pdfft" `
   --out "D:\path\paper.pdf"
 ```

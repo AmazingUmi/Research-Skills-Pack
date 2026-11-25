@@ -2,12 +2,15 @@
 """Build the standard split Chinese patent application package."""
 
 import argparse
-import importlib.util
 import json
 import shutil
 import subprocess
 import sys
 from pathlib import Path
+from tempfile import mkdtemp
+
+import audit_claims
+import validate_patent_draft
 
 
 def run(command: list[str]) -> None:
@@ -77,24 +80,39 @@ def main() -> int:
 
     data = json.loads(args.draft.read_text(encoding="utf-8"))
     root = Path(__file__).resolve().parent
-    validator_script = root / "validate_patent_draft.py"
-    validator_spec = importlib.util.spec_from_file_location(
-        "patent_draft_validator", validator_script
-    )
-    validator = importlib.util.module_from_spec(validator_spec)
-    sys.modules[validator_spec.name] = validator
-    validator_spec.loader.exec_module(validator)
-    validation_findings = validator.validate(data)
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    validation_report = args.output_dir / f"{args.prefix}-草稿验证报告.txt"
-    validation_report.write_text(
-        validator.format_report(validation_findings), encoding="utf-8"
-    )
-    if any(item.level == "ERROR" for item in validation_findings):
-        print(validation_report)
-        raise SystemExit(1)
+    validation = validate_patent_draft.validate(data)
+    reports = {}
+    claims_body = ""
+    failed = any(item.level == "ERROR" for item in validation)
+    if not failed:
+        try:
+            validate(data)
+        except ValueError as exc:
+            validation.append(validate_patent_draft.Finding("ERROR", "PACKAGE_CONTENT", str(exc)))
+            failed = True
 
-    validate(data)
+    validation_name = f"{args.prefix}-草稿验证报告.txt"
+    reports[validation_name] = validate_patent_draft.format_report(validation)
+    audit_name = f"{args.prefix}-权利要求检查.txt"
+    if not failed:
+        claims_body = "\n".join(f"{claim['number']}. {claim['text']}" for claim in data["claims"]) + "\n"
+        findings = audit_claims.audit(claims_body)
+        reports[audit_name] = audit_claims.format_report(findings)
+        failed = any(item.level == "ERROR" for item in findings)
+
+    report_dir = args.output_dir
+    if failed and any((report_dir / name).exists() for name in reports):
+        # A rejected rebuild keeps the previous package and its audit reports together.
+        report_dir = Path(mkdtemp(prefix=f"{args.prefix}-failed-", dir=report_dir))
+    for name, content in reports.items():
+        path = report_dir / name
+        path.write_text(content, encoding="utf-8")
+        if failed:
+            print(path)
+    if failed:
+        return 1
+
     docx_script = root / "render_patent_docx.py"
     figure_script = root / "render_flowchart_svg.py"
 
@@ -132,35 +150,12 @@ def main() -> int:
         run(command)
 
     claims_text = args.output_dir / f"{args.prefix}-权利要求书.txt"
-    claims_text.write_text(
-        "\n".join(f"{claim['number']}. {claim['text']}" for claim in data["claims"]) + "\n",
-        encoding="utf-8",
-    )
-    audit = args.output_dir / f"{args.prefix}-权利要求检查.txt"
-    audit_script = root / "audit_claims.py"
-    spec = importlib.util.spec_from_file_location("patent_claim_audit", audit_script)
-    audit_module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = audit_module
-    spec.loader.exec_module(audit_module)
-    findings = audit_module.audit(claims_text.read_text(encoding="utf-8"))
-    if findings:
-        lines = []
-        for finding in findings:
-            location = f"权利要求{finding.claim}" if finding.claim else "整体"
-            lines.append(
-                f"{finding.level}\t{location}\t{finding.code}\t{finding.message}"
-            )
-    else:
-        lines = ["PASS: 未发现权利要求结构性问题。"]
-    audit.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    if any(finding.level == "ERROR" for finding in findings):
-        raise SystemExit(1)
-
+    claims_text.write_text(claims_body, encoding="utf-8")
     json_copy = args.output_dir / f"{args.prefix}-结构化草稿.json"
     if args.draft.resolve() != json_copy.resolve():
         shutil.copy2(args.draft, json_copy)
 
-    for output in (*outputs.values(), json_copy, audit, validation_report):
+    for output in (*outputs.values(), json_copy, report_dir / audit_name, report_dir / validation_name):
         print(output)
     return 0
 

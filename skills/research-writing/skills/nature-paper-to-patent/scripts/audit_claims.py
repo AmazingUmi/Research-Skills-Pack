@@ -9,10 +9,8 @@ from pathlib import Path
 
 
 CLAIM_START = re.compile(r"(?m)^\s*(\d+)\s*[.、．]\s*")
-REFERENCE = re.compile(
-    r"权利要求\s*(\d+)(?:\s*[-—~～至]\s*(\d+))?"
-    r"|权利要求\s*(\d+)\s*(?:或|、)\s*(\d+)"
-)
+REFERENCE_RANGE = r"\d+(?:\s*[-—~～至]\s*\d+)?"
+REFERENCE = re.compile(rf"权利要求\s*({REFERENCE_RANGE}(?:\s*(?:或|、|及|和)\s*{REFERENCE_RANGE})*)")
 TERM_INTRO = re.compile(r"(?:所述|该)([\u4e00-\u9fffA-Za-z][\u4e00-\u9fffA-Za-z0-9_-]{1,20})")
 PLACEHOLDER = re.compile(r"\[(?:TO CONFIRM|待确认)[^\]]*\]", re.IGNORECASE)
 
@@ -34,16 +32,15 @@ def split_claims(text: str) -> list[tuple[int, str]]:
     return claims
 
 
-def references(body: str) -> list[int]:
-    result = []
+def references(body: str, claim_count: int) -> list[int]:
+    result = set()
     for match in REFERENCE.finditer(body):
-        if match.group(1):
-            start = int(match.group(1))
-            finish = int(match.group(2) or start)
-            result.extend(range(start, finish + 1))
-        else:
-            result.extend((int(match.group(3)), int(match.group(4))))
-    return sorted(set(result))
+        for item in re.findall(REFERENCE_RANGE, match.group(1)):
+            numbers = [int(value) for value in re.findall(r"\d+", item)]
+            start, finish = numbers[0], numbers[-1]
+            result.update((start, finish))
+            result.update(range(start, min(finish, claim_count) + 1))
+    return sorted(result)
 
 
 def normalize(text: str) -> str:
@@ -78,12 +75,18 @@ def audit(text: str) -> list[Finding]:
             Finding("ERROR", None, "NUMBER_SEQUENCE", f"编号应连续为{expected}，实际为{numbers}。")
         )
 
-    previous_text = ""
+    ancestors = {}
     claim_map = {}
     for number, body in claims:
         compact = normalize(body)
         claim_map[number] = compact
-        refs = references(body)
+        refs = references(body, len(claims))
+        reachable = set()
+        for ref in refs:
+            if ref < number and ref in claim_map:
+                reachable.add(ref)
+                reachable.update(ancestors[ref])
+        ancestors[number] = reachable
 
         if not body:
             findings.append(Finding("ERROR", number, "EMPTY", "权利要求正文为空。"))
@@ -123,9 +126,7 @@ def audit(text: str) -> list[Finding]:
                 Finding("WARNING", number, "RESULT_LANGUAGE", "含结果或宣传性措辞，确认是否改为技术限定。")
             )
 
-        searchable_basis = previous_text + "".join(
-            claim_map.get(ref, "") for ref in refs
-        )
+        searchable_basis = "\n".join(claim_map[ref] for ref in sorted(reachable))
         # "根据权利要求1所述的装置" captures "的装置"; drop the 的 so the generic head noun is skipped.
         terms = {found[1:] if found.startswith("的") else found for found in TERM_INTRO.findall(body)}
         for term in sorted(terms):
@@ -140,9 +141,21 @@ def audit(text: str) -> list[Finding]:
                         f"术语“{term}”可能缺少清晰的前置基础。",
                     )
                 )
-        previous_text += compact
 
     return findings
+
+
+def format_report(findings: list[Finding]) -> str:
+    if not findings:
+        return "PASS: 未发现结构性问题。\n"
+    lines = []
+    for finding in findings:
+        location = f"权利要求{finding.claim}" if finding.claim else "整体"
+        lines.append(f"{finding.level}\t{location}\t{finding.code}\t{finding.message}")
+    errors = sum(finding.level == "ERROR" for finding in findings)
+    warnings = sum(finding.level == "WARNING" for finding in findings)
+    lines.extend(("", f"汇总: {errors} 个错误, {warnings} 个警告"))
+    return "\n".join(lines) + "\n"
 
 
 def main() -> int:
@@ -155,15 +168,8 @@ def main() -> int:
     findings = audit(text)
     if args.json:
         print(json.dumps([finding.__dict__ for finding in findings], ensure_ascii=False, indent=2))
-    elif not findings:
-        print("PASS: 未发现结构性问题。")
     else:
-        for finding in findings:
-            location = f"权利要求{finding.claim}" if finding.claim else "整体"
-            print(f"{finding.level}\t{location}\t{finding.code}\t{finding.message}")
-        errors = sum(finding.level == "ERROR" for finding in findings)
-        warnings = sum(finding.level == "WARNING" for finding in findings)
-        print(f"\n汇总: {errors} 个错误, {warnings} 个警告")
+        print(format_report(findings), end="")
 
     return 1 if any(finding.level == "ERROR" for finding in findings) else 0
 

@@ -3,7 +3,7 @@
 
 Usage: python scripts/check_experiment_provenance.py path/to/passport.yaml
 
-Standalone shape-only validator, mirroring scripts/check_repro_lock.py. It
+Standalone shape-only validator, mirroring engine/scripts/repro_lock_validation.py. It
 validates each experiment_provenance[] entry against
 contracts/passport/experiment_provenance_entry.schema.json — which
 encodes the D6 well-formedness rules including the absent-key rule

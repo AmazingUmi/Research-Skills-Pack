@@ -7,7 +7,7 @@
 - [Per-reviewer structure](#per-reviewer-structure)
 - [Concern traceability and severity display](#concern-traceability-and-severity-display)
 - [Cross-review synthesis structure](#cross-review-synthesis-structure)
-- [Risk / unsupported claims section](#risk-unsupported-claims-section)
+- [Risk / unsupported claims section](#risk--unsupported-claims-section)
 - [Style rules](#style-rules)
 
 

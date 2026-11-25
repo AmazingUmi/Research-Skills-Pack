@@ -136,14 +136,14 @@ JUDGE_PROMPT_VERSION = "step0-decomp-v2-data-boundary"
 # #361 backstop: SHA-256 of the canonical judge-prompt section (the text between
 # the JUDGE-PROMPT-CANONICAL-START/END markers in
 # ../roles/orchestrate/agents/claim_ref_alignment_audit_agent.md, stripped).
-# scripts/check_judge_prompt_version.py recomputes this hash and fails CI if it
+# The bundled cross-role regression recomputes this hash and fails if it
 # drifts — forcing a human to update this hash whenever the prompt text changes.
 # This hash DOUBLES AS the judge-cache-key prompt component (the single source of
 # truth for cache invalidation): claim_audit_pipeline.py defaults
 # prompt_version to this value, so because the lint pins the hash to the prompt
 # text, any prompt edit automatically changes the cache key and invalidates stale
 # entries — no reliance on a separate human-readable label bump.
-JUDGE_PROMPT_SHA256 = "bb67174bb664bc7a668de790012562cdc4f1410fbc35847531732699792d0ed2"
+JUDGE_PROMPT_SHA256 = "f38d54603aaa051c0ae48cef6809b764ace0f2a8e9012e58520f942406d00a37"
 
 # Constraint id parse rules (spec §3.2 + INV-17 canonical form).
 RE_NC_CONSTRAINT = re.compile(r"^NC-C([0-9]{3,})-([0-9]+)$")

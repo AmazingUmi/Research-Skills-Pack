@@ -21,8 +21,8 @@ from sklearn.metrics import (
 
 def normalize_categorical_missing(X):
     """Map pandas/None missing sentinels to the imputer's np.nan sentinel."""
-    frame = pd.DataFrame(X).astype(object)
-    return frame.where(frame.notna(), np.nan).to_numpy()
+    frame = pd.DataFrame(X).astype("string")
+    return frame.to_numpy(dtype=object, na_value=np.nan)
 
 
 def create_preprocessing_pipeline(numeric_features, categorical_features):
@@ -114,7 +114,12 @@ def train_and_evaluate_model(X, y, numeric_features, categorical_features,
     print(f"Test set size: {len(X_test)}")
     print(f"Class distribution in training: {pd.Series(y_train).value_counts().to_dict()}")
 
-    if pd.Series(y_train).value_counts().min() < cv:
+    classes = pd.Index(y).unique()
+    missing_test = classes.difference(pd.Index(y_test))
+    if len(missing_test):
+        raise ValueError(f"Test split has no samples for {missing_test.tolist()}; increase test_size or add data")
+    train_counts = pd.Series(y_train).value_counts().reindex(classes, fill_value=0)
+    if train_counts.min() < cv:
         raise ValueError("Each training class needs at least cv samples; lower cv or add data")
     splitter = StratifiedKFold(n_splits=cv, shuffle=True, random_state=random_state)
 
@@ -203,7 +208,7 @@ def train_and_evaluate_model(X, y, numeric_features, categorical_features,
     f1 = f1_score(y_test, y_pred, average='weighted', zero_division=0)
 
     balanced_accuracy = balanced_accuracy_score(y_test, y_pred)
-    macro_f1 = f1_score(y_test, y_pred, average='macro', zero_division=0)
+    macro_f1 = f1_score(y_test, y_pred, average='macro', labels=tuned_model.classes_, zero_division=0)
     metrics = dict(accuracy=accuracy, balanced_accuracy=balanced_accuracy,
                    precision=precision, recall=recall, f1=f1, macro_f1=macro_f1)
 
@@ -217,19 +222,19 @@ def train_and_evaluate_model(X, y, numeric_features, categorical_features,
     # ROC AUC (if binary classification)
     if len(tuned_model.classes_) == 2:
         # Column 1 corresponds to classes_[1], which need not mean disease/case.
-        roc_auc = roc_auc_score(y_test == tuned_model.classes_[1], y_pred_proba[:, 1])
+        roc_auc = roc_auc_score(np.asarray(y_test) == tuned_model.classes_[1], y_pred_proba[:, 1])
         metrics['roc_auc'] = roc_auc
         print(f"ROC AUC:   {roc_auc:.4f}")
 
     print("\n" + "="*60)
     print("Classification Report")
     print("="*60)
-    print(classification_report(y_test, y_pred, zero_division=0))
+    print(classification_report(y_test, y_pred, labels=tuned_model.classes_, zero_division=0))
 
     print("\n" + "="*60)
     print("Confusion Matrix")
     print("="*60)
-    print(confusion_matrix(y_test, y_pred))
+    print(confusion_matrix(y_test, y_pred, labels=tuned_model.classes_))
 
     # Feature importance (if available)
     if hasattr(tuned_model.named_steps['classifier'], 'feature_importances_'):

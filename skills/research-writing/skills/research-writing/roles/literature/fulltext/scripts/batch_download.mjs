@@ -15,7 +15,7 @@
 //
 // Boundaries: uses only the user's already-authenticated browser session.
 // Stops at institutional SSO / CARSI pages and never handles credentials. For visible
-// verification widgets it makes a bounded attempt before reporting a handoff.
+// verification widgets it leaves the tab open for the user.
 // Main PDF only by default; --si also fetches supplements.
 
 import fs from "node:fs";
@@ -24,6 +24,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
   DEFAULT_PROXY,
+  currentWall,
   healthCheck,
   evalJs,
   newTab,
@@ -36,8 +37,7 @@ import {
   proxyGet,
 } from "./lib/cdp-utils.mjs";
 import { classifyWall, STATUS, isSuccess } from "./lib/status-codes.mjs";
-import { fetchToFile, fetchAnyToFile } from "./lib/pdf-utils.mjs";
-import { handleVerification } from "./lib/anti-bot.mjs";
+import { fetchToFile } from "./lib/pdf-utils.mjs";
 import {
   DEFAULT_DISCOVERY_URL,
   discoveryUrlFromConfig,
@@ -58,7 +58,6 @@ import {
   createCnkiTransport,
   downloadCnkiDirectUrl,
   downloadCnkiTitle,
-  looksChinese,
 } from "./lib/cnki.mjs";
 import {
   classifyPublisher,
@@ -66,7 +65,6 @@ import {
   hasUsablePublisherCredentials,
   parseSiChoice,
   chooseRoute,
-  isChineseLiterature,
 } from "./lib/routing.mjs";
 import { fetchCrossrefByDoi, findCrossrefByTitle } from "./lib/metadata.mjs";
 import { downloadOpenAccessArticle } from "./lib/open-access-provider.mjs";
@@ -117,6 +115,12 @@ export function parseArgs(argv) {
   if (a.route && !["cnki", "open_access", "elsevier", "springer_nature", "ieee", "web_access"].includes(a.route)) {
     throw new Error("--route must be cnki, open_access, elsevier, springer_nature, ieee, or web_access");
   }
+  if (a.openAccess && a.route && a.route !== "open_access") throw new Error("--open-access conflicts with the selected route");
+  if (a.openAccess || a.route === "open_access") {
+    a.openAccess = true;
+    a.route = "open_access";
+    if (a.topic) throw new Error("OA-only downloads require a title, DOI list, or PDF URL; topic discovery uses the institutional browser");
+  }
   parseSiChoice(a);
   if (!a.topic && !a.title && !a.pdfUrl && !a.dois?.length) throw new Error("one of --topic, --title, --pdf-url, or --dois is required");
   if (a.topic && a.count === undefined) a.count = 10;
@@ -161,7 +165,9 @@ async function wosRecordUrls(proxy, topic, count, debug, discoveryUrl = WOS) {
   let target = (tabs.find((t) => /webofscience\./i.test(t.url || "")) || {}).targetId;
   if (target) await navigate(proxy, target, discoveryUrl);
   else target = (await newTab(proxy, discoveryUrl)).targetId;
-  await waitForComplete(proxy, target);
+  const initial = await waitForComplete(proxy, target);
+  const wall = await currentWall(proxy, target, initial);
+  if (wall) return { target, urls: [], wall };
   await handleWosAuthPreference(proxy, target);
   await new Promise((r) => setTimeout(r, 1500));
   await evalJs(
@@ -184,6 +190,8 @@ async function wosRecordUrls(proxy, topic, count, debug, discoveryUrl = WOS) {
     await new Promise((r) => setTimeout(r, 1000));
     const inf = await proxyGet(proxy, "/info", { target }, 8000).catch(() => ({}));
     lastInfo = inf;
+    const wall = await currentWall(proxy, target, inf);
+    if (wall) return { target, urls: [], wall };
     if (!/\/summary\//.test(inf.url || "")) continue;
     const found = JSON.parse((await evalJs(proxy, target, collect)) || "[]");
     if (found.length > urls.length) urls = found;
@@ -205,14 +213,16 @@ async function wosRecordUrls(proxy, topic, count, debug, discoveryUrl = WOS) {
 // --- From a WoS full-record page, get the article DOI ---
 async function doiFromRecord(proxy, target, recordUrl) {
   await navigate(proxy, target, recordUrl);
-  await waitForComplete(proxy, target);
+  const info = await waitForComplete(proxy, target);
+  const wall = await currentWall(proxy, target, info);
+  if (wall) return { wall };
   await new Promise((r) => setTimeout(r, 1200));
   const doi = await evalJs(
     proxy,
     target,
     `(()=>{let h='';(function w(r){r.querySelectorAll('*').forEach(e=>{if(e.shadowRoot)w(e.shadowRoot);if(!h&&e.tagName==='A'&&/doi\\.org\\/10\\./.test(e.href||''))h=e.href;});})(document);if(h)return (h.match(/10\\.\\d{4,9}\\/[^\\s"?]+/)||[])[0];const m=(document.body.innerText||'').match(/10\\.\\d{4,9}\\/[^\\s"]+/);return m?m[0]:'';})()`
   );
-  return (doi || "").replace(/[.,;]+$/, "");
+  return { doi: (doi || "").replace(/[.,;]+$/, "") };
 }
 
 async function captureBrowserFullTextHtml(proxy, tab, outDir, doi, fallbackTitle = "") {
@@ -233,36 +243,13 @@ async function captureBrowserFullTextHtml(proxy, tab, outDir, doi, fallbackTitle
 // --- Download main PDF (and optionally SI) for a DOI via the authenticated browser ---
 async function downloadDoi(proxy, doi, outDir, wantSi, debug, { cleanBundle = false, bundleTitle = "" } = {}) {
   const tab = (await newTab(proxy, "https://doi.org/" + doi)).targetId;
+  let keepTab = false;
   try {
     const info = await waitForComplete(proxy, tab);
-    const wall = classifyWall(info.url || "", info.title || "");
+    const wall = await currentWall(proxy, tab, info);
     if (wall) {
-      // Attempt automatic verification before giving up.
-      if (debug) process.stderr.write(`[debug][doi] wall detected: ${wall.status} "${wall.reason}" — attempting auto-verification...\n`);
-      const verifyResult = await handleVerification(proxy, tab, wall, { debug, maxAttempts: 1 });
-      if (verifyResult.passed) {
-        if (debug) process.stderr.write(`[debug][doi] auto-verification passed (${verifyResult.method}), retrying...\n`);
-        // Verification passed — re-read the page state and continue the download loop.
-        const newInfo = await waitForComplete(proxy, tab);
-        const reWall = classifyWall(newInfo.url || "", newInfo.title || "");
-        if (!reWall) {
-          // Wall is gone, fall through to PDF candidate extraction below.
-          // We need to re-read meta candidates, so jump back to the metadata polling loop.
-          info.url = newInfo.url;
-          info.title = newInfo.title;
-          // Clear the title so waitForComplete re-reads it; fall through
-        } else {
-          // Still blocked after auto-verification — hand off to user.
-          return { doi, status: STATUS.VERIFICATION_AUTO_FAILED, url: info.url, reason: `auto-verify failed (${verifyResult.method || 'unknown'}), still: ${reWall.reason}` };
-        }
-      } else {
-        return {
-          doi,
-          status: verifyResult.attempted ? STATUS.VERIFICATION_AUTO_FAILED : wall.status,
-          url: info.url,
-          reason: verifyResult.attempted ? `automatic verification did not resolve: ${wall.reason}` : wall.reason,
-        };
-      }
+      keepTab = true;
+      return { doi, ...wall, url: info.url, tab };
     }
     // poll: publisher landings often JS-redirect (e.g. linkinghub -> sciencedirect)
     // and inject citation_pdf_url late; re-read a few times before giving up.
@@ -284,21 +271,8 @@ async function downloadDoi(proxy, doi, outDir, wantSi, debug, { cleanBundle = fa
       );
       const w = classifyWall(meta.url || "", meta.title || "", meta.body || "");
       if (w) {
-        // Attempt auto-verification before giving up.
-        if (debug) process.stderr.write(`[debug][doi] meta-stage wall: ${w.status} "${w.reason}" — attempting auto-verification...\n`);
-        const vr = await handleVerification(proxy, tab, w, { debug, maxAttempts: 1 });
-        if (vr.passed) {
-          if (debug) process.stderr.write(`[debug][doi] auto-verification passed (${vr.method}), continuing...\n`);
-          // Wall is gone after verification, re-poll meta
-          await new Promise((r) => setTimeout(r, 1500));
-          continue;
-        }
-        return {
-          doi,
-          status: vr.attempted ? STATUS.VERIFICATION_AUTO_FAILED : w.status,
-          url: meta.url,
-          reason: vr.attempted ? `automatic verification did not resolve: ${w.reason}` : w.reason,
-        };
+        keepTab = true;
+        return { doi, ...w, url: meta.url, tab };
       }
       if (meta.cand && meta.cand.length) break;
     }
@@ -315,7 +289,13 @@ async function downloadDoi(proxy, doi, outDir, wantSi, debug, { cleanBundle = fa
     // publisher page), so "no PDF candidates" means no_authorized_pdf_found.
     if (!meta.cand || !meta.cand.length) {
       const html = await captureBrowserFullTextHtml(proxy, tab, outDir, doi, bundleTitle || meta.articleTitle || "");
-      if (html) return { doi, ...html, via: meta.url, provider: "web_access", accessMode: "institution_browser" };
+      if (html) {
+        if (wantSi) {
+          html.si = await downloadSi(proxy, tab, meta.url, doi, outDir);
+          keepTab = Boolean(html.si.tab);
+        }
+        return { doi, ...html, via: meta.url, provider: "web_access", accessMode: "institution_browser" };
+      }
       if (debug) {
         process.stderr.write(
           `[debug][doi] ${doi} no PDF candidates. url=${meta.url||'?'} title=${meta.title||'?'}\n`
@@ -344,6 +324,10 @@ async function downloadDoi(proxy, doi, outDir, wantSi, debug, { cleanBundle = fa
       : path.join(outDir, "PDFs", safe + ".pdf");
     for (const pdfUrl of meta.cand) {
       const got = await fetchToFile(proxy, tab, pdfUrl, pdfPath);
+      if (got.wall) {
+        keepTab = true;
+        return { doi, ...got.wall };
+      }
       if (got.ok) {
         const res = {
           doi,
@@ -363,15 +347,16 @@ async function downloadDoi(proxy, doi, outDir, wantSi, debug, { cleanBundle = fa
                 reservedFilenames: [path.basename(pdfPath)],
               })
             : await downloadSi(proxy, tab, meta.url, doi, outDir);
+          keepTab = Boolean(si.tab);
           res.si = si;
-          if ((si?.downloaded || si?.count || 0) > 0) res.status = STATUS.DOWNLOADED_WITH_SI;
+          if (!si.tab && (si.downloaded || si.count || 0) > 0) res.status = STATUS.DOWNLOADED_WITH_SI;
         }
         return res;
       }
     }
     return { doi, status: STATUS.PDF_FETCH_FAILED, url: meta.url };
   } finally {
-    await closeTab(proxy, tab);
+    if (!keepTab) await closeTab(proxy, tab);
   }
 }
 
@@ -393,44 +378,28 @@ async function downloadDirectUrl(pdfUrl, outDir, title = "") {
 }
 
 async function downloadSi(proxy, tab, landingUrl, doi, outDir) {
-  // Best-effort: scan landing page for supplement links, download each.
-  await navigate(proxy, tab, landingUrl);
-  await waitForComplete(proxy, tab);
-  await new Promise((r) => setTimeout(r, 800));
-  const links = JSON.parse(
-    (await evalJs(
-      proxy,
-      tab,
-      `JSON.stringify([...new Set(Array.from(document.querySelectorAll('a')).map(a=>a.href).filter(h=>/downloadSupplement|\\/suppl|supplementary|mmc\\d|_si_/i.test(h)))].slice(0,30))`
-    )) || "[]"
-  );
-  const safe = doi.replace(/[\/:*?"<>|]/g, "_");
-  let n = 0;
-  for (const u of links) {
-    const name = (u.split("file=")[1] || u.split("/").pop() || "si" + ++n)
-      .replace(/[\/:*?"<>|]/g, "_")
-      .slice(0, 80);
-    const got = await fetchAnyToFile(
-      proxy,
-      tab,
-      u,
-      path.join(outDir, "SupportingInformation", safe + "__" + name)
-    );
-    if (got.ok) n++;
-  }
-  return { count: n, found: links.length };
+  const result = await downloadWosSupportingInformation({
+    proxy, tab, landingUrl, bundleDir: path.join(outDir, "SupportingInformation"),
+    filenamePrefix: doi.replace(/[\\/:*?"<>|]/g, "_") + "__",
+  });
+  return { ...result, count: result.downloaded };
 }
 
 async function downloadSiForDoi(proxy, doi, outDir) {
   const tab = (await newTab(proxy, `https://doi.org/${doi}`)).targetId;
+  let keepTab = false;
   try {
     const info = await waitForComplete(proxy, tab);
-    const wall = classifyWall(info.url || "", info.title || "");
-    if (wall) return { status: wall.status, count: 0, found: 0, reason: wall.reason };
+    const wall = await currentWall(proxy, tab, info);
+    if (wall) {
+      keepTab = true;
+      return { ...wall, count: 0, found: 0, tab, url: info.url };
+    }
     const result = await downloadSi(proxy, tab, info.url, doi, outDir);
-    return { status: result.count > 0 ? "downloaded" : "not_found", ...result };
+    keepTab = Boolean(result.tab);
+    return result;
   } finally {
-    await closeTab(proxy, tab);
+    if (!keepTab) await closeTab(proxy, tab);
   }
 }
 
@@ -456,13 +425,17 @@ function decorateResult(result, article, route, wantSi) {
 
 async function attachSupportingInformation(result, doi, args, context) {
   if (!args.si || !isSuccess(result.status)) return result;
+  if (args.openAccess) {
+    result.si = { status: "not_checked", reason: "SI browser lookup is outside the OA-only route" };
+    return result;
+  }
   try {
     await context.ensureBrowser();
     result.si = await downloadSiForDoi(args.proxy, doi, args.out);
   } catch (error) {
     result.si = { status: "fetch_failed", count: 0, reason: String(error?.message || error).slice(0, 160) };
   }
-  if ((result.si?.count || 0) > 0) result.status = STATUS.DOWNLOADED_WITH_SI;
+  if (!result.si?.tab && (result.si?.count || 0) > 0) result.status = STATUS.DOWNLOADED_WITH_SI;
   return result;
 }
 
@@ -475,10 +448,19 @@ async function runWebAccess(doi, article, args, context) {
 }
 
 async function downloadArxivTitle(title, args) {
-  const hit = await findArxivByTitle(title).catch(() => null);
+  let hit;
+  try {
+    hit = await findArxivByTitle(title);
+  } catch (error) {
+    return { title, status: STATUS.OA_RESOLUTION_INCONCLUSIVE, route: "open_access", si_requested: args.si, err: String(error).slice(0, 160) };
+  }
   if (!hit?.pdfUrl) return null;
   const downloaded = await downloadDirectUrl(hit.pdfUrl, args.out, hit.title).catch((error) => ({ status: STATUS.FAILED_AFTER_RETRY, err: String(error).slice(0, 120) }));
-  return { ...downloaded, title: hit.title, arxiv: hit.id, route: "open_access", route_reason: "arxiv_exact_title", si_requested: args.si, ...(args.si ? { si: { status: "not_found" } } : {}) };
+  return {
+    ...downloaded, url: hit.pdfUrl, title: hit.title, arxiv: hit.id, route: "open_access",
+    route_reason: "arxiv_exact_title", si_requested: args.si,
+    ...(args.si ? { si: { status: "not_checked", reason: "The arXiv PDF does not identify an SI landing page" } } : {}),
+  };
 }
 
 async function downloadCnkiByTitle(args, context) {
@@ -516,18 +498,20 @@ function attemptSummary(result, provider) {
 }
 
 async function routeDoiDownload(doi, args, context) {
-  let article;
-  try {
-    article = await fetchCrossrefByDoi(doi, { mailto: context.contactEmail });
-  } catch (error) {
-    article = { doi, title: args.title || doi, language: args.language || "", metadata_error: String(error?.message || error).slice(0, 160) };
+  let article = context.titleMetadata;
+  if (!article || article.doi !== doi) {
+    try {
+      article = await fetchCrossrefByDoi(doi, { mailto: context.contactEmail });
+    } catch (error) {
+      article = { doi, title: args.title || doi, language: args.language || "", metadata_error: String(error?.message || error).slice(0, 160) };
+    }
   }
   if (args.title && context.singleDoi) article.title = args.title;
   if (args.language) article.language = args.language;
   if (args.sourceUrl) article.sourceUrl = args.sourceUrl;
   if (args.route) article.routeOverride = args.route;
 
-  if (isChineseLiterature(article) || args.route === "cnki") {
+  if (chooseRoute(article).provider === "cnki") {
     await context.ensureBrowser();
     const route = { provider: "cnki", reason: args.route ? "explicit_override" : "chinese_literature" };
     const result = await downloadCnkiTitle(args.proxy, article.title || doi, args.out, {
@@ -541,7 +525,7 @@ async function routeDoiDownload(doi, args, context) {
   }
 
   const publisherProvider = classifyPublisher(article);
-  const publisherCredentials = publisherProvider === "other" ? null : providerCredentials(publisherProvider);
+  const publisherCredentials = args.openAccess || publisherProvider === "other" ? null : providerCredentials(publisherProvider);
   const initialRoute = chooseRoute({
     ...article,
     routeOverride: args.route,
@@ -568,7 +552,7 @@ async function routeDoiDownload(doi, args, context) {
   }
 
   if (!args.route || args.route === "open_access") {
-    const oa = await downloadOpenAccessArticle(article, { email: context.contactEmail, outDir: args.out });
+    const oa = await downloadOpenAccessArticle(article, { email: context.contactEmail, outDir: args.out, previousAttempts: context.titleAttempts });
     oaResult = oa;
     if (isSuccess(oa.status)) {
       if (apiResult) oa.api_attempt = attemptSummary(apiResult, publisherProvider);
@@ -642,6 +626,11 @@ async function routeDoiDownload(doi, args, context) {
 }
 
 function outputAndManifest(args, results, t0) {
+  if (args.si) {
+    for (const result of results) {
+      result.si ??= { status: "not_checked", reason: "No SI landing page was checked" };
+    }
+  }
   const secs = ((Date.now() - t0) / 1000).toFixed(1);
   const summary = { total: results.length, downloaded: results.filter((result) => isSuccess(result.status)).length, seconds: Number(secs) };
   const manifest = writeManifest(args.out, {
@@ -666,8 +655,8 @@ function outputAndManifest(args, results, t0) {
   return output;
 }
 
-async function main() {
-  const args = parseArgs(process.argv);
+export async function main(argv = process.argv) {
+  const args = parseArgs(argv);
   const siChoice = parseSiChoice(args);
   if (!siChoice.confirmed) {
     console.log(JSON.stringify({
@@ -678,12 +667,12 @@ async function main() {
     return;
   }
   fs.mkdirSync(args.out, { recursive: true });
-  const schoolConfig = loadSchoolConfig();
-  const settings = loadSettings();
+  const schoolConfig = args.openAccess || args.pdfUrl ? null : loadSchoolConfig();
+  const settings = args.pdfUrl ? null : loadSettings();
   const discoveryUrl = discoveryUrlFromConfig(schoolConfig);
   const cnkiUrl = cnkiUrlFromConfig(schoolConfig, args.cnkiUrl);
   const contactEmail = args.unpaywallEmail || settings?.open_access?.contact_email || process.env.UNPAYWALL_EMAIL || "";
-  if (args.openAccess && !args.route) args.route = "open_access";
+
   process.stderr.write(`[config] ${schoolSummary(schoolConfig)}; discovery=${discoveryUrl}; cnki=${cnkiUrl}\n`);
   const results = [];
   const t0 = Date.now();
@@ -704,12 +693,6 @@ async function main() {
 
   if (args.pdfUrl) {
     const directRoute = chooseDirectUrlRoute(args);
-    if (directRoute.mode === "title_search") {
-      const cnki = await downloadCnkiByTitle(args, context);
-      results.push({ ...cnki, route: "cnki", route_reason: directRoute.reason, si_requested: args.si });
-      outputAndManifest(args, results, t0);
-      return;
-    }
     if (directRoute.provider === "cnki") {
       await ensureBrowser();
       const cnki = await downloadCnkiDirectUrl(args.proxy, args.pdfUrl, args.title || "cnki-paper", args.out, { debug: args.debug, wantSi: args.si });
@@ -723,14 +706,14 @@ async function main() {
       url: args.pdfUrl,
       err: String(e).slice(0, 120),
     }));
-    results.push({ ...r, si_requested: args.si, ...(args.si ? { si: { status: "not_found", reason: "A direct PDF URL does not identify a supporting-information landing page" } } : {}) });
+    results.push({ ...r, si_requested: args.si, ...(args.si ? { si: { status: "not_checked", reason: "A direct PDF URL does not identify a supporting-information landing page" } } : {}) });
     outputAndManifest(args, results, t0);
     return;
   }
 
-  if (args.title && (isChineseLiterature({ title: args.title, language: args.language, sourceUrl: args.sourceUrl }) || args.route === "cnki") && !args.topic) {
+  if (args.title && chooseRoute({ ...args, routeOverride: args.route }).provider === "cnki" && !args.topic) {
     const r = await downloadCnkiByTitle(args, context);
-    results.push({ ...r, route: "cnki", route_reason: "chinese_literature", si_requested: args.si });
+    results.push({ ...r, route: "cnki", route_reason: args.route ? "explicit_override" : "chinese_literature", si_requested: args.si });
     outputAndManifest(args, results, t0);
     return;
   }
@@ -738,26 +721,32 @@ async function main() {
   let dois = args.dois || [];
 
   if (!dois.length && args.title && !args.topic) {
+    const attempts = [];
+    let arxiv;
     if (args.openAccess) {
-      const arxiv = await downloadArxivTitle(args.title, args);
-      if (arxiv) {
+      arxiv = await downloadArxivTitle(args.title, args);
+      if (arxiv && isSuccess(arxiv.status)) {
         results.push(arxiv);
         outputAndManifest(args, results, t0);
         return;
       }
+      if (arxiv) attempts.push({ source: "arxiv", status: arxiv.status, url: arxiv.url, reason: arxiv.err });
     }
-    const metadata = await findCrossrefByTitle(args.title, { mailto: contactEmail }).catch(() => null);
-    if (metadata?.doi) {
-      dois = [metadata.doi];
+    try {
+      context.titleMetadata = await findCrossrefByTitle(args.title, { mailto: contactEmail });
+    } catch (error) {
+      attempts.push({ source: "crossref", status: "request_failed", reason: String(error).slice(0, 160) });
+    }
+    if (context.titleMetadata?.doi) {
+      dois = [context.titleMetadata.doi];
       context.singleDoi = true;
+      context.titleAttempts = attempts;
     } else {
-      process.stderr.write(`[oa] no exact Crossref record; trying arXiv exact title: ${args.title}\n`);
-      const arxiv = await downloadArxivTitle(args.title, args);
-      if (arxiv) {
-        results.push(arxiv);
-      } else {
-        results.push({ title: args.title, status: args.openAccess ? STATUS.OA_NOT_FOUND : STATUS.METADATA_AMBIGUOUS, err: "no exact Crossref or arXiv title match", si_requested: args.si });
-      }
+      if (!args.openAccess) arxiv = await downloadArxivTitle(args.title, args);
+      const missing = attempts.length ? STATUS.OA_RESOLUTION_INCONCLUSIVE : args.openAccess ? STATUS.OA_NOT_FOUND : STATUS.METADATA_AMBIGUOUS;
+      const result = arxiv || { title: args.title, status: missing, err: "no exact title resolved", si_requested: args.si };
+      if (attempts.length) result.oaAttempts = attempts;
+      results.push(result);
       outputAndManifest(args, results, t0);
       return;
     }
@@ -767,11 +756,21 @@ async function main() {
     await ensureBrowser();
     const searchQuery = wosSearchQuery(args.topic, args.title || "");
     process.stderr.write(`[wos] searching: ${searchQuery}\n`);
-    const { target, urls } = await wosRecordUrls(args.proxy, searchQuery, args.count, args.debug, discoveryUrl);
+    const { target, urls, wall } = await wosRecordUrls(args.proxy, searchQuery, args.count, args.debug, discoveryUrl);
+    if (wall) {
+      results.push({ ...wall, route: "web_access", topic: args.topic });
+      outputAndManifest(args, results, t0);
+      return;
+    }
     process.stderr.write(`[wos] ${urls.length} records\n`);
     for (const u of urls) {
       if (dois.length >= args.count) break;
-      const doi = await doiFromRecord(args.proxy, target, u);
+      const { doi, wall } = await doiFromRecord(args.proxy, target, u);
+      if (wall) {
+        results.push({ ...wall, route: "web_access", topic: args.topic });
+        outputAndManifest(args, results, t0);
+        return;
+      }
       if (doi && /^10\./.test(doi)) {
         dois.push(doi);
         process.stderr.write(`[doi] ${doi}\n`);
@@ -779,18 +778,8 @@ async function main() {
     }
     if (!dois.length && args.title) {
       process.stderr.write(`[oa] WoS produced no DOI; trying arXiv exact title: ${args.title}\n`);
-      const hit = await findArxivByTitle(args.title).catch((e) => ({ err: String(e).slice(0, 120) }));
-      if (hit && hit.pdfUrl) {
-        process.stderr.write(`[oa] arXiv ${hit.id} -> ${hit.pdfUrl}\n`);
-        const r = await downloadDirectUrl(hit.pdfUrl, args.out, hit.title).catch((e) => ({
-          title: args.title,
-          status: STATUS.FAILED_AFTER_RETRY,
-          err: String(e).slice(0, 120),
-        }));
-        results.push({ ...r, arxiv: hit.id });
-      } else {
-        results.push({ title: args.title, status: STATUS.NO_AUTHORIZED_PDF_FOUND, err: hit?.err || "no exact arXiv title match" });
-      }
+      const arxiv = await downloadArxivTitle(args.title, args);
+      results.push(arxiv || { title: args.title, status: STATUS.NO_AUTHORIZED_PDF_FOUND, err: "no exact arXiv title match", si_requested: args.si });
     }
   }
   dois = selectBatchDois(dois, args.count);
@@ -807,7 +796,9 @@ async function main() {
         err: msg,
       };
     });
+    if (context.titleAttempts?.length && !r.oaAttempts) r.oaAttempts = context.titleAttempts;
     // Apply legacy status mapping for backward-compatible output if requested.
+    const handoff = r.tab || r.si?.tab;
     if (args.legacyStatus) {
       r.status = reverseMapStatus(r.status);
     }
@@ -815,6 +806,7 @@ async function main() {
     process.stderr.write(
       `[dl] ${doi} -> ${r.status}${r.bytes ? " " + r.bytes + "B" : ""}\n`
     );
+    if (handoff) break;
   }
   outputAndManifest(args, results, t0);
 }

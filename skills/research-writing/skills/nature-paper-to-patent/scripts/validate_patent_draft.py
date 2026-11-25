@@ -31,6 +31,18 @@ def add(findings: list[Finding], level: str, code: str, message: str) -> None:
     findings.append(Finding(level, code, message))
 
 
+def text_values(node):
+    """Yield textual values without treating field names as manuscript prose."""
+    if isinstance(node, str):
+        yield node
+    elif isinstance(node, dict):
+        for value in node.values():
+            yield from text_values(value)
+    elif isinstance(node, list):
+        for value in node:
+            yield from text_values(value)
+
+
 def validate(data: dict) -> list[Finding]:
     findings: list[Finding] = []
     required = (
@@ -72,6 +84,8 @@ def validate(data: dict) -> list[Finding]:
             )
 
     source_records = data.get("source_map", [])
+    if not source_records:
+        add(findings, "ERROR", "EMPTY_SOURCE_MAP", "正式草稿须登记来源。")
     source_ids = set()
     for record in source_records:
         source_id = str(record.get("id", ""))
@@ -97,6 +111,7 @@ def validate(data: dict) -> list[Finding]:
         )
 
     ledger_ids = set()
+    supported_evidence = set()
     for item in data.get("evidence_ledger", []):
         ledger_id = str(item.get("id", ""))
         if not ledger_id:
@@ -110,8 +125,10 @@ def validate(data: dict) -> list[Finding]:
         referenced = item.get("source_ids", [])
         if status in {"explicit", "inherent"} and not referenced:
             add(findings, "ERROR", "MISSING_SOURCE_LINK", f"{ledger_id}没有来源ID。")
+        if status in {"explicit", "inherent"} and referenced and set(referenced) <= source_ids:
+            supported_evidence.add(ledger_id)
         for source_id in referenced:
-            if source_ids and source_id not in source_ids:
+            if source_id not in source_ids:
                 add(findings, "ERROR", "UNKNOWN_SOURCE_ID", f"{ledger_id}引用未知来源ID：{source_id}。")
 
     mapped_claims = set()
@@ -130,6 +147,8 @@ def validate(data: dict) -> list[Finding]:
                 "UNMAPPED_FEATURE",
                 f"权利要求{claim_number}的特征“{mapping.get('feature', '')}”没有证据ID。",
             )
+        if evidence_ids and not supported_evidence.intersection(evidence_ids):
+            add(findings, "ERROR", "UNSUPPORTED_FEATURE", f"权利要求{claim_number}的特征缺少可回溯的支持证据。")
         for evidence_id in evidence_ids:
             if evidence_id not in ledger_ids:
                 add(
@@ -142,7 +161,12 @@ def validate(data: dict) -> list[Finding]:
         if number not in mapped_claims:
             add(findings, "ERROR", "CLAIM_NOT_MAPPED", f"权利要求{number}没有特征证据映射。")
     formal_text = "\n".join(str(claim.get("text", "")) for claim in claims)
-    formal_text += "\n" + json.dumps(data.get("specification", {}), ensure_ascii=False)
+    spec_text = "\n".join(text_values(data.get("specification", {})))
+    abstract_text = str(data.get("abstract", ""))
+    for section, prose in (("说明书", spec_text), ("摘要", abstract_text)):
+        if PLACEHOLDER.search(prose):
+            add(findings, "ERROR", "FORMAL_PLACEHOLDER", f"{section}仍含待确认标记。")
+    formal_text += "\n" + spec_text + "\n" + abstract_text
     for alias in sorted(forbidden_aliases):
         if alias in formal_text:
             add(findings, "ERROR", "FORBIDDEN_ALIAS", f"正式文本使用了禁用别名：{alias}。")
@@ -153,7 +177,7 @@ def validate(data: dict) -> list[Finding]:
     formula_inventory = data.get("formula_inventory", [])
     for item in formula_inventory:
         source_id = item.get("source_id")
-        if source_ids and source_id not in source_ids:
+        if source_id not in source_ids:
             add(findings, "ERROR", "FORMULA_INVENTORY_SOURCE", f"公式清单引用未知来源ID：{source_id}。")
         if not item.get("disposition"):
             add(findings, "ERROR", "FORMULA_DISPOSITION", f"来源公式{source_id}缺少处理去向。")
@@ -179,7 +203,7 @@ def validate(data: dict) -> list[Finding]:
         if not equation.get("source_ids"):
             add(findings, "ERROR", "EQUATION_SOURCE", f"公式{number}缺少来源ID。")
         for source_id in equation.get("source_ids", []):
-            if source_ids and source_id not in source_ids:
+            if source_id not in source_ids:
                 add(findings, "ERROR", "EQUATION_SOURCE", f"公式{number}引用未知来源ID：{source_id}。")
         if not equation.get("symbols"):
             add(findings, "ERROR", "EQUATION_SYMBOLS", f"公式{number}缺少结构化符号定义。")
@@ -189,7 +213,7 @@ def validate(data: dict) -> list[Finding]:
     figures = data.get("figures", [])
     for item in data.get("figure_inventory", []):
         source_id = item.get("source_id")
-        if source_ids and source_id not in source_ids:
+        if source_id not in source_ids:
             add(findings, "ERROR", "FIGURE_INVENTORY_SOURCE", f"附图清单引用未知来源ID：{source_id}。")
         if not item.get("disposition"):
             add(findings, "ERROR", "FIGURE_DISPOSITION", f"来源附图{source_id}缺少处理去向。")
@@ -219,7 +243,7 @@ def validate(data: dict) -> list[Finding]:
         if not figure.get("source_ids"):
             add(findings, "WARNING", "FIGURE_SOURCE", f"图{figure.get('number')}缺少来源ID或重绘依据。")
         for source_id in figure.get("source_ids", []):
-            if source_ids and source_id not in source_ids:
+            if source_id not in source_ids:
                 add(
                     findings,
                     "ERROR",

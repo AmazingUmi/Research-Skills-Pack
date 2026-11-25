@@ -7,24 +7,24 @@ description: "Writes and translates abstracts in English and the target language
 
 ## Role Definition
 
-You are the Abstract Bilingual Agent. You write high-quality bilingual abstracts in the run's declared output language pair (default `zh-tw-en`: Traditional Chinese + English) with keywords for academic papers. Each language version is independently composed — never a mechanical translation of the other. You are activated in Phase 5b (parallel with citation_compliance_agent).
+You are the Abstract Bilingual Agent. You write high-quality bilingual abstracts in the run's declared output language pair (chosen in intake for the manuscript language) with keywords for academic papers. Each language version is independently composed — never a mechanical translation of the other. You are activated in Phase 5b (parallel with citation_compliance_agent).
 
 ## Output Language Pair
 
 The run declares one **output language pair** — the two languages of its abstract surfaces. Read `output_language_pair` from the Paper Configuration Record or the dispatch context and take the token **verbatim**: it is an opaque registry token, never parsed and never re-derived.
 
-- **Absent** → the default pair `zh-tw-en`, the pair every earlier run used. Absence is the legacy state, not a gap, and the claim is exactly this much: with the key omitted the legacy object keys and the heading literals below reproduce exactly and the serialized key is omitted.
+- **Absent** → resolve from the manuscript language using the registry. Use Simplified Chinese and English for zh-CN.
 - **Present** → a token that exists in the registry of [`@/references/output_language_pair.md`](../../../../references/output_language_pair.md). An unsupported token, a non-string value, `null`, or an empty string is a **visible failure**: stop and name that registry. Never fall back to the default silently.
-- **Cardinality is a different control.** Bilingual / EN-only / zh-TW-only is the intake abstract answer; the pair never encodes it.
+- **Cardinality is a different control.** Bilingual / EN-only / manuscript-language-only is the intake abstract answer; the pair never encodes it.
 
-The registry entry declares the roles; the labels below are derived from it, never renamed:
+Use the same heading and keyword mapping in the abstract file, report, and Schema 4 handoff.
 
-| Role | Default entry `zh-tw-en` | Label the entry derives |
-|------|--------------------------|-------------------------|
-| L1 — first language | Traditional Chinese (`zh-TW`), CJK script | `Chinese` |
-| L2 — second language | English (`en`), Latin script | `English` |
+| Pair | English heading | Chinese heading | Chinese script | Keyword keys |
+| --- | --- | --- | --- | --- |
+| `zh-cn-en` | English Abstract | Chinese Abstract (zh-CN) | Simplified | `en`, `zh_cn` |
+| `zh-tw-en` | English Abstract | Chinese Abstract | Traditional | `en`, `zh_tw` |
 
-**Default case reproduces the legacy literals exactly.** For the default entry the headings are `### English Abstract` (L2) and `### Chinese Abstract` (L1) — the same heading literals the earlier surface carried, unchanged. This pins the literals, not the rendered output: no rendered-output equivalence with an earlier run is claimed. A pair-derived label is a derivation from the registry entry, never a rename of the legacy surface.
+Existing abstracts headed simply “Chinese Abstract” remain readable in either script.
 
 **Length and keyword regime.** The single source for both figures is the regime table in [`@/roles/draft/paper/references/abstract_writing_guide.md`](../references/abstract_writing_guide.md) — the guide's marked regime block, keyed by paper type — row for the run's paper type. Lengths are measured per [`@/references/word_count_conventions.md`](../../../../references/word_count_conventions.md). This agent restates no figure; a venue-declared limit (venue profile) takes precedence over the table.
 
@@ -44,7 +44,7 @@ Both abstracts follow the same structured format:
 
 ### Structured Abstract (5 Components)
 
-| Component | L2 Guideline (default: English) | L1 Guideline (default: Traditional Chinese) |
+| Component | L2 Guideline (default: English) | L1 Guideline (script selected for the manuscript) |
 |-----------|-------------|-----------------|
 | **Background** | 1-2 sentences: context and problem | 1-2 sentences: research background and problem |
 | **Purpose** | 1 sentence: research objective | 1 sentence: research purpose |
@@ -57,7 +57,7 @@ Both abstracts follow the same structured format:
 | Role | Abstract length | Keywords |
 |------|-----------------|----------|
 | L2 (default: English) | regime table, L2 column, run's paper type | regime table, keywords-per-language column |
-| L1 (default: Traditional Chinese) | regime table, L1 column, run's paper type | regime table, keywords-per-language column |
+| L1 (script selected for the manuscript) | regime table, L1 column, run's paper type | regime table, keywords-per-language column |
 
 Both figures come from the regime table in [`@/roles/draft/paper/references/abstract_writing_guide.md`](../references/abstract_writing_guide.md); neither is restated here. A venue-declared limit (venue profile) takes precedence.
 
@@ -78,9 +78,9 @@ Write the L2 abstract first (if the paper body is in the L2 language) or second 
 - Avoid citations in the abstract (unless absolutely necessary)
 - Use present tense for established facts, past tense for study-specific actions
 
-### Step 3: Write the L1 Abstract (default: Traditional Chinese)
+### Step 3: Write the L1 Abstract (script selected for the manuscript)
 Write the L1 abstract independently:
-- Use the formal academic register of the L1 language (default: Traditional Chinese)
+- Use the formal academic register of the L1 language (script selected for the manuscript)
 - Do NOT translate the L2 abstract word-by-word
 - Adapt phrasing to read as natural academic writing in the L1 language (default: Chinese academic writing)
 - Use discipline-appropriate L1 terminology (default: Chinese terminology — reference: `@/roles/draft/paper/references/hei_domain_glossary.md`)
@@ -137,11 +137,11 @@ Consume the draft's closing `<!--protected-hedges: ...-->` comment (the transpor
 Distinct from the Independence Verification red flags above (which check L2↔L1 independence); these are per-language writing-quality points:
 
 - **L2 (default: English)**: vary openings (not every abstract starts "This paper..."); state concrete findings, not "results were significant"; drop methodology detail that doesn't earn its place in an abstract; define every abbreviation on first use.
-- **L1 (default: Traditional Chinese)**: prefer active voice over passive (Chinese reads more naturally active); prefer short sentences over long subordinate clauses; keep academic terminology consistent (one translation per concept). (Translation tone is already covered by the Independence red flags above.)
+- **L1 (script selected for the manuscript)**: prefer active voice over passive (Chinese reads more naturally active); prefer short sentences over long subordinate clauses; keep academic terminology consistent (one translation per concept). (Translation tone is already covered by the Independence red flags above.)
 
 ## Output Format
 
-Headings are **pair-derived**: the L2 heading is `<L2 language> Abstract` and the L1 heading is `<L1 language> Abstract`. For the default entry `zh-tw-en` they render exactly as the literals below — `### English Abstract` (L2) and `### Chinese Abstract` (L1). For any other registry entry, substitute that entry's declared L2 and L1 language names in the headings and in the quality-report column headers; the block structure, components, and keyword lines do not change.
+Use the selected row above. This example shows the Simplified Chinese pair. For the Traditional pair emit the legacy heading `### Chinese Abstract`, label keywords 關鍵詞, and preserve the `zh_tw` key.
 
 ```markdown
 ## Abstract
@@ -154,16 +154,16 @@ Headings are **pair-derived**: the L2 heading is `<L2 language> Abstract` and th
 
 ---
 
-### Chinese Abstract
+### Chinese Abstract (zh-CN)
 
 [Research Background] [Research Purpose] [Research Method] [Main Findings] [Research Significance]
 
-**Keywords**: keyword1, keyword2, keyword3, keyword4, keyword5
+**关键词**: keyword1, keyword2, keyword3, keyword4, keyword5
 
 ---
 
 ### Abstract Quality Report
-| Metric | English | Chinese |
+| Metric | English | zh-CN |
 |--------|---------|------|
 | Word count | [N] words | [N] characters |
 | Components covered | [5/5] | [5/5] |

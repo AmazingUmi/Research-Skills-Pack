@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Imbad0202/academic-research-skills/contracts/passport/experiment_provenance_entry.schema.json",
   "title": "Material Passport Experiment Provenance Entry",
-  "description": "One entry in Material Passport Schema 9 experiment_provenance[] aggregate. Scholar-entered at intake (after Stage 1, or on entry after Stage 1;) — NOT writer-emitted. Records the intake + disclosure layer for an experiment the scholar ran EXTERNALLY and brought results back from. research-writing does not run experiments, does not auto-fill provenance, and does not judge whether an experiment was correctly designed/run/statistically-adequate/reproducible by research-writing (POSITIONING non-goals, carried verbatim into the integrity gate wording). The entry backs manuscript claims that cite it via claim_intent_manifest.planned_experiment_ids[]. Cross-array invariants EP-INV-1..EP-INV-4 (in-passport experiment_id uniqueness, planned_experiment_ids resolution, empirical-kind gating, declaration symmetry) are lint-enforced in scripts/check_claim_audit_consistency.py — JSON Schema cannot express cross-array integrity. Shape-only validation also available standalone via scripts/check_experiment_provenance.py. The nested repro_lock sub-shape re-declares (does NOT $ref) the inline-object design from ../references/artifact_reproducibility_pattern.md; the canonical field set is single-sourced in scripts/repro_lock_validation.py and a drift test asserts the two copies stay in sync. See docs/design/2026-06-08-260-experiment-provenance-intake-spec.md.",
+  "description": "One entry in Material Passport Schema 9 experiment_provenance[] aggregate. Records external results or an authorized outline experiment run. Scholar confirmation attests the report, while execution records identify the actual operator. The entry backs manuscript claims that cite it via claim_intent_manifest.planned_experiment_ids[]. Cross-array invariants EP-INV-1..EP-INV-4 (in-passport experiment_id uniqueness, planned_experiment_ids resolution, empirical-kind gating, declaration symmetry) are lint-enforced in scripts/check_claim_audit_consistency.py — JSON Schema cannot express cross-array integrity. Shape-only validation also available standalone via scripts/check_experiment_provenance.py. The nested repro_lock sub-shape re-declares (does NOT $ref) the inline-object design from ../../../references/artifact_reproducibility_pattern.md; the canonical field set is single-sourced in scripts/repro_lock_validation.py and a drift test asserts the two copies stay in sync. See docs/design/2026-06-08-260-experiment-provenance-intake-spec.md.",
 
   "type": "object",
   "additionalProperties": false,
@@ -29,6 +29,20 @@
   ],
 
   "properties": {
+    "execution": {
+      "type": "object", "additionalProperties": false,
+      "required": ["origin", "executor", "results", "verification_status"],
+      "properties": {
+        "origin": {"enum": ["external_import", "pack_run"]},
+        "executor": {"type": "string", "minLength": 1},
+        "command": {"type": "string", "minLength": 1},
+        "results": {"type": "string", "minLength": 1},
+        "verification_status": {"enum": ["UNVERIFIED", "VERIFIED", "STALE"]},
+        "confirmed_by": {"const": "scholar"}
+      },
+      "if": {"properties": {"origin": {"const": "pack_run"}}},
+      "then": {"required": ["command"]}
+    },
     "experiment_id": {
       "type": "string",
       "minLength": 1,
@@ -49,7 +63,7 @@
     "repro_lock": {
       "type": ["object", "null"],
       "additionalProperties": false,
-      "description": "Per-experiment reproducibility lock — the SAME inline-object shape as the passport-level repro_lock (../references/artifact_reproducibility_pattern.md), nested here so each experiment carries its own configuration trail. Re-declared (not $ref'd) because the source is an inline-prose object, not a schema file; the canonical required-field set is single-sourced in scripts/repro_lock_validation.py with a drift test. Documents configuration, NOT a deterministic replay guarantee. The KEY MUST be present. Its value is null when any of these fields has no honest value for the experiment, for example a survey, an analysis that used no LLM or research-writing session, or a trained model with no research-writing prompts to hash; repro_lock_reason then says why.",
+      "description": "Per-experiment reproducibility lock — the SAME inline-object shape as the passport-level repro_lock (../../../references/artifact_reproducibility_pattern.md), nested here so each experiment carries its own configuration trail. Re-declared (not $ref'd) because the source is an inline-prose object, not a schema file; the canonical required-field set is single-sourced in scripts/repro_lock_validation.py with a drift test. Documents configuration, NOT a deterministic replay guarantee. The KEY MUST be present. Its value is null when any of these fields has no honest value for the experiment, for example a survey, an analysis that used no LLM or research-writing session, or a trained model with no research-writing prompts to hash; repro_lock_reason then says why.",
       "required": [
         "schema_version",
         "stochasticity_declaration",

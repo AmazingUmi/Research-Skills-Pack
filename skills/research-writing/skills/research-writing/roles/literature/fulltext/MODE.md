@@ -8,11 +8,12 @@ Verified routes are examples, not defaults. Every institution should start from 
 
 > **SI confirmation gate — do this first.** Before downloading any PDF, CAJ, HTML, XML, archive, or attachment, ask whether the user wants Supporting Information. An explicit request for SI counts as yes; an explicit request for正文 only counts as no. Otherwise ask once for the whole batch. Run the downloader with exactly one of `--si` or `--no-si`. Without either flag the script returns `si_confirmation_required` and does not create the output directory.
 
-> **Main workflow.** Normalize the DOI/title and identify language and publisher before routing. Chinese literature always uses CNKI. For English Elsevier, Springer Nature, and IEEE articles with usable provider credentials, try the publisher API first and do not require an OA determination after a successful API download. If that API attempt fails, automatically check legitimate OA sources. Other English publishers check OA first, then use the institutional Web Access route when OA is unavailable.
+> **Main workflow.** Normalize the DOI/title and identify language and publisher before routing. Apply explicit PDF and OA-only scope first, then route Chinese literature to CNKI when institutional retrieval is authorized. For English Elsevier, Springer Nature, and IEEE articles with usable provider credentials, try the publisher API first and do not require an OA determination after a successful API download. If that API attempt fails, automatically check legitimate OA sources. Other English publishers check OA first, then use the institutional Web Access route when OA is unavailable.
 
 ```text
 规范化 DOI/题名并识别语言、出版商
-├─ 中文文献：直接走 CNKI
+├─ 已指定 PDF 或仅限 OA：优先使用指定链接或公开来源
+├─ 中文文献且已授权机构访问：走 CNKI
 └─ 英文文献
    ├─ Elsevier / Springer Nature / IEEE，且已配置有效 Key
    │  ├─ 优先通过出版商 API 下载
@@ -23,7 +24,7 @@ Verified routes are examples, not defaults. Every institution should start from 
       └─ OA 不可用：走 Web Access 机构授权
 ```
 
-> **Chinese literature is CNKI-only.** A Chinese title, `zh` metadata language, explicit CNKI source URL, or `--route cnki` must use CNKI even if another OA copy appears to exist. Reuse the user's current Chrome library/CNKI login state and prefer configured `discovery.cnki_url`. Never export cookies or collect the institutional password.
+> **Source selection.** Use a supplied PDF URL directly. An OA-only request uses public sources for every language. For Chinese titles, use CNKI only when institutional retrieval is in scope.
 
 > **Publisher API fallback.** A valid API key does not guarantee full-text entitlement. When an Elsevier, Springer Nature, or IEEE API attempt returns no entitlement or no usable full text, automatically try legitimate OA sources first. Return `api_fallback_confirmation_required` and ask once whether to use Web Access only after both the publisher API and OA routes fail. Do not switch to institutional Web Access automatically.
 
@@ -80,7 +81,7 @@ For Chinese literature, the downloader also reads `discovery.cnki_url` when pres
 
 ### API-First and Open-Access Fallback
 
-For an English article, identify its publisher before deciding when to resolve article-level OA:
+For a supplied PDF URL, use that address directly; for an OA-only request, use step 5 for any language and stop after OA retrieval. For other English articles, identify the publisher and use the following sequence:
 
 1. Collect a DOI, PMID, exact title, article URL, or a definite paper list, then normalize its metadata and publisher.
 2. If it belongs to Elsevier, Springer Nature, or IEEE and usable provider credentials are configured, try that publisher API first. On success, record `accessMode: publisher_api` and `oa_status: not_checked_api_first`; do not run OA resolution only to label the article.
@@ -92,7 +93,7 @@ For an English article, identify its publisher before deciding when to resolve a
    node scripts/batch_download.mjs --title "<exact title>" --open-access --no-si --out "<project>"
    ```
 
-   Use `--pdf-url` when the user supplies a known legitimate OA PDF URL.
+   Use `--pdf-url` when the user supplies a known legitimate OA PDF URL. If the arXiv title lookup or candidate PDF fails, continue through exact Crossref and the DOI’s other open sources. Record failed attempts in `oaAttempts` and fetch each candidate URL once per resolution.
 6. Verify the downloaded file and record the source. Mark a successful PDF as `open_access_downloaded`.
 7. If no lawful OA full text is found, mark `oa_not_found`. For a supported publisher whose API already failed, request confirmation before Web Access. For another publisher, continue to Web Access. If `--route open_access` was explicitly requested, stop after the OA result.
 
@@ -157,13 +158,7 @@ Treat configured institutional login, federation, proxy, and database-login host
 
 Use only the user's legitimate institutional access. Do not bypass paywalls, DRM, or two-factor authentication.
 
-**Verification-first rule:** When a visible slider, checkbox, robot check, or simple verification control appears in the user's authenticated Chrome session, attempt it in the browser before asking the user to intervene. Keep the attempt bounded (at most two attempts on one tab), verify that the challenge disappeared, and continue from that same tab when successful.
-
-- Slider/drag challenges (including CNKI puzzle sliders): estimate the visible travel distance and simulate a gradual drag.
-- ScienceDirect robot checks, managed Turnstile, and reCAPTCHA checkbox stages: try the visible checkbox once.
-- Simple `Continue`, `Verify`, or equivalent visible controls: click once, then re-check the page state.
-
-**User handoff:** Ask the user only after the bounded attempt fails, or immediately when the page requires secret or identity-bearing input such as an image-selection answer, QR approval, SMS/OTP, passkey, hardware key, or two-factor authentication. Keep the challenged tab open and never ask the user to paste credentials or codes into chat.
+**Verification handoff.** Stop at the first challenge, keep the tab open, and hand it to the user. Resume from that tab only after the user confirms completion.
 
 Avoid unbounded or indiscriminate downloading. Process only the definite paper list confirmed by the user, apply provider-friendly pacing, and leave a clear audit trail of what was downloaded, from where, and whether supporting information was found.
 
@@ -184,7 +179,7 @@ For the paid-library branch, confirm these conditions:
 1. The browser that holds the user's library/database login state is open on the user's machine.
 2. The school configuration exists and is valid.
    - Run `python3 scripts/configure_school.py show`.
-   - If missing, run `python3 scripts/configure_school.py preset "<school name>"` or guide the user through `src/wizard.py`.
+   - If missing, run `python3 scripts/configure_school.py url "<user-provided library resource URL>"`.
 3. The user has personally logged in to their institution/library route in that same browser, and can reach the library aggregation service, target database, or discovery entry.
 4. The browser-control path can reuse that same logged-in browser profile.
    - For Chrome CDP, ask the user to open `chrome://inspect/#remote-debugging` and enable remote debugging for the current browser instance.
@@ -201,10 +196,10 @@ For the paid-library branch, confirm these conditions:
    - In Codex-only setups also check `%USERPROFILE%\.codex\skills\web-access-main\scripts\check-deps.mjs`.
 8. The user has approved the target output folder.
 
-If Claude Code says this skill is not installed, install or copy it to:
+If Claude Code says `research-writing` is not installed, install or copy the skill directory to:
 
 ```powershell
-$env:USERPROFILE\.claude\skills\this mode
+$env:USERPROFILE\.claude\skills\research-writing
 ```
 
 Codex and other agent setups may instead use `.codex\skills` or `.agents\skills`; treat the three locations as install targets, not as different skill versions.
@@ -216,7 +211,7 @@ Definite DOI/title/PMID lists are supported without a fixed per-batch paper-coun
 Operational safeguards:
 
 - pace requests appropriately for each provider and maintain the manifest throughout the batch
-- attempt visible verification controls first; stop after at most two failed attempts, on institutional login expiry, or when an unusual/security-sensitive prompt appears
+- pause immediately at verification or expired institutional login
 
 Do not turn a broad keyword search into unlimited automatic downloading. Do not download whole journal issues, volumes, or large result sets.
 
@@ -245,8 +240,6 @@ carsi_resolved_retry_needed
 publisher_verification_waiting_user
 sciencedirect_robot_check
 retry_after_user_verification
-verification_auto_passed
-verification_auto_failed
 do_not_auto_retry
 url_needs_repair
 library_no_permission
@@ -256,13 +249,9 @@ no_authorized_pdf_found
 failed_after_retry
 ```
 
-Use `verification_auto_passed` when an automatic CAPTCHA/slider/robot check was successfully solved by the skill, and the download then proceeded normally.
-
-Use `verification_auto_failed` when auto-verification was attempted but could not pass the challenge. This is a user-handoff status, not a final failure.
-
 Use `carsi_waiting_user` only when the browser is visibly at an institutional SSO / CAS / CARSI-Shibboleth / OpenAthens / database authentication page. Do not treat this as a final failure.
 
-Use `publisher_verification_waiting_user` or `sciencedirect_robot_check` when a publisher page shows a verification challenge but no automatic interaction was possible. When a bounded automatic attempt was made and failed, use `verification_auto_failed` instead. None of these is a final download failure.
+Record `publisher_verification_waiting_user` or `sciencedirect_robot_check` and pause for the user.
 
 Use `open_access_downloaded` when a legitimate open-access route such as PMC, the publisher's OA PDF, arXiv, or another lawful open PDF source provides the downloaded PDF without institutional authorization.
 

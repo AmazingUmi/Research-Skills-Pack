@@ -46,9 +46,9 @@ already established in the task without asking again.
 | Mode | Use when | Minimum useful input | Default output |
 |---|---|---|---|
 | `draft` | User wants a new point-by-point response package | Reviewer comments plus any author actions or manuscript-change notes | Internal/editor master plus separate reviewer-specific responses with placeholders where needed |
-| `audit` | User provides an existing response draft and asks whether it is good enough | Response draft; reviewer comments when available | Findings first, then revised or annotated response sections |
+| `audit` | Review an existing reply | Draft and available comments | Delegate to `review rebuttal-audit` for findings only |
 | `revise` | User wants a draft rewritten for tone, traceability, or Nature-style response | Existing draft plus target change request | Revised response text plus changed-risk notes |
-| `triage-only` | User wants strategy, action list, or missing inputs before writing prose | Reviewer comments or editor letter | Tracker, action map, missing-input list, no final letter |
+| `triage-only` | Decide what to address | Reviewer comments | Delegate to `review revision-coach` for author decisions; leave ordering and adoption to the author |
 | `cover-letter` | User asks for a revision cover letter only | Manuscript metadata plus revision summary or change notes | Concise editor-facing cover letter |
 | `revision-package` | User asks for a complete revision package or pastes a decision email and wants the agent to begin | Decision email or reviewer/editor comments plus available author actions | Internal/editor master, reviewer-separated response files, cover letter when useful, change checklist, and placeholders |
 | `latex-template` | User asks for LaTeX templates or filled `.tex` files | Desired output type; manuscript metadata if filling templates | Template paths or filled `.tex` content |
@@ -59,7 +59,7 @@ require many unsupported facts.
 
 ## Readiness states
 
-Use one readiness state for each comment and one package-level state:
+Readiness states apply to an explicitly requested response package with an author-confirmed strategy. Standalone audit and triage return their specialist reports without a readiness designation.
 
 | State | Meaning | Allowed output |
 |---|---|---|

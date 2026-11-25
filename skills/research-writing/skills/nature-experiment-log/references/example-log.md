@@ -9,7 +9,7 @@
 exp_id: CL-M-260529-001
 date: 2026-05-29
 salt_system: 氯盐
-salt_batch: CL-Q1-B001
+sample_batch: CL-Q1-B001
 salt_composition: "Q1 (*** mol%)"
 exp_type: 腐蚀验证
 furnace: 马弗炉_1号

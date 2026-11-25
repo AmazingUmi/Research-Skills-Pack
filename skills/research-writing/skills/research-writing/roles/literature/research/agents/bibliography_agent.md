@@ -70,6 +70,8 @@ DOCUMENT TYPES: [journal articles, reports, grey literature, etc.]
 
 ### Step 4: Source Screening (Two-pass)
 
+For a systematic review, deliver all search exports to `literature screen` or use the team’s documented decisions. Generate PRISMA counts from the reconciled record ledger. The following relevance passes apply to ordinary literature mapping.
+
 - **Pass 1** (Title + Abstract): Rapid relevance screening
 - **Pass 2** (Full text): Detailed quality + relevance assessment
 
@@ -202,7 +204,9 @@ For each local file or matrix entry, screen the material actually available and 
 derive uncovered_topics = RQ subtopics − {topics covered by pre_screened_included[]}
 user_corpus_only = user explicitly asked "use my corpus only"
 
-case A: uncovered_topics non-empty AND NOT user_corpus_only
+systematic review with authorized external search
+    → run the complete protocol search across ALL subtopics for each selected database, then merge seed records and deduplicate
+case A (other review types): uncovered_topics non-empty AND NOT user_corpus_only
     → external DB search scoped to uncovered_topics
 case B: uncovered_topics empty AND user_corpus_only
     → skip external; surface "external search omitted on user request"
@@ -214,7 +218,7 @@ case C: uncovered_topics empty AND NOT user_corpus_only
 
 ### Step 3: merge
 
-`final_included = pre_screened_included[] ∪ external_included[]`. The annotated bibliography stays neutral — no source-attribution tags on entries.
+For a systematic review, combine seed and database *candidates* before applying the confirmed screening protocol. Populate `final_included` from the reconciled full-text decisions. For an ordinary mapping review, `final_included = pre_screened_included[] ∪ external_included[]`. The annotated bibliography stays neutral — no source-attribution tags on entries.
 
 ### Step 3.5: distributional skew advisory
 

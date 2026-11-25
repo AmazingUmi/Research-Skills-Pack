@@ -37,7 +37,9 @@ For the WoS batch route, an explicit SI request maps to `--si`. When an exact ti
 - preserve original attachment names when available;
 - follow a supplementary landing page at most one level deep;
 - exclude external repository links such as GitHub, Zenodo, Figshare, Dryad, and OSF;
-- keep the main PDF and report `si.status = not_found` when no SI exists;
+- report `si.status = not_checked` for a direct full-text URL or any route where no SI landing page was inspected;
+- report `not_found` when the inspected pages contain no SI links, `fetch_failed` when the links could not be retrieved, and `partial` when only some files were saved;
+- on an access check at the article, nested SI page, or attachment, stop the batch and retain the tab. Record the handoff URL and status under `si`, along with files already saved. Keep the main article’s download status and path;
 - report `partial` when some SI files fail without treating the main PDF as failed.
 
 Do not apply the clean per-article folder behavior to CNKI, `--open-access`, bare `--pdf-url`, or direct `--dois` routes.
@@ -58,7 +60,7 @@ For PDFs:
 
 ```powershell
 $env:PYTHONUTF8='1'
-python -X utf8 "$env:USERPROFILE\.claude\skills\this mode\scripts\extract_pdf_text.py" `
+python -X utf8 "$env:USERPROFILE\.claude\skills\research-writing\roles\literature\fulltext\scripts\extract_pdf_text.py" `
   --pdf "D:\path\paper.pdf" `
   --pages 3
 ```
@@ -101,9 +103,7 @@ For project work, keep a folder like:
 
 If direct publisher navigation triggers ScienceDirect "Are you a robot?", Cloudflare, CAPTCHA, or another bot challenge:
 
-- First, attempt automatic verification via `scripts/lib/anti-bot.mjs`.
-- If auto-verification succeeds, continue the download normally.
-- If auto-verification fails, record `verification_auto_failed` or `sciencedirect_robot_check`.
+- Stop immediately and record `publisher_verification_waiting_user` or `sciencedirect_robot_check`.
 - Ask the user to solve it in Chrome.
 - Then continue once from the same now-open page.
 - If the same challenge immediately reappears, mark `do_not_auto_retry` and move on.

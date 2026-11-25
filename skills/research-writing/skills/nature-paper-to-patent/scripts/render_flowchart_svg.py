@@ -4,12 +4,13 @@
 import argparse
 import html
 import json
+import os
 import re
 import textwrap
 from pathlib import Path
 
 
-STEP_PATTERN = re.compile(r"\bS\s*(\d+)\b", re.IGNORECASE)
+STEP_PATTERN = re.compile(r"(?<![A-Za-z0-9_])S\s*([0-9]+)(?![A-Za-z0-9_])", re.IGNORECASE)
 ASCII_ID = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*$")
 VAGUE_FINAL_RESULT = re.compile(r"(技术结果|处理结果|最终结果)")
 
@@ -246,14 +247,20 @@ def load_font(size: int):
     from PIL import ImageFont
 
     candidates = (
+        Path(os.environ.get("PATENT_CJK_FONT", "")),
+        Path("/System/Library/Fonts/Hiragino Sans GB.ttc"),
+        Path("/System/Library/Fonts/PingFang.ttc"),
+        Path("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"),
+        Path("/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc"),
+        Path("/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc"),
         Path(r"C:\Windows\Fonts\simsun.ttc"),
         Path(r"C:\Windows\Fonts\msyh.ttc"),
         Path(r"C:\Windows\Fonts\simhei.ttf"),
     )
     for candidate in candidates:
-        if candidate.exists():
+        if candidate.is_file():
             return ImageFont.truetype(str(candidate), size=size)
-    return ImageFont.load_default()
+    raise ValueError("PNG export needs a Chinese font. Set PATENT_CJK_FONT to a CJK TTF/TTC/OTF file.")
 
 
 def render_png(figure: dict, output: Path) -> None:

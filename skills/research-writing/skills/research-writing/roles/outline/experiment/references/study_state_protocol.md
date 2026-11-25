@@ -6,19 +6,6 @@ source of truth for: artifact schema, the canonical checklist ID map, write
 protocol, resume protocol, validation rules, prompt-injection guard, and
 explicit out-of-scope behaviors for v1.1.0.
 
-When this document and the design spec
-(`docs/specs/2026-05-02-session-resume-design.md`) disagree, the spec wins
-and this document is wrong — open a fix.
-
-<!-- PREAMBLE-NOTE: Sections marked INLINE-FROM-SPEC have parallel
-counterparts in docs/specs/2026-05-02-session-resume-design.md (marked
-ALSO-INLINED-IN there). The two versions describe the same rules but may
-differ in wording, section order, or framing — this doc tunes for agent
-operational use, the spec tunes for design rationale. When editing rule
-semantics on either side, update both. Sentinel pairs let a future grep-
-based check flag pairs whose RULES have drifted (not stylistic
-differences). -->
-
 ## Canonical checklist ID map
 
 The artifact uses the source checklist's `category.item` numbers (1.1
@@ -75,8 +62,6 @@ into `items`.
 
 ## Artifact format
 
-<!-- INLINE-FROM-SPEC: Artifact format -->
-<!-- spec source: docs/specs/2026-05-02-session-resume-design.md "Artifact format" section -->
 Markdown with YAML frontmatter. Same lineage as Material Passport and existing
 `@/roles/outline/experiment/templates/study_protocol.md`.
 
@@ -221,13 +206,11 @@ back into structured fields.
 
 See also `@/roles/outline/experiment/templates/study_state.md` (skeleton) and
 `@/roles/outline/experiment/templates/study_state.example.md` (worked example).
-<!-- /INLINE-FROM-SPEC: Artifact format -->
 
 ## Ethics derivation rules
 
 The 4-state strict-precedence derivation (NOT_YET_ASSESSED → ETHICS_BLOCKED
-→ ETHICS_PENDING → READY) is defined in
-`docs/specs/2026-05-02-session-resume-design.md` "Ethics trust model" section.
+→ ETHICS_PENDING → READY) follows the rules below.
 The agent MUST compute this every turn from the artifact body, not store it
 in frontmatter. `ethics_status` is a derived value: the source of truth is
 the per-item `status` fields in the Ethics Checklist Status YAML block plus
@@ -237,8 +220,6 @@ SUBMITTED) resolve unambiguously — first matching rule wins.
 
 ## IRB approval reconfirmation set
 
-<!-- INLINE-FROM-SPEC: IRB approval reconfirmation set -->
-<!-- spec source: docs/specs/2026-05-02-session-resume-design.md "Affected items on IRB approval" section -->
 When `irb.status` transitions to APPROVED, these item IDs MUST
 be reconfirmed by re-asking the user (cannot be inherited from prior PASS):
 
@@ -257,12 +238,9 @@ approval" section explains the rationale).
 For each reconfirmed item the agent asks: "did the IRB's approval require
 any change to <item label from the ID map above>?" If unchanged, status
 stays PASS with a fresh `answered_at` timestamp.
-<!-- /INLINE-FROM-SPEC: IRB approval reconfirmation set -->
 
 ## Write protocol
 
-<!-- INLINE-FROM-SPEC: Write protocol -->
-<!-- spec source: docs/specs/2026-05-02-session-resume-design.md "Write protocol (every write)" section -->
 Every write follows this 5-step sequence. The agent's prompt enforces it as
 discipline; the runtime provides Read/Write tools.
 
@@ -292,12 +270,9 @@ check → compose → overwrite → read-back validate) catches the common
 failure modes — concurrent writes, partial writes, schema drift — but not
 all of them. A truncated mid-write is the residual risk; PR 1 documents it
 rather than pretending to solve it.
-<!-- /INLINE-FROM-SPEC: Write protocol -->
 
 ## Resume protocol
 
-<!-- INLINE-FROM-SPEC: Resume protocol -->
-<!-- spec source: docs/specs/2026-05-02-session-resume-design.md "Resume protocol" section -->
 User invokes resume with one of:
 
 - `resume <study_id>` → agent first tries `./<study_id>/state.md`; if not
@@ -326,12 +301,9 @@ Why bounded context (step 2): a multi-month study can accumulate hundreds
 of TRACK events. Reading the full log into context every resume wastes
 tokens and risks blowing context on long studies. The full log stays on
 disk for audit; resume only needs the recent picture.
-<!-- /INLINE-FROM-SPEC: Resume protocol -->
 
 ## Validation rules
 
-<!-- INLINE-FROM-SPEC: Validation rules -->
-<!-- spec source: docs/specs/2026-05-02-session-resume-design.md "Validation rules" section -->
 An artifact is INVALID if any of these hold. The agent refuses to operate
 on invalid artifacts (refuses to resume, refuses to write).
 
@@ -350,7 +322,6 @@ on invalid artifacts (refuses to resume, refuses to write).
 
 The agent's failure message MUST tell the user which specific rule failed,
 so the user can decide whether to fix manually or recreate the study.
-<!-- /INLINE-FROM-SPEC: Validation rules -->
 
 ## Prompt-injection guard
 
@@ -371,8 +342,6 @@ hardening (PR 2 or later) may add structural escaping.
 
 ## State-changing turn rule
 
-<!-- INLINE-FROM-SPEC: State-changing turn rule -->
-<!-- spec source: docs/specs/2026-05-02-session-resume-design.md "State-changing turn rule" section -->
 The agent writes to the artifact only on **state-changing turns**. A turn is
 state-changing if any of these are true:
 
@@ -401,12 +370,9 @@ Worked examples:
 5. User says "IRB approved, here's the protocol number" → write (ethics
    transition + category-based reconfirmation triggered, see "IRB approval
    reconfirmation set" above)
-<!-- /INLINE-FROM-SPEC: State-changing turn rule -->
 
 ## Out-of-scope behaviors for v1.1.0 (PR 1)
 
-<!-- INLINE-FROM-SPEC: Out-of-scope behaviors -->
-<!-- spec source: docs/specs/2026-05-02-session-resume-design.md "Out-of-scope behaviors (PR 1 explicit non-handling)" section -->
 These situations have **defined refusal behavior**, not graceful recovery.
 PR 2 may add recovery. The agent MUST surface the refusal explicitly to
 the user; silent failure is a bug.
@@ -420,7 +386,6 @@ the user; silent failure is a bug.
 | Slug collision (different study at default path) | Refuse. Ask user for new path or new study_id. |
 | Multi-study concurrent in same workspace | Out of scope for v1.1.0. PR 2. |
 | Explicit ethics-upgrade command | Out of scope. v1.1.0 handles ethics transitions through the natural ETHICS phase flow. |
-<!-- /INLINE-FROM-SPEC: Out-of-scope behaviors -->
 
 ## Schema versioning
 

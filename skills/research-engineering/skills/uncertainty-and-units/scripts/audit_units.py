@@ -239,31 +239,34 @@ class Auditor(ast.NodeVisitor):
 
     # --- string literals ---------------------------------------------------
 
+    def _check_unit_tokens(self, node: ast.AST, unit_text: str) -> None:
+        tokens = _tokens(unit_text)
+        if any(token.startswith("delta_") for token in tokens):
+            self.saw_delta_unit = True
+        if tokens & OFFSET_UNIT_TOKENS:
+            self.report(
+                node,
+                "UNIT002",
+                "medium",
+                "offset temperature unit used; pint refuses to multiply or add "
+                "degC/degF quantities because the operation is ambiguous",
+                "express temperature differences in delta_degC, or build the "
+                "registry with UnitRegistry(autoconvert_offset_to_baseunit=True)",
+            )
+        if tokens & LOGARITHMIC_UNIT_TOKENS:
+            self.report(
+                node,
+                "UNIT004",
+                "medium",
+                "logarithmic unit used; adding two pint quantities in dB or dBm "
+                "multiplies the underlying linear quantities instead of summing "
+                "them, and reports the product in squared base units",
+                "convert to a linear unit before arithmetic, then convert back",
+            )
+
     def visit_Constant(self, node: ast.Constant) -> None:
         if isinstance(node.value, str):
-            tokens = _tokens(node.value)
-            if any(token.startswith("delta_") for token in tokens):
-                self.saw_delta_unit = True
-            if tokens & OFFSET_UNIT_TOKENS:
-                self.report(
-                    node,
-                    "UNIT002",
-                    "medium",
-                    "offset temperature unit used; pint refuses to multiply or add "
-                    "degC/degF quantities because the operation is ambiguous",
-                    "express temperature differences in delta_degC, or build the "
-                    "registry with UnitRegistry(autoconvert_offset_to_baseunit=True)",
-                )
-            if tokens & LOGARITHMIC_UNIT_TOKENS:
-                self.report(
-                    node,
-                    "UNIT004",
-                    "medium",
-                    "logarithmic unit used; adding two pint quantities in dB or dBm "
-                    "multiplies the underlying linear quantities instead of summing "
-                    "them, and reports the product in squared base units",
-                    "convert to a linear unit before arithmetic, then convert back",
-                )
+            self._check_unit_tokens(node, node.value)
         elif isinstance(node.value, (int, float)) and not isinstance(node.value, bool):
             self._check_constant_literal(node, float(node.value))
         self.generic_visit(node)
@@ -290,6 +293,7 @@ class Auditor(ast.NodeVisitor):
     # --- attribute access --------------------------------------------------
 
     def visit_Attribute(self, node: ast.Attribute) -> None:
+        self._check_unit_tokens(node, node.attr)
         if node.attr == "magnitude":
             source = node.value
             preserved = (

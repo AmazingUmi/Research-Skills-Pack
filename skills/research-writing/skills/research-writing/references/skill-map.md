@@ -55,10 +55,10 @@
 
 | 角色 | 严格模式内容 | 文件 |
 | --- | --- | --- |
-| 审稿 | 两次调用的 sprint contract、席位执行来源记录、re-review 三道门合约 | `review/panel/strict/` |
-| 审稿 | 补丁式改稿 | `review/revise/references/revision_patch_protocol.md` |
-| 正文 | 生成—评估合约 | `draft/paper/strict/` |
-| 编排 | Material Passport、断点重置、引文来源终审 | `orchestrate/strict/` |
+| 审稿 | 两次调用的 sprint contract、席位执行来源记录、re-review 三道门合约 | `roles/review/panel/strict/` |
+| 审稿 | 补丁式改稿 | `roles/review/revise/references/revision_patch_protocol.md` |
+| 正文 | 生成—评估合约 | `roles/draft/paper/strict/` |
+| 编排 | Material Passport、断点重置、引文来源终审 | `roles/orchestrate/strict/` |
 | 共用 | 交接 schema、合约模板、校验脚本 | `engine/` |
 
 严格模式脚本需要 Python 3 与 `engine/requirements.txt` 中的依赖。

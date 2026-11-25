@@ -4,8 +4,8 @@
 
 - [Goal](#goal)
 - [Pre-Writing Questions (Important)](#pre-writing-questions-important)
-- [Version 1: Challenge -> Contribution](#version-1-challenge-contribution)
-- [Version 2: Challenge -> Insight -> Contribution](#version-2-challenge-insight-contribution)
+- [Version 1: Challenge -> Contribution](#version-1-challenge---contribution)
+- [Version 2: Challenge -> Insight -> Contribution](#version-2-challenge---insight---contribution)
 - [Version 3: Multiple Contributions](#version-3-multiple-contributions)
 - [Example Bank](#example-bank)
 - [Abstract Quality Checklist](#abstract-quality-checklist)

@@ -188,4 +188,4 @@ Delivery thresholds:
 - Require at least 3 for enablement detail.
 - Require no unresolved structural errors from `scripts/audit_claims.py`.
 
-If a threshold is missed, label the output `incomplete draft` and list the exact inventor input needed to improve it.
+If a threshold is missed, label the output `incomplete-draft` and list the exact inventor input needed to improve it.

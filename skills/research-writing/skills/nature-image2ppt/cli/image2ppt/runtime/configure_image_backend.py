@@ -43,10 +43,9 @@ def backend_contract(args):
     if is_builtin:
         contract.update(
             {
-                "fallback_order": ["codex-oauth", "openai-compatible-api"],
+                "fallback_order": ["openai-compatible-api"],
                 "fallback_selection_policy": (
-                    "auto uses codex-oauth only for GPT Image model ids with compatible auth; "
-                    "all other model ids use openai-compatible-api"
+                    "auto uses openai-compatible-api; codex-oauth requires explicit selection"
                 ),
                 "required_parameters": {
                     "generate": ["prompt"],

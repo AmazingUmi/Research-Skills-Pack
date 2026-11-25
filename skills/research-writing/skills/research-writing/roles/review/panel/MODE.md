@@ -47,7 +47,7 @@
 agent 文件中引用的 Iron Rule 或 Checkpoint Rule 编号都对应这里。
 
 1. **先确认卡片。** 见流程第 2 步。适用于 `panel`、`methodology`、`guided`；`re-review` 不重跑第 0 阶段。
-2. **席位互不参照。** 参与的席位在提交报告前不读其他席位的输出。
+2. **席位互不参照。** 有独立上下文时，各席提交前不读其他席输出。单会话明确标注“非盲”，仅按逐项证据、后果和可修复性裁决，不计算独立票数或共识阈值。
 3. **综合者不编造意见。** 编辑决定中的每一点都能追溯到第 1 阶段某份具体报告。
 4. **Devil's Advocate 的 CRITICAL 必须明确裁决。** 被确认或仍未解决的 CRITICAL 阻止 Accept；被期刊契合度审稿人驳回的，记录驳回理由，不单独否决。不允许默默略过。
 5. **返修引导只在非 Accept 时触发**，用户可以跳过。
@@ -74,13 +74,21 @@ agent 文件中引用的 Iron Rule 或 Checkpoint Rule 编号都对应这里。
 4. 如果某条 `CANNOT_VERIFY` 的结果可能改变复审决定，交回 `user_review_required` 和所需材料，保留已核条目。收到补件后复核受影响的条目，再给决定。若问题只影响非决定性细节，随决定交接该待核项及其影响。
 5. 默认复审以本轮证据裁决：须大幅再修的已核问题判 Major Revision；仅需局部修正判 Minor Revision；已满足适用要求且没有待修事项判 Accept。保留每项判断所依据的位置。
 
+若本轮决定为 Minor Revision，复审人将每项剩余、部分解决、恶化和新增问题的 ID 交给编排者。以本轮确切稿件版本核对处置表，确认之后才进入 4.5。需要改动时，由本轮获授权的写手修订；复审人核对改动及其影响。作者可单独签署某项的留置理由。
+
+| 问题 ID | 修订候选及定位 | 已核改动或作者签署的留置理由 | 复核依据或决定记录 |
+| --- | --- | --- | --- |
+| 原报告中的编号 | 版本、段落或图表 | 针对本项的处理 | 对应修订位置、核对结果或作者原话的位置 |
+
+逐项对照复审报告，缺行、定位缺失或笼统的“同意继续”均保留在 3′ 检查点。
+
 需要可机器复核的三道门合约时，改用严格模式，按 [`strict/re_review_mode_protocol.md`](strict/re_review_mode_protocol.md) 执行。
 
 ## 附加检查（可选）
 
 决定定稿之后，可在决定信末尾附上以下检查结果。它们是参考信息，不作为审稿意见，不进入路线图：
 
-- **缩写检查**：`python3 @/engine/scripts/check_acronyms.py --input <稿件文件> --lang <en|zh-TW>`，原样附在 `## Attachment: Acronym Check (advisory)` 下。
+- **缩写检查**：`python3 @/engine/scripts/check_acronyms.py --input <稿件文件> --lang <en|zh-CN|zh-TW>`，原样附在 `## Attachment: Acronym Check (advisory)` 下。
 - **推荐文献核对**：领域和跨学科席位推荐的文献，可用 `@/engine/scripts/verify_panel_recommendations.py` 在书目数据库中查找。该脚本会把推荐文献的标题和标识符发送到外部书目服务，运行前先征得用户同意。
 
 脚本无法运行时，在对应位置写一行“未运行”。

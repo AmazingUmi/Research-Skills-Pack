@@ -1,10 +1,13 @@
 # Review Critique Methodology
 
+在开题技能中，本参考仅用于申请书或研究计划的文献综述章节。独立综述设计与已有稿件审阅按技能入口分派。
+
+
 ## When to Load
 
-Use this reference when the user asks you to **evaluate** an existing review/survey paper for quality — not to write one, but to assess critical depth, narrative coherence, analytical voice, and research gap insight.
+Use this reference when auditing or strengthening the **literature-review / state-of-the-art section** of an existing research proposal or opening report — assessing critical depth, narrative coherence, analytical voice, and research gap insight before proposal revision. For evaluating a standalone review or survey manuscript, delegate to `$research-writing review`.
 
-Load alongside the base `nature-proposal-writer` SKILL.md. This reference provides the evaluation framework; the base SKILL provides the research context (domain defaults, project structure, etc.).
+Load alongside the base `nature-proposal-writer` SKILL.md. This reference provides the literature-synthesis rubric; the base SKILL provides the proposal context (domain defaults, project structure, etc.).
 
 ## Contents
 

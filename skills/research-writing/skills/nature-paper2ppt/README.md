@@ -35,10 +35,10 @@
 
 - 不会把论文内容改写成无法回溯来源的泛泛介绍。
 - 图像质量不足、PDF 扫描质量差或原图无法提取时，会说明替代方案。
-- 如果任务是全文翻译或逐段阅读，优先使用 `nature-reader`。
+- 如果任务是全文翻译或逐段阅读，优先使用 `$research-writing literature read`。
 
 ## 相关技能
 
-- `nature-reader`：先建立全文中英对照和图表 source map。
-- `nature-figure`：重画汇报中的机制图或方法图。
+- `$research-writing literature read`：先建立全文中英对照和图表 source map。
+- `$research-writing figures make`：重画汇报中的机制图或方法图。
 - `presentations`：对生成的 PPTX 做进一步版式编辑。

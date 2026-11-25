@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """Unified CLI for image2ppt image generation or editing.
 
-The CLI prefers local Codex OAuth auth when ~/.codex/auth.json is available.
-If Codex auth is missing, it falls back to OpenAI-compatible API credentials
-from the environment or the active Image2PPT config.yaml.
+Auto uses the configured OpenAI-compatible API. The codex-oauth backend requires explicit selection.
 """
 
 from __future__ import annotations
@@ -71,8 +69,7 @@ CHATGPT_ACCOUNT_ID_CLAIM = "chatgpt_account_id"
 
 IMAGE_HELP_EPILOG = """\
 Backend selection:
-  auto: uses Codex OAuth only for GPT Image model ids when compatible auth is
-  available; every other model uses the configured OpenAI Images-compatible API.
+  auto: uses the configured OpenAI Images-compatible API.
   codex-oauth: explicitly uses ~/.codex/auth.json or CODEX_AUTH_FILE.
   openai-compatible-api: explicitly uses OPENAI_API_KEY, OPENAI_BASE_URL, and
   an arbitrary provider image model id. It never receives Codex OAuth credentials.
@@ -109,8 +106,7 @@ Output:
 
 GENERATE_HELP_EPILOG = """\
 Backend:
-  Uses --backend or IMAGE2PPT_IMAGE_BACKEND. In auto mode, Codex OAuth is used
-  only for GPT Image model ids; other model ids use the OpenAI-compatible API.
+  Uses --backend or IMAGE2PPT_IMAGE_BACKEND. Auto uses the configured OpenAI-compatible API.
 
 Use for:
   New supporting images that do not need to preserve an existing slide object.
@@ -122,8 +118,7 @@ Examples:
 
 EDIT_HELP_EPILOG = """\
 Backend:
-  Uses --backend or IMAGE2PPT_IMAGE_BACKEND. In auto mode, Codex OAuth is used
-  only for GPT Image model ids; other model ids use the OpenAI-compatible API.
+  Uses --backend or IMAGE2PPT_IMAGE_BACKEND. Auto uses the configured OpenAI-compatible API.
 
 Use for:
   Background cleanup, clean base creation, foreground icon extraction, and
@@ -180,7 +175,7 @@ def _load_runtime_env() -> None:
     if not isinstance(data, dict):
         _die(f"Invalid config file: {path}")
     for key, value in data.items():
-        if key not in ENV_FIELDS or os.getenv(key):
+        if key not in ENV_FIELDS or key in os.environ:
             continue
         os.environ[key] = str(value)
 
@@ -232,10 +227,6 @@ def _select_backend(backend: str, model: str) -> str:
             )
         if not _codex_available():
             _die(f"Codex OAuth auth is missing. Expected {_codex_auth_file()}.")
-        return BACKEND_CODEX_OAUTH
-    if backend == BACKEND_OPENAI_COMPATIBLE:
-        return BACKEND_OPENAI_COMPATIBLE
-    if _is_codex_compatible_model(model) and _codex_available():
         return BACKEND_CODEX_OAUTH
     return BACKEND_OPENAI_COMPATIBLE
 
@@ -1009,7 +1000,7 @@ def _add_shared_args(
     parser.add_argument(
         "--backend",
         choices=sorted(ALLOWED_BACKENDS),
-        default=_default_backend(),
+        default=None,
         help=(
             "Image transport backend. Defaults to IMAGE2PPT_IMAGE_BACKEND or auto. "
             "Use openai-compatible-api for provider-specific models."
@@ -1081,6 +1072,10 @@ asset sheets in image2ppt runs.
     _validate_model(args.model)
     _validate_size(args.size, args.model)
     _validate_quality(args.quality)
+    if args.backend is None:
+        args.backend = _default_backend()
+        if args.backend == BACKEND_CODEX_OAUTH:
+            _die("Pass --backend codex-oauth for this request to authorize use of Codex credentials.")
     args.selected_backend = _select_backend(args.backend, args.model)
     if args.selected_backend == BACKEND_OPENAI_COMPATIBLE:
         _ensure_api_key(args.dry_run)

@@ -1,6 +1,6 @@
 # Revise mode
 
-Use when the user provides existing proposal text, a paper or proposal section, or a full research-plan draft.
+Use when the user provides existing proposal text, a section of an application, or a full research-plan draft.
 
 ## Contents
 
@@ -63,7 +63,7 @@ Type: evidence-backed / plausible-inference / hypothesis / unsupported
 Evidence cited: [what the text cites, or "none"]
 ```
 
-**Minimum**: extract ≥ 5 claims for a single section, ≥ 15 for a full proposal.
+Extract the distinct substantive claims actually present, including supported claims. A short scheduling section may have only one or two. For a full proposal, check every section and give locations so coverage can be verified.
 
 **Pitfalls**:
 - Claim extraction is mechanical, not judgmental. Extract first, judge later. Don't skip claims that "seem fine."

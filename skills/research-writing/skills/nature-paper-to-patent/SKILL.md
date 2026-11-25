@@ -23,6 +23,8 @@ State the detected values in one short line. Load only the matching fragments
 declared in the manifest. Load detailed references only when their condition
 applies.
 
+Before online prior-art search, obtain approval for the actual terms and receiving sites. Use local material until approved.
+
 ## 2. Preserve source grounding
 
 Create stable source IDs before drafting:
@@ -92,8 +94,10 @@ python scripts/validate_patent_draft.py draft.json
 python scripts/build_patent_package.py draft.json --output-dir outputs --prefix patent
 ```
 
+A rejected draft or claim audit prints its diagnostic paths before rendering any figures or documents. A repeat failure saves diagnostics in a fresh subdirectory when report names already exist. Use the output of a successful build for delivery.
+
 Resolve all validation `ERROR` findings. Review every `WARNING` against the
-source. Label the result `incomplete draft` when a required quality threshold
+source. Label the result `incomplete-draft` when a required quality threshold
 in `static/core/output-contract.md` is not met.
 
 For technical disclosures, run the internal checks in

@@ -17,7 +17,7 @@ apply whether or not the run declares `output_language_pair`: that field selects
 the abstract surfaces use, not which figures apply.
 
 <!-- abstract-regime-table:start -->
-| Paper type | L1 abstract (`zh-TW`, CJK) | L2 abstract (`en`) | Keywords per language |
+| Paper type | L1 abstract (Simplified or Traditional Chinese, CJK) | L2 abstract (`en`) | Keywords per language |
 |------------|---------------------------|--------------------|-----------------------|
 | Standard | 300–500 characters | 150–250 words | 5–7 |
 | Conference | 300–800 characters | 200–500 words | 5–7 |
@@ -54,12 +54,7 @@ Quality Checklist` restated in conflict with the Standard row (English 150–300
 the surfaces (150–250 vs 150–300 English words, a fixed 250 vs a range, 3–6 vs 5–7 keywords)
 resolves to this one table, not a vote among copies.
 
-The rows cover the default entry `zh-tw-en`. Phase 1 carries the regime rows for the default entry
-only; a pack-supplied entry ships its own regime rows with the Phase-2 registry loader of
-[`@/references/output_language_pair.md`](../../../../references/output_language_pair.md), which carries the
-registry, the language roles, and the field semantics — not these figures. The writing-pattern
-examples further down are English- and Traditional-Chinese-language guidance and therefore apply
-to the default pair.
+Both registered Chinese-English pairs use the CJK L1 and English L2 regimes above.
 
 ## Abstract Types
 

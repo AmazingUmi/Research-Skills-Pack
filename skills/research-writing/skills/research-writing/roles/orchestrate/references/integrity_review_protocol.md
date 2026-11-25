@@ -77,12 +77,11 @@ never mint a marker, trigger a gate, or supply replacement text.
 
 ## Cross-Document Consistency Advisory Boundary
 
-is not a sixth integrity phase. After the same exact Stage 4.5 PASS, it runs
-second, after, inside the one existing mandatory Stage-5 entry checkpoint.
-Both bind the identical accepted draft: 's
-`input_binding.artifact.artifact_id/artifact_sha256` must equal's
-`input_binding.accepted_draft_artifact_id/accepted_draft_sha256`. Their
-independent carriers and failure semantics must not be merged.
+After Stage 4.5 passes, run the cross-document consistency advisory after
+tortured-phrase screening at the Stage 5 entry checkpoint. Bind both to the
+same accepted draft. Match the screening record's
+`input_binding.artifact.artifact_id/artifact_sha256` to the consistency record's
+`input_binding.accepted_draft_artifact_id/accepted_draft_sha256`.
 
 Before observations are consumed, the finalizer replay-validates the exact
 builder-produced `preregistration-artifact/1.0` sidecar, its provided companion,
@@ -96,8 +95,7 @@ gate, issue-count effect, ClaimIntent, rewrite authority, consent/protocol
 duplicate, or agreement/clean meaning. A contract failure writes no carrier
 and leaves only bounded `ADVISORY_UNAVAILABLE:<CODE>`; it does not change the
 Stage 4.5 verdict, block or delay the checkpoint, enter Phase E, or change
-formatter/Stage-5 routing. A later manuscript revision stales both and
-and must re-enter integrity before both rerun in fixed order.
+formatter/Stage-5 routing. A later manuscript revision invalidates both records and must re-enter integrity before both rerun in fixed order.
 
 ## Criterion Trajectory Tracking
 

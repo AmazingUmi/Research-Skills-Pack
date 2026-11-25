@@ -62,3 +62,11 @@
 ## 交回正文角色
 
 稿件由正文角色作为唯一写入者整合。交回时附：稿件版本与改动范围、关键主张及所用证据（主张 ID）、引用键与图件键、仍待核的问题。
+
+## abstract
+
+依据原稿或已核实的结果、目标期刊和正文语言，调用 [intake](agents/intake_agent.md) 确定语种、篇幅与关键词数，再由 [abstract_bilingual](agents/abstract_bilingual_agent.md) 交付独立摘要及关键词。缺少结果时标明缺项。
+
+## format-convert
+
+确认输入版本、目标格式及期刊模板，调用 [formatter](agents/formatter_agent.md) 在单独输出路径转换，核对引用、公式、图表和语言后交付。原稿作为转换基线保留。

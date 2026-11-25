@@ -16,7 +16,7 @@ These are the internal phases of `draft full`. On an orchestrated Stage 2 dispat
 - Output format (LaTeX / DOCX / PDF / Markdown / Combined)
 - Body language (requested manuscript language(s) and script)
 - Abstract cardinality (Bilingual / EN-only / manuscript-language-only) — cardinality only; it does not select which languages
-- Output language pair (`output_language_pair`) — the two abstract languages, from the registry in `@/references/output_language_pair.md`; default `zh-tw-en`, per-run override; the PCR row is omitted when the run declares none
+- Output language pair from the PCR: use the explicitly selected pair or the manuscript-language default in `@/references/output_language_pair.md`.
 - Word count target
 - Existing materials (RQ, data, drafts, lit)
 
@@ -90,7 +90,7 @@ These are the internal phases of `draft full`. On an orchestrated Stage 2 dispat
 - Format compliance (per selected style)
 - DOI/URL verification
 - Self-citation ratio check
-- Auto-correction of detected errors
+- Location-specific proposed corrections for the sole manuscript writer
 
 ### Phase 5b: Abstract
 
@@ -98,10 +98,10 @@ These are the internal phases of `draft full`. On an orchestrated Stage 2 dispat
 **Output**: Bilingual Abstract + Keywords (both languages of the run's declared output language pair)
 
 - L2 abstract (default: English), structured — length from the regime table ([`abstract_writing_guide.md`](abstract_writing_guide.md), run's paper type)
-- L1 abstract (default: Traditional Chinese), structured — length from the same regime table
+- L1 abstract (Simplified or Traditional Chinese, following the selected pair), structured — length from the same regime table
 - L2 keywords, count from the same regime table
 - L1 keywords, same declared count
-- Headings and report columns are pair-derived; for the default pair `zh-tw-en` they render exactly as `### English Abstract` / `### Chinese Abstract`
+- Use English Abstract and the pair-specific Chinese Abstract (zh-CN) or legacy Chinese Abstract from the selected pair and keep the matching keyword key.
 - Independent writing (not mechanical translation)
 - Field absent → default pair; the heading literals are unchanged from the earlier surface (no rendered-output equivalence is claimed)
 - Acronym check on the saved abstracts ([`writing_quality_check.md`](writing_quality_check.md) § F)

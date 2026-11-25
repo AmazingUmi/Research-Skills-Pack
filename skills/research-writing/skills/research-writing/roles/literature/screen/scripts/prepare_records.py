@@ -136,21 +136,6 @@ def main():
                     union(i, j, key)
             else:
                 seen[v] = i
-    seen = {}
-    for i, r in enumerate(all_recs):
-        nt = ntitle[i]
-        if len(nt) < 25:
-            continue
-        k = (nt, r["year"])
-        for j in seen.get(k, []):
-            union(i, j, "title+year")
-        seen.setdefault(k, []).append(i)
-        if r["year"].isdigit():
-            for dy in (-1, 1):
-                k2 = (nt, str(int(r["year"]) + dy))
-                for j in seen.get(k2, []):
-                    union(i, j, "title+year(+-1)")
-
     groups = collections.defaultdict(list)
     for i in range(len(all_recs)):
         groups[find(i)].append(i)
@@ -183,6 +168,20 @@ def main():
     width = srlib.id_width(len(unique))
     for n, u in enumerate(unique, 1):
         u["id"] = "R" + str(n).zfill(width)
+
+    # Title similarity alone is insufficient to merge two works, even in the same year.
+    by_title = collections.defaultdict(list)
+    candidates = []
+    for u in unique:
+        title = srlib.norm_title(u["title"])
+        if len(title) < 25:
+            continue
+        for other in by_title[title]:
+            if u["year"].isdigit() and other["year"].isdigit() and abs(int(u["year"]) - int(other["year"])) > 1:
+                continue
+            candidates.append({"first": other["id"], "second": u["id"], "reason": "matching normalized title"})
+        by_title[title].append(u)
+    srlib.save_json(os.path.join(work, "candidate_duplicates.json"), candidates, indent=1)
 
     # ----------------------------------------------------------------- batches
     bcfg = cfg["batching"]

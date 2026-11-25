@@ -87,6 +87,22 @@ class PaddleHttpRegressionTests(unittest.TestCase):
             ):
                 self.assertEqual(deck_text_hints.paddle_token(), "environment-token")
 
+    def test_empty_token_suppresses_saved_config(self):
+        with patch.dict(os.environ, {"PADDLE_OCR_TOKEN": ""}), patch.object(
+            runtime_env, "read_config_file", side_effect=AssertionError("unexpected credential lookup")
+        ):
+            self.assertEqual(deck_text_hints.paddle_token(), "")
+
+    def test_default_run_uses_local_hints_without_credential_lookup(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            run = Path(tmp) / "run"
+            page = write_run(run)
+            with patch.object(deck_text_hints, "paddle_token", side_effect=AssertionError("unexpected lookup")), patch.object(
+                deck_text_hints, "paddle_pages", side_effect=AssertionError("unexpected upload")
+            ), patch.object(sys, "argv", ["deck_text_hints.py", str(run), "--no-overlay"]):
+                self.assertEqual(deck_text_hints.main(), 0)
+            self.assertEqual(json.loads((page / "text_hints.json").read_text())["backend"], "builtin-ink")
+
     def test_submit_parameters_and_normal_jsonl_result(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "page.png"
@@ -104,8 +120,8 @@ class PaddleHttpRegressionTests(unittest.TestCase):
             }
             result_file = FakeResponse(text=json.dumps(payload) + "\n")
             with patch.object(paddle_text_hints.requests, "post", return_value=submitted) as post, patch.object(
-                paddle_text_hints.requests, "get", side_effect=[status, result_file]
-            ) as get:
+                paddle_text_hints.requests, "get", return_value=status
+            ) as get, patch.object(paddle_text_hints, "fetch_result_text", return_value=result_file.text):
                 pages = paddle_text_hints.submit_and_fetch(source, "secret-token", "PaddleOCR-VL-1.6", 30)
             self.assertEqual(len(pages), 1)
             self.assertEqual(post.call_args.args[0], paddle_text_hints.JOB_URL)
@@ -113,7 +129,7 @@ class PaddleHttpRegressionTests(unittest.TestCase):
             self.assertEqual(post.call_args.kwargs["data"]["model"], "PaddleOCR-VL-1.6")
             optional = json.loads(post.call_args.kwargs["data"]["optionalPayload"])
             self.assertEqual(optional["useDocOrientationClassify"], False)
-            self.assertEqual(get.call_count, 2)
+            self.assertEqual(get.call_count, 1)
 
     def test_empty_result_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -127,7 +143,8 @@ class PaddleHttpRegressionTests(unittest.TestCase):
                 paddle_text_hints.requests,
                 "post",
                 return_value=FakeResponse(payload={"data": {"jobId": "empty-job"}}),
-            ), patch.object(paddle_text_hints.requests, "get", side_effect=responses):
+            ), patch.object(paddle_text_hints.requests, "get", return_value=responses[0]), patch.object(
+                paddle_text_hints, "fetch_result_text", return_value=responses[1].text):
                 with self.assertRaisesRegex(RuntimeError, "returned no pages"):
                     paddle_text_hints.submit_and_fetch(source, "token", paddle_text_hints.DEFAULT_MODEL, 30)
 
@@ -195,7 +212,7 @@ class PaddleHttpRegressionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             run = Path(tmp) / "run"
             page = write_run(run)
-            argv = ["deck_text_hints.py", str(run), "--no-overlay"]
+            argv = ["deck_text_hints.py", str(run), "--ocr", "cloud", "--no-overlay"]
             with patch.object(deck_text_hints, "paddle_token", return_value="configured-token"), patch.object(
                 deck_text_hints, "paddle_pages", side_effect=RuntimeError("mock endpoint failure")
             ), patch.object(sys, "argv", argv):
@@ -305,16 +322,15 @@ class PaddleHttpRegressionTests(unittest.TestCase):
             result = {"result": {"layoutParsingResults": [{"prunedResult": pruned}]}}
             with patch.object(paddle_text_hints.requests, "post", return_value=FakeResponse(
                 payload={"data": {"jobId": "conversion-regression"}},
-            )), patch.object(paddle_text_hints.requests, "get", side_effect=[
-                FakeResponse(payload={"data": {"state": "done", "resultUrl": {"jsonUrl": result_url}}}),
-                FakeResponse(text=json.dumps(result)),
-            ]) as get:
+            )), patch.object(paddle_text_hints.requests, "get", return_value=
+                FakeResponse(payload={"data": {"state": "done", "resultUrl": {"jsonUrl": result_url}}})
+            ) as get, patch.object(paddle_text_hints, "fetch_result_text", return_value=json.dumps(result)) as fetch:
                 results = paddle_text_hints.submit_and_fetch(
                     page / "source.png", "fixture-token", paddle_text_hints.DEFAULT_MODEL, 30,
                 )
             self.assertEqual(results, [pruned])
-            self.assertEqual(get.call_count, 2)
-            get.assert_called_with(result_url, timeout=60)
+            self.assertEqual(get.call_count, 1)
+            fetch.assert_called_once_with(result_url)
             hints = paddle_text_hints.build_page_hints(page, results[0])
             self.assertEqual(hints["backend"], "paddleocr-vl")
             self.assertEqual([line["text"] for line in hints["lines"]], ["示例文本"])
